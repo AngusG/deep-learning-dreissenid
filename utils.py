@@ -3,6 +3,8 @@ import numpy as np
 
 
 def line_intersection(line1, line2):
+    """Return the intersection between two lines 
+    given two points from each."""
     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
     ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
 
@@ -19,13 +21,50 @@ def line_intersection(line1, line2):
     return x, y
 
 
-def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1):
+def get_intersection_pts(coords, img_w, img_h):
+    """Finds intersections between points in coords,
+    and performs basic error checking."""
     
-    # @param rho Distance resolution of the accumulator (pixels).
-    # @param theta Angle resolution of the accumulator (radians).
-    # @param threshold Accumulator threshold, return lines with more than threshold of votes. (intersection points)
-    # @param minLineLength Minimum line length. Line segments shorter than that are rejected. (pixels)
-    # @param maxLineGap Maximum allowed gap between points on the same line to link them. (pixels)
+    X  ,   Y = 0, 1
+    DP1, DP2 = 0, 1
+    
+    corners = []
+    for i in range(len(coords)):
+        for j in range(i + 1, len(coords)):
+            intersection = line_intersection(
+                (coords[i, DP1], coords[i, DP2]), 
+                (coords[j, DP1], coords[j, DP2])
+            )
+            # check if intersection is a valid corner
+            if intersection is not None:
+                cond1 = 0 < intersection[X] and intersection[X] < img_w
+                cond2 = 0 < intersection[Y] and intersection[Y] < img_h
+                if cond1 and cond2:
+                    corners.append(intersection)
+    return np.asarray(corners)
+
+
+def compute_pairwise_distances(points):
+    """Returns distance between all points"""
+    distances = []
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            distances.append((i, j, int(np.linalg.norm(points[i] - points[j]))))
+    return np.asarray(distances)
+
+
+def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1):
+    """Draw Hough lines and corner points on image 'im'
+    
+    @param rho -- Distance resolution of the accumulator (pixels).
+    @param theta -- Angle resolution of the accumulator (radians).
+    @param threshold -- Accumulator threshold, return lines with 
+                        more than threshold of votes. (intersection points)
+    @param minLineLength -- Minimum line length. Line segments shorter than 
+                            that are rejected. (pixels)
+    @param maxLineGap -- Maximum allowed gap between points on the same line 
+                         to link them. (pixels)
+    """
     DP1, DP2 = 0, 1
     X, Y = 0, 1
     
@@ -45,11 +84,11 @@ def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1)
 
     # @param canny_threshold1 Histeresis threshold 1
     # @param canny_threshold2
-    canny_thresh1 = 20
+    canny_thresh1 = 30
     canny_thresh2 = 300
 
     # run the Canny edge detector on the rotated gray scale image
-    edges = cv2.Canny(img, threshold1=canny_thresh1, threshold2=canny_thresh2, L2gradient=False)
+    edges = cv2.Canny(img, threshold1=canny_thresh1, threshold2=canny_thresh2, L2gradient=True)
 
     # run the probabilistic hough lines transform
     linesP = cv2.HoughLinesP(edges, rho, theta, threshold=threshold, minLineLength=mll, maxLineGap=mlg)
@@ -92,7 +131,7 @@ def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1)
         for i in range(len(corners_np)):
             cv2.circle(img, ( int(corners_np[i, 0]), int(corners_np[i, 1]) ), 10, 
                        (0, 0, 255), thickness=2, lineType=8, shift=0)
-        
+        '''
         if len(corners_np) > 3:
             centroid = corners_np.mean(axis=0, keepdims=True)[0]
             corner_dist = np.linalg.norm(corners_np - centroid, axis=1)
@@ -106,7 +145,7 @@ def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1)
             for i in range(len(crop)):
                 cv2.circle(img, ( int(crop[i, 0]), int(crop[i, 1]) ), 10, 
                            (255, 255, 255), thickness=2, lineType=8, shift=0)
+        '''
 
-    return img
-
+    return img, edges
 
