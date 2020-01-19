@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader
 # import an off-the-shelf model for now
 from torchvision.models import segmentation as models
 
-def checkpoint(loss, epoch):
+def save_checkpoint(loss, epoch):
     # Save checkpoint.
     print('Saving..')
     state = {
@@ -43,6 +43,8 @@ if __name__ == '__main__':
                         type=str, default='/scratch/ssd/cciw/')
     parser.add_argument('--logdir', help='directory to store checkpoints; \
                         if None, nothing will be saved')
+    parser.add_argument("--resume", default="", type=str,
+                        help="path to latest checkpoint (default: none)")
     parser.add_argument('--do_print', help="print ongoing training progress",
                         action="store_true")
     parser.add_argument('--gpu', help='physical id of GPU to use')
@@ -102,8 +104,22 @@ if __name__ == '__main__':
     *channel* rather than the *value* encodes the class, but this would
     require a one-hot label format.
     """
-    #net = fcn_resnet50(num_classes=1).to(device)
-    net = models.__dict__[args.arch](num_classes=1).to(device)
+
+    # Optionally resume from existing checkpoint
+    if args.resume:
+        if os.path.isfile(args.resume):
+            # Load checkpoint.
+            print('==> Resuming from checkpoint..')
+            #checkpoint_file = os.path.join(args.resume, 'checkpoint/ckpt.t7.') + \
+            #                  args.sess + '_' + str(args.seed)
+            checkpoint = torch.load(args.resume)
+            net = checkpoint['net']
+            best_acc = checkpoint['loss']
+            start_epoch = checkpoint['epoch'] + 1
+            torch.set_rng_state(checkpoint['rng_state'])
+    else:
+        print("=> creating model '{}'".format(args.arch))
+        net = models.__dict__[args.arch](num_classes=1).to(device)
 
     # Prepare training procedure
     optimizer = torch.optim.SGD(
@@ -131,4 +147,4 @@ if __name__ == '__main__':
             logwriter = csv.writer(logfile, delimiter=',')
             logwriter.writerow(
                 [epoch, args.lr, np.round(train_loss, 4)])
-    checkpoint(loss, epoch)
+    save_checkpoint(train_loss, epoch)
