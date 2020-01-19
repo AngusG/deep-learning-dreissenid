@@ -1,3 +1,7 @@
+"""
+task_3_train.py -- trains fully-convolutional networks to perform semantic
+segmentation on novel mussel dataset.
+"""
 # general
 import os
 import csv
@@ -6,8 +10,13 @@ import numpy as np
 # ml libs
 import torch
 from torch import nn
+
+"""Need special transforms (see transforms.py in this repo) for semantic
+segmentation so data augmentations with randomness are applied consistently to
+the input image and mask"""
+#from torchvision import transforms
+import transforms as T
 from torchvision import datasets
-from torchvision import transforms
 from torch.utils.data import DataLoader
 
 # import an off-the-shelf model for now
@@ -58,7 +67,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', help='number of epochs to train for',
                         type=int, default=10)
     parser.add_argument('--bs', help='SGD mini-batch size',
-                        type=int, default=50)
+                        type=int, default=32)
     parser.add_argument('--lr', help='initial learning rate',
                         type=float, default=0.1)
     parser.add_argument('--wd', help='weight decay regularization',
@@ -89,11 +98,19 @@ if __name__ == '__main__':
             logwriter.writerow(['epoch', 'lr', 'train loss'])
         #logwriter.writerow(['epoch', 'lr', 'train loss', 'train acc', 'test loss', 'test acc'])
 
+    # Define data augmentations. It makes sense to rotate mussels because
+    # they are rotation equivariant
+    tform_image_and_mask = T.Compose([
+        T.RandomCrop(224),
+        T.RandomHorizontalFlip(0.5), # rotate image about y-axis with 50% prob
+        T.RandomVerticalFlip(0.5),
+        T.ToTensor()
+    ])
+
     # Prepare dataset and dataloader
-    transform = transforms.Compose([transforms.ToTensor()])
     trainset = datasets.VOCSegmentation(
         root=args.dataroot, year='2012', image_set='train',
-        download=False, transform=transform, target_transform=transform)
+        download=False, transforms=tform_image_and_mask)
     trainloader = DataLoader(trainset, batch_size=args.bs, shuffle=True)
 
     """Prepare model
@@ -125,6 +142,9 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(
         net.parameters(), lr=args.lr, weight_decay=args.wd)
 
+    """Note: BCEWithLogitsLoss uses the log-sum-exp trick for numerical
+    stability, so this is safer than nn.BCELoss(nn.Sigmoid(pred))
+    Todo: implement class weights to penalize model for predicting bkg"""
     loss_fn = nn.BCEWithLogitsLoss() # sigmoid cross entropy
     #         nn.CrossEntropyLoss() # softmax cross entropy
 
@@ -135,8 +155,9 @@ if __name__ == '__main__':
             W=width. Do inputs.permute(0, 2, 3, 1) to viz in RGB format."""
             inputs, targets = inputs.to(device), targets.to(device)
             pred = net(inputs)['out'] # fprop
-            # multiply targets by 255 to treat label 1/255 in uint8 as a float 1
-            loss = loss_fn(pred, targets * 255)
+            # dataloader outputs targets with shape NHW, but we need NCHW
+            targets = targets.unsqueeze(dim=1).float()
+            loss = loss_fn(pred, targets)
             optimizer.zero_grad() # reset gradients
             loss.backward() # bprop
             optimizer.step() # update parameters
