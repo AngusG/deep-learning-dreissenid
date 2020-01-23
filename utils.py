@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+DP1, DP2 = 0, 1  # indices, `DP' = data point
+
 
 def line_intersection(line1, line2):
     """Return the intersection between two lines 
@@ -51,6 +53,41 @@ def compute_pairwise_distances(points):
         for j in range(i + 1, len(points)):
             distances.append((i, j, int(np.linalg.norm(points[i] - points[j]))))
     return np.asarray(distances)
+
+
+def compute_pairwise_angles(points):
+    """Returns angle in degrees between all points"""
+    angles = []
+    for i in range(len(points)):
+        d0 = points[i, DP2] - points[i, DP1]
+        d0 /= np.linalg.norm(d0)
+        for j in range(i + 1, len(points)):
+            d1 = points[j, DP2] - points[j, DP1]
+            d1 /= np.linalg.norm(d1)
+            angles.append(
+                (i, j, int(np.arccos(
+                    np.minimum(1, np.dot(d0, d1))) * (180 / np.pi))
+                )
+            )
+    return np.asarray(angles)
+
+
+def find_parallel(angles, TOLERANCE):
+    parallel_mask  = angles < TOLERANCE
+    greater_180_mask = angles > 180 - TOLERANCE
+    less_180_mask = angles < 180 + TOLERANCE
+    parallel_mask |= (greater_180_mask & less_180_mask)
+    return parallel_mask
+
+
+def centroid_and_crop_pts(corners):
+    """Compute centroid of all corners and 
+    naively finds four crop points"""
+    centroid = corners.mean(axis=0, keepdims=True)[0]
+    corner_dist = np.linalg.norm(corners - centroid, axis=1)
+    indices = np.argsort(corner_dist)
+    crop = corners[indices][:4].astype('int')
+    return centroid, crop
 
 
 def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1):
