@@ -1,7 +1,10 @@
 import cv2
 import numpy as np
 
+from numpy.linalg import norm
+
 DP1, DP2 = 0, 1  # indices, `DP' = data point
+X, Y = 0, 1
 
 
 def line_intersection(line1, line2):
@@ -72,12 +75,25 @@ def compute_pairwise_angles(points):
     return np.asarray(angles)
 
 
-def find_parallel(angles, TOLERANCE):
-    parallel_mask  = angles < TOLERANCE
-    greater_180_mask = angles > 180 - TOLERANCE
-    less_180_mask = angles < 180 + TOLERANCE
+def find_parallel(angles, tol):
+    parallel_mask  = angles < tol
+    greater_180_mask = angles > 180 - tol
+    less_180_mask = angles < 180 + tol
     parallel_mask |= (greater_180_mask & less_180_mask)
     return parallel_mask
+
+
+def get_outlier_angle_mask(angles, tol):
+    """Returns a mask that masks out lines at invalid angles"""
+    greater_180_mask = angles[:, 2] > 180 + tol
+    less_180_mask = angles[:, 2] < 180 - tol
+    greater_90_mask = angles[:, 2] > 90 + tol
+    less_90_mask = angles[:, 2] < 90 - tol
+    greater_tol_mask = angles[:, 2] > tol
+    outlier_angle_mask  = greater_180_mask
+    outlier_angle_mask |= (less_180_mask & greater_90_mask)
+    outlier_angle_mask |= (less_90_mask & greater_tol_mask)
+    return outlier_angle_mask
 
 
 def centroid_and_crop_pts(corners):
@@ -88,6 +104,79 @@ def centroid_and_crop_pts(corners):
     indices = np.argsort(corner_dist)
     crop = corners[indices][:4].astype('int')
     return centroid, crop
+
+
+def merge_noisy_lines(coords):
+    """Combine approximately parallel lines
+    """
+    l2m = []  # stores indices of lines to merge
+    TOL = 5
+    CUR_LINE_IDX = 0
+    OTHER_LINE_IDX = 1
+    ANGLE_IDX = 2
+    
+    angles = compute_pairwise_angles(coords.astype('float'))
+    
+    n_lines_orig = len(coords)
+    # find candidate lines to be merged
+    for i in range(n_lines_orig):
+        # get angle of all lines wrt current line i
+        cur_angles = angles[angles[:, CUR_LINE_IDX] == i]
+        # find all lines that are parallel to line i
+        par_angles = cur_angles[find_parallel(cur_angles[:, ANGLE_IDX], TOL)]
+        # compare endpoints
+        par_lines = par_angles[:, OTHER_LINE_IDX] # other line indices
+        # distance between endpoints
+        pointwise_dist = norm(np.minimum(
+            np.maximum(coords[i, DP1] - coords[par_lines, DP1], 
+                       coords[i, DP1] - coords[par_lines, DP2]), 
+            np.maximum(coords[i, DP2] - coords[par_lines, DP1], 
+                       coords[i, DP2] - coords[par_lines, DP2])), axis=1)
+        
+        # parallel lines with close endpoints can be merged with line i
+        to_merge_idx = par_lines[pointwise_dist < 20]  # may need to tune this val
+
+        for item in to_merge_idx:
+            l2m.append(item)
+
+        a = coords[[i] + to_merge_idx.tolist()].copy()
+        """We sort by the higher variance dimension so that the 
+        compatible values end up in the same place (either in the 
+        data point 1 (DP1) or DP2 position). Since we already checked 
+        that the lines are parallel, we know the other dimension 
+        (X or Y) is of low variance. For example, we want
+
+        [[687 540]        [[687 38]
+         [687  38]]        [687  540]]
+                     ==> 
+        [[681  39]        [[681  39]
+         [698 541]]]       [698 541]]]
+
+        so that for the merged line, we average 38 with 39, 
+        and not 540 with 39. For cmd below refer to docs
+        - https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.view.html
+        - https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
+        """
+        if np.var(a[:, :, X]) < np.var(a[:, :, Y]):
+            # 'i8' means 8-byte integer, order is col for sorting with respect to
+            a = np.sort(a.view('i8, i8'), order=['f1'], axis=1).view(np.int)
+        else:
+            a = np.sort(a.view('i8, i8'), order=['f0'], axis=1).view(np.int)
+
+        coords[i] = np.array([[a[:, DP1, X].mean(), a[:, DP1, Y].mean()],
+                              [a[:, DP2, X].mean(), a[:, DP2, Y].mean()]]) 
+
+    # remove redundant lines    
+    coord_list = coords.tolist()
+    # get the unique indices in lines-to-merge, then back to list
+    l2m = np.unique(np.asarray(l2m)).tolist()
+    for idx in sorted(l2m, reverse=True):
+        popped = coord_list.pop(idx)
+        print(idx, popped)
+    coords = np.asarray(coord_list)
+    assert len(coords) == n_lines_orig - len(l2m)
+    
+    return coords
 
 
 def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1):
