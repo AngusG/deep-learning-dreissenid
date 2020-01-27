@@ -7,6 +7,19 @@ DP1, DP2 = 0, 1  # indices, `DP' = data point
 X, Y = 0, 1
 
 
+def draw_lines_from_coords(image, coords):
+    """Draw lines on an image specified by their endpoints 
+    in coords using OpenCV"""
+    for i in range(len(coords)):
+        cv2.line(
+            image, 
+            (int(coords[i, DP1, X]), int(coords[i, DP1, Y])),
+            (int(coords[i, DP2, X]), int(coords[i, DP2, Y])),
+            (255, 0, 0), 3, cv2.LINE_AA
+        )
+    return image
+
+
 def line_intersection(line1, line2):
     """Return the intersection between two lines 
     given two points from each."""
@@ -106,6 +119,28 @@ def centroid_and_crop_pts(corners):
     return centroid, crop
 
 
+def reject_outlier_lines(coords, tol):
+    """Rejects lines between (0 + tol) to (90 - tol) degrees
+    """
+    angles = compute_pairwise_angles(coords.astype('float'))
+    
+    # check for outlier angles
+    outlier_angle_mask = get_outlier_angle_mask(angles, tol)
+    
+    # remove the offending lines if any
+    if outlier_angle_mask.sum() > 0:
+        candidate_outlier_line_idx, cts = np.unique(
+            angles[outlier_angle_mask, :2], return_counts=True)
+        outlier_line_idx = candidate_outlier_line_idx[cts > cts.min()]
+
+        coord_list = coords.tolist()
+        for idx in sorted(outlier_line_idx, reverse=True):
+            coord_list.pop(idx)
+        coords = np.asarray(coord_list)
+    
+    return coords
+
+
 def merge_noisy_lines(coords):
     """Combine approximately parallel lines
     """
@@ -115,71 +150,75 @@ def merge_noisy_lines(coords):
     OTHER_LINE_IDX = 1
     ANGLE_IDX = 2
     
-    angles = compute_pairwise_angles(coords.astype('float'))
+    #coords = reject_outlier_lines(coords, TOL - 1)
+    #print('len(coords)', len(coords))
     
-    n_lines_orig = len(coords)
-    # find candidate lines to be merged
-    for i in range(n_lines_orig):
-        # get angle of all lines wrt current line i
-        cur_angles = angles[angles[:, CUR_LINE_IDX] == i]
-        # find all lines that are parallel to line i
-        par_angles = cur_angles[find_parallel(cur_angles[:, ANGLE_IDX], TOL)]
-        # compare endpoints
-        par_lines = par_angles[:, OTHER_LINE_IDX] # other line indices
-        # distance between endpoints
-        pointwise_dist = norm(np.minimum(
-            np.maximum(coords[i, DP1] - coords[par_lines, DP1], 
-                       coords[i, DP1] - coords[par_lines, DP2]), 
-            np.maximum(coords[i, DP2] - coords[par_lines, DP1], 
-                       coords[i, DP2] - coords[par_lines, DP2])), axis=1)
-        
-        # parallel lines with close endpoints can be merged with line i
-        to_merge_idx = par_lines[pointwise_dist < 20]  # may need to tune this val
+    if len(coords) > 1:
+        angles = compute_pairwise_angles(coords.astype('float'))
 
-        for item in to_merge_idx:
-            l2m.append(item)
+        n_lines_orig = len(coords)
+        # find candidate lines to be merged
+        for i in range(n_lines_orig):
+            # get angle of all lines wrt current line i
+            cur_angles = angles[angles[:, CUR_LINE_IDX] == i]
+            # find all lines that are parallel to line i
+            par_angles = cur_angles[find_parallel(cur_angles[:, ANGLE_IDX], TOL)]
+            # compare endpoints
+            par_lines = par_angles[:, OTHER_LINE_IDX] # other line indices
+            # distance between endpoints
+            pointwise_dist = norm(np.minimum(
+                np.maximum(coords[i, DP1] - coords[par_lines, DP1], 
+                           coords[i, DP1] - coords[par_lines, DP2]), 
+                np.maximum(coords[i, DP2] - coords[par_lines, DP1], 
+                           coords[i, DP2] - coords[par_lines, DP2])), axis=1)
 
-        a = coords[[i] + to_merge_idx.tolist()].copy()
-        """We sort by the higher variance dimension so that the 
-        compatible values end up in the same place (either in the 
-        data point 1 (DP1) or DP2 position). Since we already checked 
-        that the lines are parallel, we know the other dimension 
-        (X or Y) is of low variance. For example, we want
+            # parallel lines with close endpoints can be merged with line i
+            to_merge_idx = par_lines[pointwise_dist < 20]  # may need to tune this val
 
-        [[687 540]        [[687 38]
-         [687  38]]        [687  540]]
-                     ==> 
-        [[681  39]        [[681  39]
-         [698 541]]]       [698 541]]]
+            for item in to_merge_idx:
+                l2m.append(item)
 
-        so that for the merged line, we average 38 with 39, 
-        and not 540 with 39. For cmd below refer to docs
-        - https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.view.html
-        - https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
-        """
-        if np.var(a[:, :, X]) < np.var(a[:, :, Y]):
-            # 'i8' means 8-byte integer, order is col for sorting with respect to
-            a = np.sort(a.view('i8, i8'), order=['f1'], axis=1).view(np.int)
-        else:
-            a = np.sort(a.view('i8, i8'), order=['f0'], axis=1).view(np.int)
+            a = coords[[i] + to_merge_idx.tolist()].copy()
+            """We sort by the higher variance dimension so that the 
+            compatible values end up in the same place (either in the 
+            data point 1 (DP1) or DP2 position). Since we already checked 
+            that the lines are parallel, we know the other dimension 
+            (X or Y) is of low variance. For example, we want
 
-        coords[i] = np.array([[a[:, DP1, X].mean(), a[:, DP1, Y].mean()],
-                              [a[:, DP2, X].mean(), a[:, DP2, Y].mean()]]) 
+            [[687 540]        [[687 38]
+             [687  38]]        [687  540]]
+                         ==> 
+            [[681  39]        [[681  39]
+             [698 541]]]       [698 541]]]
 
-    # remove redundant lines    
-    coord_list = coords.tolist()
-    # get the unique indices in lines-to-merge, then back to list
-    l2m = np.unique(np.asarray(l2m)).tolist()
-    for idx in sorted(l2m, reverse=True):
-        popped = coord_list.pop(idx)
-        print(idx, popped)
-    coords = np.asarray(coord_list)
-    assert len(coords) == n_lines_orig - len(l2m)
-    
+            so that for the merged line, we average 38 with 39, 
+            and not 540 with 39. For cmd below refer to docs
+            - https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.view.html
+            - https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column/30623882
+            """
+            if np.var(a[:, :, X]) < np.var(a[:, :, Y]):
+                # 'i8' means 8-byte integer, order is col for sorting with respect to
+                a = np.sort(a.view('i8, i8'), order=['f1'], axis=1).view(np.int)
+            else:
+                a = np.sort(a.view('i8, i8'), order=['f0'], axis=1).view(np.int)
+
+            coords[i] = np.array([[a[:, DP1, X].mean(), a[:, DP1, Y].mean()],
+                                  [a[:, DP2, X].mean(), a[:, DP2, Y].mean()]]) 
+
+        # remove redundant lines    
+        coord_list = coords.tolist()
+        # get the unique indices in lines-to-merge, then back to list
+        l2m = np.unique(np.asarray(l2m)).tolist()
+        for idx in sorted(l2m, reverse=True):
+            popped = coord_list.pop(idx)
+            print(idx, popped)
+        coords = np.asarray(coord_list)
+        assert len(coords) == n_lines_orig - len(l2m)
+
     return coords
 
 
-def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1):
+def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1, canny_1=30, canny_2=400, outlier_angle_thresh=20):
     """Draw Hough lines and corner points on image 'im'
     
     @param rho -- Distance resolution of the accumulator (pixels).
@@ -190,6 +229,8 @@ def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1)
                             that are rejected. (pixels)
     @param maxLineGap -- Maximum allowed gap between points on the same line 
                          to link them. (pixels)
+    @param canny_threshold1 Histeresis threshold 1
+    @param canny_threshold2
     """
     DP1, DP2 = 0, 1
     X, Y = 0, 1
@@ -206,15 +247,10 @@ def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1)
     dim = (width, height)
 
     # resize image
-    img = cv2.resize(img, dim)
-
-    # @param canny_threshold1 Histeresis threshold 1
-    # @param canny_threshold2
-    canny_thresh1 = 30
-    canny_thresh2 = 300
+    img = cv2.resize(img, dim)    
 
     # run the Canny edge detector on the rotated gray scale image
-    edges = cv2.Canny(img, threshold1=canny_thresh1, threshold2=canny_thresh2, L2gradient=True)
+    edges = cv2.Canny(img, threshold1=canny_1, threshold2=canny_2, L2gradient=False)
 
     # run the probabilistic hough lines transform
     linesP = cv2.HoughLinesP(edges, rho, theta, threshold=threshold, minLineLength=mll, maxLineGap=mlg)
@@ -222,52 +258,36 @@ def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1)
     # @param lines The extremes of the detected lines if any (<N_LINES_FOUND>, 1, x_0, y_0, x_1, y_1). (pixels)
     if linesP is not None:
         print('Found %d lines' % len(linesP))
-
-    N = 8  # top N results to draw
-    if linesP is not None:
-        for i in range(len(linesP[:N])):
-            l = linesP[i][0]
-            cv2.line(
-                img, (l[0], l[1]), (l[2], l[3]), (255, 0, 0), 3, cv2.LINE_AA)  # 3 is line width
-    
-        #return edges, img
-        coords = np.zeros((np.minimum(N, len(linesP)), 2, 2)).astype('int') # points, start/end, x/y
-
-        for i in range(len(linesP[:N])):
+        
+        coords = np.zeros((len(linesP), 2, 2)).astype('int') # points, start/end, x/y
+        
+        for i in range(len(linesP)):
             l = linesP[i][0]
             coords[i, DP1, X] = l[0] # x1
             coords[i, DP1, Y] = l[1] # y1
             coords[i, DP2, X] = l[2] # x2
             coords[i, DP2, Y] = l[3] # y2
 
-        # find all intersection points
-        corners = []
-        for i in range(len(coords)):
-            for j in range(i + 1, len(coords)):
-                intersection = line_intersection((coords[i, DP1], coords[i, DP2]), 
-                                                 (coords[j, DP1], coords[j, DP2]))
-                # check if intersection is a valid corner
-                if intersection is not None:
-                    cond1 = 0 < intersection[X] and intersection[X] < img_w
-                    cond2 = 0 < intersection[Y] and intersection[Y] < img_h
-                    if cond1 and cond2:
-                        corners.append(intersection)
-        corners_np = np.asarray(corners)
+        # clean up coordinates
+        if len(linesP) > 1:
+            coords = reject_outlier_lines(coords, outlier_angle_thresh)
+            coords = merge_noisy_lines(coords.astype('int64'))
         
-        for i in range(len(corners_np)):
-            cv2.circle(img, ( int(corners_np[i, 0]), int(corners_np[i, 1]) ), 10, 
-                       (0, 0, 255), thickness=2, lineType=8, shift=0)
+        # draw lines on canvas
+        img = draw_lines_from_coords(img, coords)
+
+        # find all intersection points
+        if len(linesP) > 1:
+            corners_np = get_intersection_pts(coords, img_w, img_h)
+            for i in range(len(corners_np)):
+                cv2.circle(img, (int(corners_np[i, 0]), 
+                                 int(corners_np[i, 1]) ), 10,
+                           (0, 0, 255), thickness=2, lineType=8, shift=0)
         '''
         if len(corners_np) > 3:
-            centroid = corners_np.mean(axis=0, keepdims=True)[0]
-            corner_dist = np.linalg.norm(corners_np - centroid, axis=1)
-            indices = np.argsort(corner_dist)
-            crop = corners_np[indices][:4].astype('int')
-            
             # plot centroid
             cv2.circle(img, (int(centroid[0]), int(centroid[1])), 20, 
                            (0, 0, 0), thickness=6, lineType=8, shift=0)
-            
             for i in range(len(crop)):
                 cv2.circle(img, ( int(crop[i, 0]), int(crop[i, 1]) ), 10, 
                            (255, 255, 255), thickness=2, lineType=8, shift=0)
