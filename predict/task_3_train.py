@@ -24,7 +24,8 @@ from torchvision.models import segmentation as models
 
 # my utils
 from task_3_utils import (save_checkpoint,
-                          eval_binary_iou)
+                          eval_binary_iou,
+                          adjust_learning_rate)
 
 if __name__ == '__main__':
 
@@ -54,7 +55,9 @@ if __name__ == '__main__':
                         choices=model_names, help='model architecture: ' +
                         ' | '.join(model_names) + ' (default: fcn_resnet50)')
     parser.add_argument('--epochs', help='number of epochs to train for',
-                        type=int, default=10)
+                        type=int, default=100)
+    parser.add_argument('--drop', help='epoch to first drop the initial \
+                        learning rate', type=int, default=50)
     parser.add_argument('--bs', help='SGD mini-batch size',
                         type=int, default=32)
     parser.add_argument('--lr', help='initial learning rate',
@@ -85,11 +88,10 @@ if __name__ == '__main__':
     if not os.path.exists(logname):
         with open(logname, 'w') as logfile:
             logwriter = csv.writer(logfile, delimiter=',')
-            logwriter.writerow(['epoch', 'lr', 'train loss'])
-        #logwriter.writerow(['epoch', 'lr', 'train loss', 'train acc', 'test loss', 'test acc'])
+            logwriter.writerow(['epoch', 'lr', 'train loss', 'train iou'])
 
-    # Define data augmentations. It makes sense to rotate mussels because
-    # they are rotation equivariant
+    """Define data augmentation transformations. Rotate mussels because they do
+    not have a specific orientation. Note that this also rotates masks."""
     tform_image_and_mask = T.Compose([
         T.RandomCrop(224),
         T.RandomHorizontalFlip(0.5), # rotate image about y-axis with 50% prob
@@ -146,6 +148,8 @@ if __name__ == '__main__':
         train_iou = 0
         train_loss = 0
         for batch, (inputs, targets) in enumerate(trainloader):
+            lr = adjust_learning_rate(optimizer, epoch, args.drop, args.lr)
+
             """inputs are in NCHW format: N=nb. samples, C=channels, H=height,
             W=width. Do inputs.permute(0, 2, 3, 1) to viz in RGB format."""
             inputs, targets = inputs.to(device), targets.to(device)
@@ -168,5 +172,5 @@ if __name__ == '__main__':
         with open(logname, 'a') as logfile:
             logwriter = csv.writer(logfile, delimiter=',')
             logwriter.writerow(
-                [epoch, args.lr, np.round(train_loss, 4)])
-    save_checkpoint(net, train_loss, epoch, args.logdir, model_string)
+                [epoch, lr, np.round(train_loss, 4), np.round(train_iou, 4)])
+    save_checkpoint(net, train_iou, epoch, args.logdir, model_string)

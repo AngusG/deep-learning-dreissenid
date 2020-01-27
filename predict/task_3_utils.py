@@ -3,7 +3,8 @@ import torch
 
 
 def save_checkpoint(net, loss, epoch, logdir, model_string):
-    # Save checkpoint.
+    """Saves model weights at a particular <epoch> into folder
+    <logdir> with name <model_string>."""
     print('Saving..')
     state = {
         'net': net,
@@ -30,3 +31,26 @@ def eval_binary_iou(outputs, targets, eps=1e-6):
     union = (outputs | targets).float().sum((1, 2))
     iou = intersection / (union + eps)
     return iou.mean()
+
+
+def adjust_learning_rate(optimizer, epoch, drop, base_learning_rate):
+    """decrease the learning rate at <drop> epoch"""
+    lr = base_learning_rate
+    if epoch >= drop:
+        lr /= 10
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+        '''
+        if param_group['initial_lr'] == base_learning_rate:
+            param_group['lr'] = lr
+        else:
+            if epoch <= 9:
+                param_group['lr'] = param_group['initial_lr'] * lr / base_learning_rate
+            elif epoch < 100:
+                param_group['lr'] = param_group['initial_lr']
+            elif epoch < 150:
+                param_group['lr'] = param_group['initial_lr'] / 10.
+            else:
+                param_group['lr'] = param_group['initial_lr'] / 100.
+        '''
+    return lr
