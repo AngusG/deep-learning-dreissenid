@@ -22,20 +22,9 @@ from torch.utils.data import DataLoader
 # import an off-the-shelf model for now
 from torchvision.models import segmentation as models
 
-def save_checkpoint(loss, epoch):
-    # Save checkpoint.
-    print('Saving..')
-    state = {
-        'net': net,
-        'loss': loss,
-        'epoch': epoch,
-        'rng_state': torch.get_rng_state()
-    }
-    if not os.path.isdir(os.path.join(args.logdir, 'checkpoint/')):
-        os.mkdir(os.path.join(args.logdir, 'checkpoint/'))
-    torch.save(state, os.path.join(args.logdir, 'checkpoint/') +
-               args.arch + '_bs%d' % args.bs + '_wd%.e' % args.wd + '_' +
-               args.sess + '_' + str(args.seed) + '.ckpt')
+# my utils
+from task_3_utils import (save_checkpoint,
+                          eval_binary_iou)
 
 if __name__ == '__main__':
 
@@ -49,7 +38,7 @@ if __name__ == '__main__':
 
     # dataset, admin, checkpointing and hw details
     parser.add_argument('--dataroot', help='path to dataset',
-                        type=str, default='/scratch/ssd/cciw/')
+                        type=str, default='/scratch/ssd/' + os.environ['USER'] + '/cciw/')
     parser.add_argument('--logdir', help='directory to store checkpoints; \
                         if None, nothing will be saved')
     parser.add_argument("--resume", default="", type=str,
@@ -88,9 +77,10 @@ if __name__ == '__main__':
     result_folder = os.path.join(args.logdir, 'results/')
     if not os.path.exists(result_folder):
         os.makedirs(result_folder)
-    logname = result_folder + \
-    args.arch + '_bs%d' % args.bs + '_wd%.e' % args.wd + '_' + \
-    args.sess + '_' + str(args.seed) + '.csv'
+
+    model_string = args.arch + '_bs%d' % args.bs + '_wd%.e' % args.wd + '_' + \
+    args.sess + '_' + str(args.seed)
+    logname = os.path.join(result_folder, model_string + '.csv')
 
     if not os.path.exists(logname):
         with open(logname, 'w') as logfile:
@@ -148,24 +138,35 @@ if __name__ == '__main__':
     loss_fn = nn.BCEWithLogitsLoss() # sigmoid cross entropy
     #         nn.CrossEntropyLoss() # softmax cross entropy
 
+    # need to explicitly apply Sigmoid for IoU
+    sig = nn.Sigmoid()
+
     # Train
     for epoch in range(args.epochs):
+        train_iou = 0
+        train_loss = 0
         for batch, (inputs, targets) in enumerate(trainloader):
             """inputs are in NCHW format: N=nb. samples, C=channels, H=height,
             W=width. Do inputs.permute(0, 2, 3, 1) to viz in RGB format."""
             inputs, targets = inputs.to(device), targets.to(device)
             pred = net(inputs)['out'] # fprop
+            # evaluate diagnostic metrics
+            batch_iou = eval_binary_iou(sig(pred), targets)
+            train_iou += batch_iou.item()
             # dataloader outputs targets with shape NHW, but we need NCHW
             targets = targets.unsqueeze(dim=1).float()
-            loss = loss_fn(pred, targets)
+            batch_loss = loss_fn(pred, targets)
+            train_loss += batch_loss.item()
             optimizer.zero_grad() # reset gradients
-            loss.backward() # bprop
+            batch_loss.backward() # bprop
             optimizer.step() # update parameters
-        train_loss = loss.item()
-        print('Epoch [{}/{}], Loss: {:.4f}'
-              .format(epoch + 1, args.epochs, train_loss))
+
+        train_loss /= len(trainloader)
+        train_iou /= len(trainloader)
+        print('Epoch [{}/{}], Loss: {:.4f}, IoU: {:.4f}'
+              .format(epoch + 1, args.epochs, train_loss, train_iou))
         with open(logname, 'a') as logfile:
             logwriter = csv.writer(logfile, delimiter=',')
             logwriter.writerow(
                 [epoch, args.lr, np.round(train_loss, 4)])
-    save_checkpoint(train_loss, epoch)
+    save_checkpoint(net, train_loss, epoch, args.logdir, model_string)
