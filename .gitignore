@@ -10,3 +10,8 @@ Untitled.ipynb
 opencv_install
 *.csv
 *.json
+*.aux
+*.log
+*.gz
+*.out
+adig-report.pdf
