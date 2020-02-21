@@ -105,6 +105,11 @@ if __name__ == '__main__':
         download=False, transforms=tform_image_and_mask)
     trainloader = DataLoader(trainset, batch_size=args.bs, shuffle=True)
 
+    valset = datasets.VOCSegmentation(
+        root=args.dataroot, year='2012', image_set='val',
+        download=False, transforms=T.ToTensor())
+    valloader = DataLoader(valset, batch_size=args.bs, shuffle=False)
+
     """Prepare model
     NB even though there are two classes (i.e. mussel and background),
     num_classes=1 is used such that nn.Sigmoid(pred) = 0 is bkg, and 1 is mussel.
@@ -167,8 +172,29 @@ if __name__ == '__main__':
 
         train_loss /= len(trainloader)
         train_iou /= len(trainloader)
-        print('Epoch [{}/{}], Loss: {:.4f}, IoU: {:.4f}'
-              .format(epoch + 1, args.epochs, train_loss, train_iou))
+
+        # Validate
+        val_iou = 0
+        val_loss = 0
+        for inputs, targets in valloader:
+            inputs, targets = inputs.cuda(), targets.cuda()
+            val_targets = torch.zeros(
+                (targets.size(0), targets.size(1), targets.size(2)),
+                dtype=torch.long).cuda()
+            val_targets[targets[:, :, :, 0] == 128] = 1
+            with torch.no_grad():
+                pred = net(inputs)['out'] # fprop
+                batch_iou = eval_binary_iou(sig(pred), val_targets)
+                val_iou += batch_iou.item()
+                # dataloader outputs targets with shape NHW, but we need NCHW
+                val_targets = val_targets.unsqueeze(dim=1).float()
+                batch_loss = loss_fn(pred, val_targets)
+                val_loss += batch_loss.item()
+        val_loss /= len(valloader)
+        val_iou /= len(valloader)
+
+        print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, train IoU: {:.4f}, val IoU: {:.4f}'
+              .format(epoch + 1, args.epochs, train_loss, val_loss, train_iou, val_iou))
         with open(logname, 'a') as logfile:
             logwriter = csv.writer(logfile, delimiter=',')
             logwriter.writerow(
