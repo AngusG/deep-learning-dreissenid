@@ -148,6 +148,23 @@ if __name__ == '__main__':
     # need to explicitly apply Sigmoid for IoU
     sig = nn.Sigmoid()
 
+    def evaluate(data_loader):
+        running_iou = 0
+        running_loss = 0
+        for inputs, targets in valloader:
+            inputs, targets = inputs.cuda(), targets.cuda()
+            with torch.no_grad():
+                pred = net(inputs)['out'] # fprop
+                batch_iou = eval_binary_iou(sig(pred), targets)
+                running_iou += batch_iou.item()
+                # dataloader outputs targets with shape NHW, but we need NCHW
+                targets = targets.unsqueeze(dim=1).float()
+                batch_loss = loss_fn(pred, targets)
+                running_loss += batch_loss.item()
+        running_iou /= len(valloader)
+        running_loss /= len(valloader)
+        return running_iou, running_loss
+
     # Train
     for epoch in range(args.epochs):
         train_iou = 0
@@ -174,24 +191,7 @@ if __name__ == '__main__':
         train_iou /= len(trainloader)
 
         # Validate
-        val_iou = 0
-        val_loss = 0
-        for inputs, targets in valloader:
-            inputs, targets = inputs.cuda(), targets.cuda()
-            val_targets = torch.zeros(
-                (targets.size(0), targets.size(1), targets.size(2)),
-                dtype=torch.long).cuda()
-            val_targets[targets[:, :, :, 0] == 128] = 1
-            with torch.no_grad():
-                pred = net(inputs)['out'] # fprop
-                batch_iou = eval_binary_iou(sig(pred), val_targets)
-                val_iou += batch_iou.item()
-                # dataloader outputs targets with shape NHW, but we need NCHW
-                val_targets = val_targets.unsqueeze(dim=1).float()
-                batch_loss = loss_fn(pred, val_targets)
-                val_loss += batch_loss.item()
-        val_loss /= len(valloader)
-        val_iou /= len(valloader)
+        val_iou, val_loss = evaluate(valloader)
 
         print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, train IoU: {:.4f}, val IoU: {:.4f}'
               .format(epoch + 1, args.epochs, train_loss, val_loss, train_iou, val_iou))
