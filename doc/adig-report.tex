@@ -95,7 +95,10 @@ F) Latency (minutes) & $1-10$ & $< 60$ & $60-240$ \\ \midrule
 G) Throughput & Low & High & Medium \\ \midrule
 H) Quality & High & Medium & High \\ \midrule
 I) Guaranteed label for \\ all pixels & No & No & Yes \\ \midrule
-J) User responsible for \\ quality assurance (QA) & Yes & Yes$^*$ & No \\ 
+J) User responsible for \\ quality assurance (QA) & Yes & Yes$^*$ & No \\  
+\midrule
+K) Ability to edit \\ labels in~\texttt{LabelMe} & Yes & Yes & No \\ \midrule
+L) User support & Github & Email & Slack \\ 
 \bottomrule
 \end{tabular}
 \end{table}
@@ -152,6 +155,51 @@ sed '1s/^/[/; $!s/$/,/; $s/$/]/' in.json > out.json
 $! s/$/,/      # On all but the last line append a comma
 $  s/$/]/      # Append a right bracket to the last line
 \end{lstlisting}
+
+\subsection{Scale AI}
+
+This section enumerates the complete set of steps to process the output of the 
+Scale AI platform for use by the python model training scripts.
+
+\begin{enumerate}
+\item Run the python
+notebook~\href{https://github.com/AngusG/cciw-zebra-mussel/blob/master/labelme/scale}{postprocess-scale-labels.ipynb}
+to convert the RGB colour labels from the~\texttt{Scale AI} API into the format
+consistent with the~\texttt{labels.txt} file used by~\texttt{LabelMe}.
+
+\item Run the python
+notebook~\href{https://github.com/AngusG/cciw-zebra-mussel/blob/master/labelme/voc-images-and-masks-to-patch.ipynb}{voc-images-and-masks-to-patch.ipynb}
+to extract small patches from each labeled image and mask for training and
+validation.
+
+\item Populate the test.txt file for VOC format:
+
+\begin{lstlisting}[language=bash, frame=single]
+user@ws1:~/Dataset/Test/GLNI/port/scale/patches$ 
+ls -l *.png >> VOCdevkit/VOC2012/ImageSets/Segmentation/test.txt
+\end{lstlisting}
+
+\item Copy masks into the relevant VOCdevkit folder:
+
+\begin{lstlisting}[language=bash, frame=single]
+user@ws1:~/Dataset/Test/GLNI/port/scale/patches$ 
+cp -av *.png VOCdevkit/VOC2012/SegmentationClass/
+\end{lstlisting}
+
+\item Copy jpeg images into the relevant VOCdevkit folder:
+
+\begin{lstlisting}[language=bash, frame=single]
+user@ws1:~/Dataset/Test/GLNI/port/scale/patches$ 
+cp -av *.jpg VOCdevkit/VOC2012/JPEGImages/
+\end{lstlisting}
+
+\item Confirm that each folder contains the same number of images:
+\begin{lstlisting}[language=bash, frame=single]
+ls -l VOCdevkit/VOC2012/SegmentationClass | wc -l
+ls -l VOCdevkit/VOC2012/JPEGImages/ | wc -l
+\end{lstlisting}
+
+\end{enumerate}
 
 \section{Data Acquisition}
 
