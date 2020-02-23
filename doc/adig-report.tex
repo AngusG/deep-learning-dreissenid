@@ -201,6 +201,87 @@ ls -l VOCdevkit/VOC2012/JPEGImages/ | wc -l
 
 \end{enumerate}
 
+\subsection{Editing Segmentation Masks in GIMP}
+
+This section outlines a procedure for editing segmentations masks that are 
+already in PNG format, for example to clean up the automatically generated 
+masks for the Lab images from the
+notebook~\href{https://github.com/AngusG/cciw-zebra-mussel/blob/master/labelme/autolabel-lab-testing-set.ipynb}{autolabel-lab-testing-set.ipynb}.
+
+I recommend using the~\href{https://www.gimp.org/}{GNU Image Manipulation
+Program} (GIMP), which is a free and open source professional graphics program.
+
+\begin{enumerate}
+\item Select a~\texttt{*.jpg} image, right click and open with GIMP Image 
+Editor.
+\item In the Layers pane, select this jpg layer and click on the paint brush 
+icon ``Lock pixels'' to freeze this layer.
+\item From the main menu, select File, Open as Layers..., and select the PNG 
+mask associated for the image.
+\item Select the PNG mask from the layers pane and change the Opacity value
+from $100\%$ to $50\%$.
+
+\item To efficiently label data, I made use of the ``Free Select Tool'' from
+the Toolbox, which can be enabled with the keyboard shortcut ``f''. I then fill
+in the polygon drawn with the Free Select Tool using the ``Bucket Fill Tool''. 
+The Bucket Fill tool default shortcut is ``Shift B'', which can be cumbersome 
+when switching rapidly back and fourth. I created a new shortcut ``b'' using 
+the instructions 
+here:~\url{https://docs.gimp.org/2.10/en/gimp-concepts-shortcuts.html}.
+
+\item Change the foreground color to solid red (\texttt{\#ff0000}), consistent
+with the existing indexed colormap of the mussel labels, but a bit brighter to
+make it easier to see which pixels have been changed in GIMP. The
+notebook~\texttt{run-crf-on-gimp-masks.ipynb} ultimately merges the two red
+variants into a single ``mussel'' label. Change the background color to 
+black (\texttt{\#000000}). We will use this to remove any ``false positives'', 
+that is, pixels predicted as mussel that should be background.
+
+\item Under Bucket Fill, Tool Options, change ``Affected Area'' to ``Fill whole 
+selection''.
+
+\item Use the shorcut ``f'' to enable the Free Select Tool and draw the first 
+polygon around a mussel. Note that you may either click to place individual
+vertices, or press and hold the left mouse to draw a continous curve. Next, use
+the ``b'' or ``Shift+B'' shortcut to switch to Bucket Fill. Ensure ``FG color
+fill'' is selected which will use the red colour set previously for mussel. 
+Similarly, to label background pixels, switch the Fill Type to ``BG color 
+fill''. Repeat this step as necessary until satisfied.
+
+\item To export a new mask in the correct format, we will now delete the JPEG 
+layer. From the Layers pane, right click on the jpg file and select ``Delete
+Layer''. Now select the PNG layer that we have been editing, and restore the 
+Opacity to $100\%$. 
+
+\item Select Image $\rightarrow$ Mode $\rightarrow$ Indexed from the 
+main menu to change the image from RGB format to indexed color 
+format. The default setting, choose optimal colormap can be 
+used. For more information 
+see~\url{https://docs.gimp.org/2.8/en/gimp-image-convert-indexed.html}.
+
+\item Finally, from the File menu, Export As and append~\texttt{\_gimp.png} to 
+the end of the file for reproducibility. Each Lab sample should now be 
+associated with the following collection of five (5) images:
+
+\begin{enumerate}
+\item \texttt{Lab\_2907-3\_2018-07-09\_image-1.jpg} -- Original RGB JPEG image.
+\item \texttt{Lab\_2907-3\_2018-07-09\_image-1\_mask\_crf.png} -- Indexed color 
+PNG mask, noisy output from~\texttt{autolabel-lab-testing-set.ipynb}.
+\item \texttt{Lab\_2907-3\_2018-07-09\_image-1\_mask\_crf.xcf} -- GIMP version 
+of file (b) for editing.
+\item \texttt{Lab\_2907-3\_2018-07-09\_image-1\_mask\_crf\_gimp.png} -- Updated 
+indexed color PNG mask after processing in GIMP. Contains two shades of red, 
+GIMP changes in bright red.
+\item \texttt{Lab\_2907-3\_2018-07-09\_image-1\_mask\_crf\_gimp\_crf.png} -- 
+After processing of file (d) with~\texttt{run-crf-on-gimp-masks.ipynb}. Contains
+only a single label index, suitable for use with Python DL model training and
+testing scripts.
+
+\end{enumerate}
+
+\end{enumerate}
+
+
 \section{Data Acquisition}
 
 \subsection{Field Sampling}
