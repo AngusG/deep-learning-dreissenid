@@ -31,7 +31,7 @@ def main():
         sys.exit(1)
     os.makedirs(args.output_dir)
     os.makedirs(osp.join(args.output_dir, 'JPEGImages'))
-    os.makedirs(osp.join(args.output_dir, 'SegmentationClass'))
+    #os.makedirs(osp.join(args.output_dir, 'SegmentationClass'))
     os.makedirs(osp.join(args.output_dir, 'SegmentationClassPNG'))
     if not args.noviz:
         os.makedirs(
@@ -64,10 +64,13 @@ def main():
         label_file = labelme.LabelFile(filename=filename)
 
         base = osp.splitext(osp.basename(filename))[0]
+
         out_img_file = osp.join(
             args.output_dir, 'JPEGImages', base + '.jpg')
+        '''
         out_lbl_file = osp.join(
             args.output_dir, 'SegmentationClass', base + '.npy')
+        '''
         out_png_file = osp.join(
             args.output_dir, 'SegmentationClassPNG', base + '.png')
         if not args.noviz:
@@ -88,7 +91,8 @@ def main():
         )
         labelme.utils.lblsave(out_png_file, lbl)
 
-        np.save(out_lbl_file, lbl)
+        # unused, and takes up a lot of space
+        #np.save(out_lbl_file, lbl)
 
         if not args.noviz:
             viz = imgviz.label2rgb(
