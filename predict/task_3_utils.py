@@ -1,5 +1,7 @@
 import os
 import torch
+from torch import nn
+from sklearn.metrics import jaccard_similarity_score as jsc
 
 
 def save_checkpoint(net, loss, epoch, logdir, model_string):
@@ -17,6 +19,36 @@ def save_checkpoint(net, loss, epoch, logdir, model_string):
 
     torch.save(state, os.path.join(logdir, 'checkpoint/') +
                model_string + '.ckpt')
+
+def evaluate(net, data_loader, loss_fn, device):
+    """Evaluates the intersection over union (IoU) and
+    cross entropy loss of DL model given by `net` on data from
+    `data_loader`
+    """
+    sigmoid = nn.Sigmoid()
+
+    running_iou = 0
+    running_loss = 0
+
+    with torch.no_grad():
+        for i, (inputs, targets) in enumerate(data_loader):
+            targets_np = targets.numpy()
+            inputs, targets = inputs.to(device), targets.to(device)
+            pred = sigmoid(net(inputs))
+
+            # dataloader outputs targets with shape NHW, but we need NCHW
+            batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())
+            running_loss += batch_loss.item()
+            # jaccard similarity (IoU) on CPU
+            pred_np = pred.detach().cpu().numpy()
+            # flatten predictions and targets for IoU calculation
+            running_iou += jsc(
+                pred_np.round()[:, 0].reshape(pred_np.shape[0], -1),
+            targets_np.reshape(targets_np.shape[0], -1))
+
+    return running_iou / len(data_loader), running_loss / len(data_loader)
+
+
 
 def eval_binary_iou(outputs, targets, eps=1e-6):
     """Returns the average binary intersection-over-union score.

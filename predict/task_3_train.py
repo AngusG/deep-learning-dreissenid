@@ -5,6 +5,7 @@ segmentation on novel mussel dataset.
 # general
 import os
 import csv
+import time
 import argparse
 import numpy as np
 # ml libs
@@ -29,7 +30,7 @@ from torchsummary import summary
 
 # my utils
 from task_3_utils import (save_checkpoint,
-                          eval_binary_iou,
+                          evaluate,
                           adjust_learning_rate)
 
 if __name__ == '__main__':
@@ -109,6 +110,7 @@ if __name__ == '__main__':
         T.RandomHorizontalFlip(0.5), # rotate image about y-axis with 50% prob
         T.RandomVerticalFlip(0.5),
         T.ToTensor(),
+        # note: this should depend on the dataset!
         T.Normalize((0.2613, 0.2528, 0.2255), # mean (RGB)
                     (0.2637, 0.2546, 0.2306)) # std (RGB)
     ])
@@ -128,13 +130,13 @@ if __name__ == '__main__':
     trainset_noshuffle = datasets.VOCSegmentation(
         root=args.dataroot, year='2012', image_set='train',
         download=False, transforms=test_tform)
-    trainloader_noshuffle = DataLoader(trainset_noshuffle, batch_size=args.bs,
+    trainloader_noshuffle = DataLoader(trainset_noshuffle, batch_size=50,
                                        shuffle=False)
 
     valset = datasets.VOCSegmentation(
         root=args.dataroot, year='2012', image_set='val',
         download=False, transforms=test_tform)
-    valloader = DataLoader(valset, batch_size=args.bs, shuffle=False)
+    valloader = DataLoader(valset, batch_size=50, shuffle=False)
 
     """Prepare model
     NB even though there are two classes (i.e. mussel and background),
@@ -191,27 +193,17 @@ if __name__ == '__main__':
     # need to explicitly apply Sigmoid for IoU
     sig = nn.Sigmoid()
 
-    def evaluate(data_loader):
-        running_iou = 0
-        running_loss = 0
-        for inputs, targets in valloader:
-            inputs, targets = inputs.cuda(), targets.cuda()
-            with torch.no_grad():
-                pred = net(inputs)#['out'] # fprop
-                batch_iou = eval_binary_iou(sig(pred), targets)
-                running_iou += batch_iou.item()
-                # dataloader outputs targets with shape NHW, but we need NCHW
-                targets = targets.unsqueeze(dim=1).float()
-                batch_loss = loss_fn(pred, targets)
-                running_loss += batch_loss.item()
-        running_iou /= len(valloader)
-        running_loss /= len(valloader)
-        return running_iou, running_loss
-
     # Train
     for epoch in range(args.epochs):
-        #train_iou = 0
-        #train_loss = 0
+
+        eval_start_time = time.time()
+        val_iou, val_loss = evaluate(net, valloader, loss_fn, device)
+        print('Epoch [%d/%d], val IoU %.4f, val loss %.4f, took %.2f sec, ' % (
+            (epoch, args.epochs, val_iou, val_loss, time.time() - eval_start_time)))
+
+        epoch_start_time = time.time()
+
+        train_loss = 0
         for batch, (inputs, targets) in enumerate(trainloader):
             lr = adjust_learning_rate(optimizer, epoch, args.drop, args.lr)
 
@@ -220,13 +212,10 @@ if __name__ == '__main__':
             inputs, targets = inputs.to(device), targets.to(device)
             pred = net(inputs) # fprop for unet
             #pred = net(inputs)['out'] # fprop for torchvision.models.segmentation
-            # evaluate diagnostic metrics
-            batch_iou = eval_binary_iou(sig(pred), targets)
-            #train_iou += batch_iou.item()
+
             # dataloader outputs targets with shape NHW, but we need NCHW
-            targets = targets.unsqueeze(dim=1).float()
-            batch_loss = loss_fn(pred, targets)
-            #train_loss += batch_loss.item()
+            batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())
+            train_loss += batch_loss.item()
 
             optimizer.zero_grad() # reset gradients
             batch_loss.backward() # bprop
@@ -236,27 +225,31 @@ if __name__ == '__main__':
             global_step += 1
 
             if batch % 10 == 0:
-                print('Batch [{}/{}], train loss: {:.4f}, train IoU: {:.4f}'
-                    .format(batch, len(trainloader), batch_loss.item(), batch_iou.item()))
+                print('Batch [{}/{}], train loss: {:.4f}'
+                      .format(batch, len(trainloader), batch_loss.item()))  #, train IoU: {:.4f}'
 
-        #train_loss /= len(trainloader)
-        #train_iou /= len(trainloader)
-
-        # Validate
-        val_iou, val_loss = evaluate(valloader)
-        train_iou, train_loss = evaluate(trainloader_noshuffle)
+        epoch_time = time.time() - epoch_start_time
+        train_loss /= len(trainloader)
         '''
+        train_eval_start_time = time.time()
+        train_iou, train_loss = evaluate(net, trainloader_noshuffle, loss_fn, device)
+        train_eval_time = time.time() - train_eval_start_time
+
         writer.add_scalar('Loss/test', val_iou, global_step)
         writer.add_images('images', inputs, global_step)
         if net.n_classes == 1:
             writer.add_images('masks/true', targets, global_step)
             writer.add_images('masks/pred', sig(pred) > 0.5, global_step)
         '''
-        print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, train IoU: {:.4f}, val IoU: {:.4f}'
-              .format(epoch + 1, args.epochs, train_loss, val_loss, train_iou, val_iou))
+        #print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, train IoU: {:.4f}, val IoU: {:.4f}, took {:.2f}s'
+        #      .format(epoch + 1, args.epochs, train_loss, val_loss, train_iou, val_iou, epoch_time))
+
+        print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, took {:.2f}s'
+              .format(epoch + 1, args.epochs, train_loss, val_loss, epoch_time))
+
         with open(logname, 'a') as logfile:
             logwriter = csv.writer(logfile, delimiter=',')
             logwriter.writerow(
-                [epoch, lr, np.round(train_loss, 4), np.round(train_iou, 4)])
+                [epoch, lr, np.round(train_loss, 4), np.round(val_iou, 4)])
     save_checkpoint(net, train_iou, epoch, args.logdir, model_string)
     #writer.close()
