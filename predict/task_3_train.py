@@ -105,21 +105,21 @@ if __name__ == '__main__':
     argument of VOCSegmentation apply to both input images and masks. The label
     values happen to be 0/1 so they are unaffected by the normalization.
     """
+    if 'Lab' in args.dataroot.split('/'):
+        RGB_MEAN = (0.2613, 0.2528, 0.2255)  # mean (RGB)
+        RGB_STD  = (0.2637, 0.2546, 0.2306)  # std (RGB)
+    else:
+        RGB_MEAN = (0.2533962, 0.35527486, 0.11992471)
+        RGB_STD  = (0.1717031, 0.11212555, 0.08487311)
+
     train_tform = T.Compose([
         T.RandomCrop(224),
         T.RandomHorizontalFlip(0.5), # rotate image about y-axis with 50% prob
         T.RandomVerticalFlip(0.5),
         T.ToTensor(),
-        # note: this should depend on the dataset!
-        T.Normalize((0.2613, 0.2528, 0.2255), # mean (RGB)
-                    (0.2637, 0.2546, 0.2306)) # std (RGB)
+        T.Normalize(RGB_MEAN, RGB_STD)
     ])
-
-    test_tform = T.Compose([
-        T.ToTensor(),
-        T.Normalize((0.2613, 0.2528, 0.2255), # mean (RGB)
-                    (0.2637, 0.2546, 0.2306))
-        ])
+    test_tform = T.Compose([T.ToTensor(), T.Normalize(RGB_MEAN, RGB_STD)])
 
     # Prepare dataset and dataloader
     trainset = datasets.VOCSegmentation(
@@ -244,12 +244,12 @@ if __name__ == '__main__':
         #print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, train IoU: {:.4f}, val IoU: {:.4f}, took {:.2f}s'
         #      .format(epoch + 1, args.epochs, train_loss, val_loss, train_iou, val_iou, epoch_time))
 
-        print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, took {:.2f}s'
+        print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, took {:.2f} s'
               .format(epoch + 1, args.epochs, train_loss, val_loss, epoch_time))
 
         with open(logname, 'a') as logfile:
             logwriter = csv.writer(logfile, delimiter=',')
             logwriter.writerow(
                 [epoch, lr, np.round(train_loss, 4), np.round(val_iou, 4)])
-    save_checkpoint(net, train_iou, epoch, args.logdir, model_string)
+    save_checkpoint(net, val_iou, epoch, args.logdir, model_string)
     #writer.close()
