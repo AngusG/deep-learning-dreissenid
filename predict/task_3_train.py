@@ -18,9 +18,14 @@ the input image and mask"""
 import transforms as T
 from torchvision import datasets
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
 # import an off-the-shelf model for now
-from torchvision.models import segmentation as models
+#from torchvision.models import segmentation as models
+
+from unet import UNet
+#import pytorch_unet
+from torchsummary import summary
 
 # my utils
 from task_3_utils import (save_checkpoint,
@@ -29,11 +34,13 @@ from task_3_utils import (save_checkpoint,
 
 if __name__ == '__main__':
 
+    '''
     model_names = sorted(
         name for name in models.__dict__
         if name.islower() and not name.startswith("__")
         and callable(models.__dict__[name])
         )
+    '''
 
     parser = argparse.ArgumentParser()
 
@@ -51,9 +58,9 @@ if __name__ == '__main__':
     parser.add_argument('--sess', default='def', type=str, help='session id')
 
     # model arch and training meta-parameters
-    parser.add_argument('-a', '--arch', metavar='ARCH', default='fcn_resnet50',
-                        choices=model_names, help='model architecture: ' +
-                        ' | '.join(model_names) + ' (default: fcn_resnet50)')
+    parser.add_argument('-a', '--arch', metavar='ARCH', default='unet_bn')
+                        #choices=model_names, help='model architecture: ' +
+                        #' | '.join(model_names) + ' (default: fcn_resnet50)')
     parser.add_argument('--epochs', help='number of epochs to train for',
                         type=int, default=100)
     parser.add_argument('--drop', help='epoch to first drop the initial \
@@ -64,6 +71,8 @@ if __name__ == '__main__':
                         type=float, default=0.1)
     parser.add_argument('--wd', help='weight decay regularization',
                         type=float, default=5e-4)
+    parser.add_argument('--bilinear', help='bilinear upsampling or transposed \
+                        convolution', action="store_true")
 
     args = parser.parse_args()
 
@@ -91,23 +100,40 @@ if __name__ == '__main__':
             logwriter.writerow(['epoch', 'lr', 'train loss', 'train iou'])
 
     """Define data augmentation transformations. Rotate mussels because they do
-    not have a specific orientation. Note that this also rotates masks."""
-    tform_image_and_mask = T.Compose([
+    not have a specific orientation. Note transforms provided to `transforms`
+    argument of VOCSegmentation apply to both input images and masks. The label
+    values happen to be 0/1 so they are unaffected by the normalization.
+    """
+    train_tform = T.Compose([
         T.RandomCrop(224),
         T.RandomHorizontalFlip(0.5), # rotate image about y-axis with 50% prob
         T.RandomVerticalFlip(0.5),
-        T.ToTensor()
+        T.ToTensor(),
+        T.Normalize((0.2613, 0.2528, 0.2255), # mean (RGB)
+                    (0.2637, 0.2546, 0.2306)) # std (RGB)
     ])
+
+    test_tform = T.Compose([
+        T.ToTensor(),
+        T.Normalize((0.2613, 0.2528, 0.2255), # mean (RGB)
+                    (0.2637, 0.2546, 0.2306))
+        ])
 
     # Prepare dataset and dataloader
     trainset = datasets.VOCSegmentation(
         root=args.dataroot, year='2012', image_set='train',
-        download=False, transforms=tform_image_and_mask)
+        download=False, transforms=train_tform)
     trainloader = DataLoader(trainset, batch_size=args.bs, shuffle=True)
+
+    trainset_noshuffle = datasets.VOCSegmentation(
+        root=args.dataroot, year='2012', image_set='train',
+        download=False, transforms=test_tform)
+    trainloader_noshuffle = DataLoader(trainset_noshuffle, batch_size=args.bs,
+                                       shuffle=False)
 
     valset = datasets.VOCSegmentation(
         root=args.dataroot, year='2012', image_set='val',
-        download=False, transforms=T.ToTensor())
+        download=False, transforms=test_tform)
     valloader = DataLoader(valset, batch_size=args.bs, shuffle=False)
 
     """Prepare model
@@ -119,7 +145,11 @@ if __name__ == '__main__':
     require a one-hot label format.
     """
 
+    #writer = SummaryWriter(comment=f'LR_{args.lr}_BS_{args.bs}')
+    global_step = 0
+
     # Optionally resume from existing checkpoint
+    """
     if args.resume:
         if os.path.isfile(args.resume):
             # Load checkpoint.
@@ -134,6 +164,19 @@ if __name__ == '__main__':
     else:
         print("=> creating model '{}'".format(args.arch))
         net = models.__dict__[args.arch](num_classes=1).to(device)
+    """
+    """
+    n_channels=3 for RGB images
+    n_classes is the number of probabilities you want to get per pixel
+     - For 1 class and background, use n_classes=1
+     - For 2 classes, use n_classes=1
+     - For N > 2 classes, use n_classes=N
+    """
+    bilinear = True if args.bilinear else False
+    net = UNet(n_channels=3, n_classes=1, bilinear=bilinear).to(device)
+
+    #net = pytorch_unet.UNet(1).to(device)
+    print(summary(net, input_size=(3, 224, 224)))
 
     # Prepare training procedure
     optimizer = torch.optim.SGD(
@@ -154,7 +197,7 @@ if __name__ == '__main__':
         for inputs, targets in valloader:
             inputs, targets = inputs.cuda(), targets.cuda()
             with torch.no_grad():
-                pred = net(inputs)['out'] # fprop
+                pred = net(inputs)#['out'] # fprop
                 batch_iou = eval_binary_iou(sig(pred), targets)
                 running_iou += batch_iou.item()
                 # dataloader outputs targets with shape NHW, but we need NCHW
@@ -167,32 +210,48 @@ if __name__ == '__main__':
 
     # Train
     for epoch in range(args.epochs):
-        train_iou = 0
-        train_loss = 0
+        #train_iou = 0
+        #train_loss = 0
         for batch, (inputs, targets) in enumerate(trainloader):
             lr = adjust_learning_rate(optimizer, epoch, args.drop, args.lr)
 
             """inputs are in NCHW format: N=nb. samples, C=channels, H=height,
             W=width. Do inputs.permute(0, 2, 3, 1) to viz in RGB format."""
             inputs, targets = inputs.to(device), targets.to(device)
-            pred = net(inputs)['out'] # fprop
+            pred = net(inputs) # fprop for unet
+            #pred = net(inputs)['out'] # fprop for torchvision.models.segmentation
             # evaluate diagnostic metrics
             batch_iou = eval_binary_iou(sig(pred), targets)
-            train_iou += batch_iou.item()
+            #train_iou += batch_iou.item()
             # dataloader outputs targets with shape NHW, but we need NCHW
             targets = targets.unsqueeze(dim=1).float()
             batch_loss = loss_fn(pred, targets)
-            train_loss += batch_loss.item()
+            #train_loss += batch_loss.item()
+
             optimizer.zero_grad() # reset gradients
             batch_loss.backward() # bprop
             optimizer.step() # update parameters
 
-        train_loss /= len(trainloader)
-        train_iou /= len(trainloader)
+            #writer.add_scalar('Loss/train', batch_loss.item(), global_step)
+            global_step += 1
+
+            if batch % 10 == 0:
+                print('Batch [{}/{}], train loss: {:.4f}, train IoU: {:.4f}'
+                    .format(batch, len(trainloader), batch_loss.item(), batch_iou.item()))
+
+        #train_loss /= len(trainloader)
+        #train_iou /= len(trainloader)
 
         # Validate
         val_iou, val_loss = evaluate(valloader)
-
+        train_iou, train_loss = evaluate(trainloader_noshuffle)
+        '''
+        writer.add_scalar('Loss/test', val_iou, global_step)
+        writer.add_images('images', inputs, global_step)
+        if net.n_classes == 1:
+            writer.add_images('masks/true', targets, global_step)
+            writer.add_images('masks/pred', sig(pred) > 0.5, global_step)
+        '''
         print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, train IoU: {:.4f}, val IoU: {:.4f}'
               .format(epoch + 1, args.epochs, train_loss, val_loss, train_iou, val_iou))
         with open(logname, 'a') as logfile:
@@ -200,3 +259,4 @@ if __name__ == '__main__':
             logwriter.writerow(
                 [epoch, lr, np.round(train_loss, 4), np.round(train_iou, 4)])
     save_checkpoint(net, train_iou, epoch, args.logdir, model_string)
+    #writer.close()
