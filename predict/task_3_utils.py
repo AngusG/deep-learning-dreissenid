@@ -42,9 +42,13 @@ def evaluate(net, data_loader, loss_fn, device):
             # jaccard similarity (IoU) on CPU
             pred_np = pred.detach().cpu().numpy()
             # flatten predictions and targets for IoU calculation
-            running_iou += jsc(
-                pred_np.round()[:, 0].reshape(pred_np.shape[0], -1),
-            targets_np.reshape(targets_np.shape[0], -1))
+
+            try:
+                running_iou += jsc(
+                    pred_np.round()[:, 0].reshape(pred_np.shape[0], -1),
+                    targets_np.reshape(targets_np.shape[0], -1))
+            except ValueError:
+                running_iou += 1.
 
     return running_iou / len(data_loader), running_loss / len(data_loader)
 
