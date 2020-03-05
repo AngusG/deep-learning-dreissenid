@@ -33,6 +33,8 @@ from task_3_utils import (save_checkpoint,
                           evaluate,
                           adjust_learning_rate)
 
+from folder2lmdb import VOCSegmentationLMDB
+
 if __name__ == '__main__':
 
     '''
@@ -122,19 +124,24 @@ if __name__ == '__main__':
     test_tform = T.Compose([T.ToTensor(), T.Normalize(RGB_MEAN, RGB_STD)])
 
     # Prepare dataset and dataloader
-    trainset = datasets.VOCSegmentation(
+    """
+    trainset = dataset.VOCSegmentation(
         root=args.dataroot, year='2012', image_set='train',
+        download=False, transforms=train_tform)
+    """
+    trainset = VOCSegmentationLMDB(
+        root='/scratch/ssd/gallowaa/cciw/Lab/train.lmdb',
         download=False, transforms=train_tform)
     trainloader = DataLoader(trainset, batch_size=args.bs, shuffle=True)
 
-    trainset_noshuffle = datasets.VOCSegmentation(
-        root=args.dataroot, year='2012', image_set='train',
+    trainset_noshuffle = VOCSegmentationLMDB(
+        root='/scratch/ssd/gallowaa/cciw/Lab/train.lmdb',
         download=False, transforms=test_tform)
     trainloader_noshuffle = DataLoader(trainset_noshuffle, batch_size=50,
                                        shuffle=False)
 
-    valset = datasets.VOCSegmentation(
-        root=args.dataroot, year='2012', image_set='val',
+    valset = VOCSegmentationLMDB(
+        root='/scratch/ssd/gallowaa/cciw/Lab/val.lmdb',
         download=False, transforms=test_tform)
     valloader = DataLoader(valset, batch_size=50, shuffle=False)
 
