@@ -1,16 +1,18 @@
 import os
+import numpy as np
+from sklearn.metrics import jaccard_score as jsc
+
 import torch
 from torch import nn
-from sklearn.metrics import jaccard_similarity_score as jsc
 
-
-def save_checkpoint(net, loss, epoch, logdir, model_string):
+def save_checkpoint(net, val_loss, trn_loss, epoch, logdir, model_string):
     """Saves model weights at a particular <epoch> into folder
     <logdir> with name <model_string>."""
     print('Saving..')
     state = {
         'net': net,
-        'loss': loss,
+        'val_loss': val_loss,
+        'trn_loss': trn_loss,
         'epoch': epoch,
         'rng_state': torch.get_rng_state()
     }
@@ -18,7 +20,7 @@ def save_checkpoint(net, loss, epoch, logdir, model_string):
         os.mkdir(os.path.join(logdir, 'checkpoint/'))
 
     torch.save(state, os.path.join(logdir, 'checkpoint/') +
-               model_string + '.ckpt')
+               model_string + '_epoch%d.ckpt' % epoch)
 
 def evaluate(net, data_loader, loss_fn, device):
     """Evaluates the intersection over union (IoU) and
@@ -43,14 +45,42 @@ def evaluate(net, data_loader, loss_fn, device):
             pred_np = pred.detach().cpu().numpy()
             # flatten predictions and targets for IoU calculation
 
+            t_one_hot = np.zeros((targets_np.shape[0], 2, targets_np.shape[1], targets_np.shape[2]))
+            t_one_hot[:, 1, :, :][targets_np == 1] = 1
+            t_one_hot[:, 0, :, :][targets_np == 0] = 1
+
+            p_one_hot = np.zeros((pred_np.shape[0], 2, pred_np.shape[2], pred_np.shape[3]))
+            p_one_hot[:, 1, :, :][pred_np.squeeze().round() == 1] = 1
+            p_one_hot[:, 0, :, :][pred_np.squeeze().round() == 0] = 1
+
+            running_iou += jsc(p_one_hot.reshape(pred_np.shape[0], -1),
+                               t_one_hot.reshape(targets_np.shape[0], -1),
+                               average='samples')
+            '''
             try:
                 running_iou += jsc(
                     pred_np.round()[:, 0].reshape(pred_np.shape[0], -1),
-                    targets_np.reshape(targets_np.shape[0], -1))
+                    targets_np.reshape(targets_np.shape[0], -1), average='samples')
             except ValueError:
                 running_iou += 1.
-
+            '''
     return running_iou / len(data_loader), running_loss / len(data_loader)
+
+
+def evaluate_loss(net, data_loader, loss_fn, device):
+    """Evaluates the cross entropy loss of DL model given by `net` on data from
+    `data_loader`
+    """
+    running_loss = 0
+
+    with torch.no_grad():
+        for i, (inputs, targets) in enumerate(data_loader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            pred = net(inputs)
+            # dataloader outputs targets with shape NHW, but we need NCHW
+            batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())
+            running_loss += batch_loss.item()
+    return running_loss / len(data_loader)
 
 
 
