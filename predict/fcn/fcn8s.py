@@ -88,7 +88,8 @@ class FCN8s(nn.Module):
     def _initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                m.weight.data.zero_()
+                #m.weight.data.zero_()
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
                 if m.bias is not None:
                     m.bias.data.zero_()
             if isinstance(m, nn.ConvTranspose2d):
