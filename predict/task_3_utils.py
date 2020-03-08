@@ -5,6 +5,8 @@ from sklearn.metrics import jaccard_score as jsc
 import torch
 from torch import nn
 
+from tqdm import tqdm
+
 def save_checkpoint(net, val_loss, trn_loss, epoch, logdir, model_string):
     """Saves model weights at a particular <epoch> into folder
     <logdir> with name <model_string>."""
@@ -74,7 +76,7 @@ def evaluate_loss(net, data_loader, loss_fn, device):
     running_loss = 0
 
     with torch.no_grad():
-        for i, (inputs, targets) in enumerate(data_loader):
+        for inputs, targets in tqdm(data_loader):
             inputs, targets = inputs.to(device), targets.to(device)
             pred = net(inputs)
             # dataloader outputs targets with shape NHW, but we need NCHW
@@ -96,7 +98,7 @@ def eval_binary_iou(outputs, targets, eps=1e-6):
     intersection = (outputs & targets).float().sum((1, 2))
     union = (outputs | targets).float().sum((1, 2))
     iou = intersection / (union + eps)
-    return iou.mean()
+    return iou
 
 
 def adjust_learning_rate(optimizer, epoch, drop, base_learning_rate):
@@ -120,3 +122,19 @@ def adjust_learning_rate(optimizer, epoch, drop, base_learning_rate):
                 param_group['lr'] = param_group['initial_lr'] / 100.
         '''
     return lr
+
+
+def pretty_image(axes):
+    for ax in axes:
+        ax.axis('off')
+    plt.tight_layout()
+
+
+def pixel_acc(pred, label):
+    #_, preds = torch.max(pred, dim=1)
+    preds = torch.argmax(pred, dim=1)
+    valid = (label >= 0).long()
+    acc_sum = torch.sum(valid * (preds == label).long())
+    pixel_sum = torch.sum(valid)
+    acc = acc_sum.float() / (pixel_sum.float() + 1e-10)
+    return acc    
