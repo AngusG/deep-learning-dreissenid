@@ -75,8 +75,11 @@ def evaluate_loss(net, data_loader, loss_fn, device):
     """
     running_loss = 0
 
+    for inputs, targets in data_loader:
+        break
+
     with torch.no_grad():
-        for inputs, targets in tqdm(data_loader):
+        for inputs, targets in tqdm(data_loader, unit=' images', unit_scale=inputs.shape[0]):
             inputs, targets = inputs.to(device), targets.to(device)
             pred = net(inputs)
             # dataloader outputs targets with shape NHW, but we need NCHW
@@ -127,7 +130,6 @@ def adjust_learning_rate(optimizer, epoch, drop, base_learning_rate):
 def pretty_image(axes):
     for ax in axes:
         ax.axis('off')
-    plt.tight_layout()
 
 
 def pixel_acc(pred, label):
@@ -137,4 +139,4 @@ def pixel_acc(pred, label):
     acc_sum = torch.sum(valid * (preds == label).long())
     pixel_sum = torch.sum(valid)
     acc = acc_sum.float() / (pixel_sum.float() + 1e-10)
-    return acc    
+    return acc
