@@ -139,7 +139,10 @@ if __name__ == '__main__':
         T.ToTensor(),
         T.Normalize(RGB_MEAN, RGB_STD)
     ])
-    test_tform = T.Compose([T.ToTensor(), T.Normalize(RGB_MEAN, RGB_STD)])
+    test_tform = T.Compose([
+        T.CenterCrop(224),
+        T.ToTensor(),
+        T.Normalize(RGB_MEAN, RGB_STD)])
 
     # Prepare dataset and dataloader
     """
@@ -152,16 +155,18 @@ if __name__ == '__main__':
         download=False, transforms=train_tform)
     trainloader = DataLoader(trainset, batch_size=args.bs, shuffle=True)
 
+    '''
     trainset_noshuffle = VOCSegmentationLMDB(
         root=osp.join(args.dataroot, 'train_' + args.data_version + '.lmdb'),
         download=False, transforms=test_tform)
     trainloader_noshuffle = DataLoader(trainset_noshuffle, batch_size=50,
                                        shuffle=False)
+    '''
 
     valset = VOCSegmentationLMDB(
         root=osp.join(args.dataroot, 'val_' + args.data_version + '.lmdb'),
         download=False, transforms=test_tform)
-    valloader = DataLoader(valset, batch_size=50, shuffle=False)
+    valloader = DataLoader(valset, batch_size=args.bs, shuffle=False)
 
     """Prepare model
     NB even though there are two classes (i.e. mussel and background),
@@ -229,8 +234,13 @@ if __name__ == '__main__':
     stability, so this is safer than nn.BCELoss(nn.Sigmoid(pred))
     Todo: implement class weights to penalize model for predicting bkg"""
 
-    # 6.5546 is the inverse frequency of `mussel` pixels in the training set
-    pos_weight = torch.FloatTensor([6.5546]).to(device)
+
+    if 'Lab' in args.dataroot.split('/'):
+        # 9.7662 is the inverse frequency of `mussel` pixels in the lab training set
+        pos_weight = torch.FloatTensor([9.7662]).to(device)  # 4.7861 val
+    else:
+        # 3.6891 is the inverse frequency of `mussel` pixels in the natural training set
+        pos_weight = torch.FloatTensor([4.3163]).to(device)  # 3.6891 train, 4.3163 val
     loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
     #loss_fn = nn.BCEWithLogitsLoss() # sigmoid cross entropy
@@ -253,6 +263,7 @@ if __name__ == '__main__':
         epoch_start_time = time.time()
 
         train_loss = 0
+        net.train()
         for batch, (inputs, targets) in enumerate(trainloader):
             lr = adjust_learning_rate(optimizer, epoch, args.drop, args.lr)
 
@@ -285,6 +296,7 @@ if __name__ == '__main__':
         epoch_time = time.time() - epoch_start_time
         train_loss /= len(trainloader)
 
+        net.eval()
         val_loss = evaluate_loss(net, valloader, loss_fn, device)
 
         writer.add_scalar('Loss/train', train_loss, global_step)
