@@ -31,8 +31,13 @@
 \usepackage{booktabs} % for much better looking tables
 \usepackage{array} % for better arrays (eg matrices) in maths
 \usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
-\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
-\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+\usepackage{verbatim} % adds environment for commenting out blocks of text & 
+%for better verbatim
+
+\usepackage{subfigure}
+
+%\usepackage{subfig} % make it possible to include more than one captioned 
+%%figure/table in a single float
 % These packages are all incorporated in the memoir class to one degree or another...
 
 %%% HEADERS & FOOTERS
@@ -57,13 +62,114 @@
 
 %%% The "real" document content comes below...
 
-\title{An Integrated Imaging and Lab Analysis Dataset for Invasive Lake Mussels in Lake Ontario and Lake Erie}
+\title{Final Report (Draft): \\
+Image Analysis using Artificial Intelligence to
+Quantify the Number and Density of Mussels in Lake Erie and Ontario}
+
 \author{Angus Galloway}
 %\date{} % Activate to display a given date or no date (if empty),
          % otherwise the current date is printed
+         
+\pagenumbering{roman}         
 
 \begin{document}
+
 \maketitle
+
+\thispagestyle{empty}
+
+\vspace{5cm}
+
+\begin{centering}
+
+Report prepared for:
+
+\vspace{1cm}
+
+Dominique Brunet \\ 
+Environment Canada \\ 
+867 Lakeshore Rd \\
+Burlington, ON \\
+L7S 1A1 
+
+\end{centering}
+
+\clearpage
+
+% an introduction, a technical discussion of the steps taken, the rationale for
+% the various design choices made and parameters selected for the training of
+% the computer vision model, a technical discussion summarizing the
+% strengths and limitations of the computer vision model and its robustness to 
+% change to change of image resolution, viewing angle and other relevant
+% factors, a discussion detailing how data acquisition methods can be improved
+% in future surveys, and conclusions and include, as applicable, supporting
+% graphs, tables and figures.
+
+\setcounter{page}{1}
+
+\section*{Executive Summary}
+% 250 words or less
+
+Goes here
+
+\clearpage
+
+\tableofcontents
+
+\clearpage
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Introduction}
+
+\section{Experiments} 
+
+\subsection{Training and Testing on In-Situ Dataset}
+
+\subsection{Training and Testing on Lab Dataset}
+
+\subsection{Zero-Shot Generalization From In-Situ to Lab Dataset}
+
+Figure~\ref{fig:zero-shot-situ-lab} shows model predictions that arise from
+training on underwater data and evaluated on an unseen distribution of Lab
+images. The generalization problem is difficult because mussels tend to sit in a
+vertical orientation in the wild, with the dark gap between the two shell
+halves acting as a primary visual basis for identification by human eye. 
+Further, mussels tend to be darker underwater due to reduced illumination, or
+from being covered with a fine layer of sediment. Conversely, Lab images are 
+well illuminated and all mussels lie on their side. 
+
+These qualitative differences between the two distributions are 
+reflected in Figure~\ref{fig:zero-shot-situ-lab}. It appears that the brighter 
+mussels -- which have a similar white colour as the unlabeled empty shells
+underwater -- are the most prominent false positives, while the darker more 
+textured area of the mussle shells are identified correctly.
+
+\newcommand{\zshot}{./img/situ_to_lab/}
+
+\begin{figure}
+\centering
+\subfigure{
+\includegraphics[width=0.9\linewidth]{\zshot/val_101-lab_100__Lab_3796-1_2018-08-13_image-1_patch_width1200__fcn8s_lr1e-03_wd5e-04_bs25_ep80_seed4_epoch70}}
+\subfigure{
+\includegraphics[width=0.9\linewidth]{\zshot/val_101-lab_100__Lab_3798-2_2018-08-13_image-1_patch_width1200__fcn8s_lr1e-03_wd5e-04_bs25_ep80_seed4_epoch70}}
+\subfigure{
+\includegraphics[width=0.9\linewidth]{\zshot/val_101-lab_100__Lab_3801-1_2018-07-11_image-1_patch_width1200__fcn8s_lr1e-03_wd5e-04_bs25_ep80_seed4_epoch70}}
+
+\caption{Qualitative results and intersection-over-union (IoU) score arising
+from training the~\texttt{FCN8s} model on~\emph{in-situ} underwater data
+(\texttt{val\_v101} split) and testing on Lab data (\texttt{v100}) zero-shot. 
+The first column is an input patch in RGB format, second column 
+overlays the real valued sigmoid prediction score with the input, and the last 
+row are the ground truth binary masks. A failure case is shown in the first
+row, and more successful cases in other rows. See text for more details. 
+Note: predictions are binarized for calculating IoU. All images are $1200$
+square pixels for clarity.}
+\label{fig:zero-shot-situ-lab}
+\end{figure}
+
+\section{Conclusion}
 
 \section{Comparison of Data Annotation Services}
 
@@ -281,6 +387,7 @@ testing scripts.
 
 \end{enumerate}
 
+\iffalse
 
 \section{Data Acquisition}
 
@@ -482,9 +589,6 @@ The Google Colab Notebook "TableDataExploration.ipynb" generates statistics and 
 
 The Google Colab Notebook "TableDataAnalysis.ipynb" performs a correlation analysis between different columns of table data.
 
-
-
-
-
+\fi
 
 \end{document}
