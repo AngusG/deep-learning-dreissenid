@@ -18,3 +18,4 @@ adig-report.pdf
 doc/CCIW_A_Galloway_100-001.pdf
 labelme/lab-data/*.png
 labelme/*.png
+*.toc
