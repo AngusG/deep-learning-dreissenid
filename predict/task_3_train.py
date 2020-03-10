@@ -171,21 +171,8 @@ if __name__ == '__main__':
     require a one-hot label format.
     """
     writer = SummaryWriter(save_path, flush_secs=30)
-    global_step = 0
 
-    # Optionally resume from existing checkpoint
     """
-    if args.resume:
-        if osp.isfile(args.resume):
-            # Load checkpoint.
-            print('==> Resuming from checkpoint..')
-            #checkpoint_file = osp.join(args.resume, 'checkpoint/ckpt.t7.') + \
-            #                  args.sess + '_' + str(args.seed)
-            checkpoint = torch.load(args.resume)
-            net = checkpoint['net']
-            best_acc = checkpoint['loss']
-            start_epoch = checkpoint['epoch'] + 1
-            torch.set_rng_state(checkpoint['rng_state'])
     else:
         print("=> creating model '{}'".format(args.arch))
         net = models.__dict__[args.arch](num_classes=1).to(device)
@@ -261,8 +248,24 @@ if __name__ == '__main__':
     #save_checkpoint(net, 100, 100, 0, save_path, ckpt_name)
     #save_amp_checkpoint(net, amp, optimizer, 100, 100, 0, save_path, ckpt_name)
 
+    # Optionally resume from existing checkpoint
+    if args.resume:
+        if osp.isfile(args.resume):
+            # Load checkpoint.
+            print('==> Resuming from checkpoint..')
+            checkpoint = torch.load(args.resume)
+            net.load_state_dict(checkpoint['net'])
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            amp.load_state_dict(checkpoint['amp'])
+            start_epoch = checkpoint['epoch'] + 1
+            torch.set_rng_state(checkpoint['rng_state'])
+            global_step = start_epoch * (len(trainset) // args.bs)
+    else:
+        start_epoch = 0
+        global_step = 0
+
     # Train
-    for epoch in range(args.epochs):
+    for epoch in range(start_epoch, args.epochs):
 
         '''
         eval_start_time = time.time()
@@ -347,11 +350,10 @@ if __name__ == '__main__':
         print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, took {:.2f} s'
               .format(epoch + 1, args.epochs, train_loss, val_loss, epoch_time))
 
-        save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
-
         with open(logname, 'a') as logfile:
             logwriter = csv.writer(logfile, delimiter=',')
             logwriter.writerow(
                 [epoch, lr, np.round(train_loss, 4), np.round(val_loss, 4)])
 
+    save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
     writer.close()
