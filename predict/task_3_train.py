@@ -60,6 +60,8 @@ if __name__ == '__main__':
     parser.add_argument('--data_version', help='dataset version according to \
                         https://semver.org/ convention', type=str,
                         default='v111', choices=['v100', 'v101', 'v110', 'v111'])
+    parser.add_argument('--split', help='training split', type=str,
+                        default='train', choices=['train', 'trainval'])
     parser.add_argument('--logdir', help='directory to store checkpoints; \
                         if None, nothing will be saved')
     parser.add_argument("--resume", default="", type=str,
@@ -150,23 +152,10 @@ if __name__ == '__main__':
         T.Normalize(RGB_MEAN, RGB_STD)])
 
     # Prepare dataset and dataloader
-    """
-    trainset = dataset.VOCSegmentation(
-        root=args.dataroot, year='2012', image_set='train',
-        download=False, transforms=train_tform)
-    """
     trainset = VOCSegmentationLMDB(
-        root=osp.join(args.dataroot, 'train_' + args.data_version + '.lmdb'),
+        root=osp.join(args.dataroot, args.split + '_' + args.data_version + '.lmdb'),
         download=False, transforms=train_tform)
     trainloader = DataLoader(trainset, batch_size=args.bs, shuffle=True)
-
-    '''
-    trainset_noshuffle = VOCSegmentationLMDB(
-        root=osp.join(args.dataroot, 'train_' + args.data_version + '.lmdb'),
-        download=False, transforms=test_tform)
-    trainloader_noshuffle = DataLoader(trainset_noshuffle, batch_size=50,
-                                       shuffle=False)
-    '''
 
     valset = VOCSegmentationLMDB(
         root=osp.join(args.dataroot, 'val_v101.lmdb'),
@@ -181,7 +170,6 @@ if __name__ == '__main__':
     *channel* rather than the *value* encodes the class, but this would
     require a one-hot label format.
     """
-
     writer = SummaryWriter(save_path, flush_secs=30)
     global_step = 0
 
@@ -248,10 +236,16 @@ if __name__ == '__main__':
         if args.data_version == 'v101':
             pos_weight = 3.6891
         elif args.data_version == 'v111':
-            pos_weight = 3.4270 # train
-            #pos_weight = 3.6633 # trainval
-        pos_weight = torch.FloatTensor([pos_weight]).to(device)
-    loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+            if args.split == 'train':
+                pos_weight = 3.4270 # train
+            else:
+                pos_weight = 3.6633 # trainval
+        train_pos_weight = torch.FloatTensor([pos_weight]).to(device)
+    loss_fn = nn.BCEWithLogitsLoss(pos_weight=train_pos_weight)
+
+    # 4.2838 for val_v101
+    val_pos_weight = torch.FloatTensor([4.2838]).to(device)
+    val_loss_fn = nn.BCEWithLogitsLoss(pos_weight=val_pos_weight)
 
     #loss_fn = nn.BCEWithLogitsLoss() # sigmoid cross entropy
     #         nn.CrossEntropyLoss() # softmax cross entropy
@@ -316,7 +310,7 @@ if __name__ == '__main__':
         train_loss /= len(trainloader)
 
         net.eval()
-        val_loss = evaluate_loss(net, valloader, loss_fn, device)
+        val_loss = evaluate_loss(net, valloader, val_loss_fn, device)
 
         writer.add_scalar('Loss/train', train_loss, global_step)
         writer.add_scalar('Loss/val', val_loss, global_step)
@@ -329,9 +323,10 @@ if __name__ == '__main__':
         writer.add_image('labels', lab_grid, global_step)
 
         if epoch % 10 == 0:
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
-                save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
+            save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
+            #if val_loss < best_val_loss:
+            #    best_val_loss = val_loss
+
 
         '''
         train_eval_start_time = time.time()
@@ -351,6 +346,8 @@ if __name__ == '__main__':
 
         print('Epoch [{}/{}], train loss: {:.4f}, val loss: {:.4f}, took {:.2f} s'
               .format(epoch + 1, args.epochs, train_loss, val_loss, epoch_time))
+
+        save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
 
         with open(logname, 'a') as logfile:
             logwriter = csv.writer(logfile, delimiter=',')
