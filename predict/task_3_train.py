@@ -33,11 +33,14 @@ from torchsummary import summary
 
 # my utils
 from task_3_utils import (save_checkpoint,
+                          save_amp_checkpoint,
                           evaluate,
                           evaluate_loss,
                           adjust_learning_rate)
 
 from folder2lmdb import VOCSegmentationLMDB
+
+from apex import amp
 
 if __name__ == '__main__':
 
@@ -56,7 +59,7 @@ if __name__ == '__main__':
                         default='/scratch/ssd/' + os.environ['USER'] + '/cciw/LMDB')
     parser.add_argument('--data_version', help='dataset version according to \
                         https://semver.org/ convention', type=str,
-                        default='v101', choices=['v100', 'v101'])
+                        default='v111', choices=['v100', 'v101', 'v110', 'v111'])
     parser.add_argument('--logdir', help='directory to store checkpoints; \
                         if None, nothing will be saved')
     parser.add_argument("--resume", default="", type=str,
@@ -83,6 +86,8 @@ if __name__ == '__main__':
                         type=float, default=5e-4)
     parser.add_argument('--bilinear', help='bilinear upsampling or transposed \
                         convolution', action="store_true")
+    parser.add_argument('--fp16', help='use apex to train with fp16 parameters',
+                        action="store_true")
 
     args = parser.parse_args()
 
@@ -164,7 +169,7 @@ if __name__ == '__main__':
     '''
 
     valset = VOCSegmentationLMDB(
-        root=osp.join(args.dataroot, 'val_' + args.data_version + '.lmdb'),
+        root=osp.join(args.dataroot, 'val_v101.lmdb'),
         download=False, transforms=test_tform)
     valloader = DataLoader(valset, batch_size=args.bs, shuffle=False)
 
@@ -239,8 +244,13 @@ if __name__ == '__main__':
         # 9.7662 is the inverse frequency of `mussel` pixels in the lab training set
         pos_weight = torch.FloatTensor([9.7662]).to(device)  # 4.7861 val
     else:
-        # 3.6891 is the inverse frequency of `mussel` pixels in the natural training set
-        pos_weight = torch.FloatTensor([4.3163]).to(device)  # 3.6891 train, 4.3163 val
+        # pos_weight by inverse frequency of `mussel` pixels
+        if args.data_version == 'v101':
+            pos_weight = 3.6891
+        elif args.data_version == 'v111':
+            pos_weight = 3.4270 # train
+            #pos_weight = 3.6633 # trainval
+        pos_weight = torch.FloatTensor([pos_weight]).to(device)
     loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
     #loss_fn = nn.BCEWithLogitsLoss() # sigmoid cross entropy
@@ -250,6 +260,12 @@ if __name__ == '__main__':
     sig = nn.Sigmoid()
 
     best_val_loss = 10
+
+    #if args.fp16:
+    net, optimizer = amp.initialize(net, optimizer, opt_level='O3')
+
+    #save_checkpoint(net, 100, 100, 0, save_path, ckpt_name)
+    #save_amp_checkpoint(net, amp, optimizer, 100, 100, 0, save_path, ckpt_name)
 
     # Train
     for epoch in range(args.epochs):
@@ -279,7 +295,10 @@ if __name__ == '__main__':
             batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())
             train_loss += batch_loss.item()
 
-            batch_loss.backward() # bprop
+            #batch_loss.backward() # bprop
+            with amp.scale_loss(batch_loss, optimizer) as scaled_loss:
+                scaled_loss.backward()
+
             optimizer.step() # update parameters
 
             if batch % 10 == 0:
@@ -312,7 +331,7 @@ if __name__ == '__main__':
         if epoch % 10 == 0:
             if val_loss < best_val_loss:
                 best_val_loss = val_loss
-                save_checkpoint(net, val_loss, train_loss, epoch, save_path, ckpt_name)
+                save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
 
         '''
         train_eval_start_time = time.time()

@@ -7,6 +7,28 @@ from torch import nn
 
 from tqdm import tqdm
 
+#from apex import amp
+
+def save_amp_checkpoint(net, amp, optimizer, val_loss, trn_loss, epoch, logdir, model_string):
+    """Saves model weights at a particular <epoch> into folder
+    <logdir> with name <model_string>."""
+    print('Saving..')
+    state = {
+        'net': net.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'amp': amp.state_dict(),
+        'val_loss': val_loss,
+        'trn_loss': trn_loss,
+        'epoch': epoch,
+        'rng_state': torch.get_rng_state()
+    }
+    if not os.path.isdir(os.path.join(logdir, 'checkpoint/')):
+        os.mkdir(os.path.join(logdir, 'checkpoint/'))
+
+    torch.save(state, os.path.join(logdir, 'checkpoint/') +
+               model_string + 'amp_epoch%d.pt' % epoch)
+
+
 def save_checkpoint(net, val_loss, trn_loss, epoch, logdir, model_string):
     """Saves model weights at a particular <epoch> into folder
     <logdir> with name <model_string>."""
