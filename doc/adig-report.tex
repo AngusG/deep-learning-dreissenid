@@ -33,8 +33,16 @@
 \usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
 \usepackage{verbatim} % adds environment for commenting out blocks of text & 
 %for better verbatim
+%\usepackage{amsmath}
+\usepackage{amsmath,amssymb}
+\DeclareMathOperator{\E}{\mathbb{E}}
+
+\usepackage{natbib}
+\bibliographystyle{abbrvnat}
+\setcitestyle{authoryear,open={((},close={))}}
 
 \usepackage{subfigure}
+%\usepackage{pageslts}
 
 %\usepackage{subfig} % make it possible to include more than one captioned 
 %%figure/table in a single float
@@ -43,9 +51,11 @@
 %%% HEADERS & FOOTERS
 \usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
 \pagestyle{fancy} % options: empty , plain , fancy
-\renewcommand{\headrulewidth}{0pt} % customise the layout...
-\lhead{}\chead{}\rhead{}
+%\renewcommand{\headrulewidth}{0pt} % customise the layout...
+%\lhead{}\chead{}\rhead{}
 \lfoot{}\cfoot{\thepage}\rfoot{}
+%\lfoot{}\cfoot{Page \thepage\ (\theCurrentPage) of 
+%\lastpageref{LastPages}}\rfoot{}
 
 %%% SECTION TITLE APPEARANCE
 \usepackage{sectsty}
@@ -118,16 +128,240 @@ Goes here
 
 \clearpage
 
+\section*{Abbreviations}
+
+\begin{description}
+\item[ML] machine learning
+\item[DL] deep learning
+\item[DNN] deep neural network
+\item[CNN] convolutional neural network
+\item[FCN] fully convolutional neural network
+\item[CE] Cross entropy
+\item[SGD] stochastic gradient descent
+\item[IoU] intersection over union
+\item[mIoU] mean IoU
+\item[TP] true positive
+\item[w.r.t.] with respect to
+\end{description}
+
+\clearpage
+
 \pagenumbering{arabic}
 \setcounter{page}{1}
 
 \section{Introduction}
 
-\section{Experiments} 
+The task of predicting mussel biomass, count, and percent coverage was cast as
+that of~\emph{semantic segmentation} in machine learning. This means that a 
+categorical prediction is assigned to each pixel in an image, where the
+categories are assumed to have some semantic meaning, for example 
+``pedestrian'', ``road'', or ``vehicle''.
+
+\section{Data Preparation}
+
+\section{Machine Learning Methodology}
+
+The practice of machine learning involves the selection, or search for ``good'' 
+meta-parameters. The prefix ``meta'' is used to distinguish the parameters of
+the learning algorithm -- generally set by the practitioner -- from those of the
+model, which are to be learned.\footnote{Meta-parameters are often called
+hyper-parameters, but the latter term is reserved for parameters of 
+probability distributions.}
+
+Relevant meta-parameters include the step size or ``learning rate'' of gradient
+descent (GD), and the mini-batch size, which is what distinguishes stochastic
+gradient descent (SGD) from full-batch GD. 
+
+Optional meta-parameters include L2 regularization, aka ``weight decay'',
+which penalizes the squared $\ell_2$-norm of all parameters of the model.
+
+Denote the neural network parameters at time step $t$ by $\theta_t$. The update
+equation which determines the parameters at the next time step, $\theta_{t + 
+1}$, is then:
+
+\begin{equation} \label{eq:sgd}
+\theta_{t + 1} = \theta_t + \eta \nabla_{\theta} \mathop{\mathbb{E}}_{x,y \sim 
+X, Y} \big[ \mathcal{L}(y, \hat{y}) \big]
+\end{equation}
+
+The loss function $\mathcal{L}$ has as its arguments the input $x$, ground
+truth labels $y$, and model predictions $\hat{y}$. Assume access to a dataset 
+of $N$ samples (technically a sequence not a set) of pairs 
+$\{ (x_i, y_i)\}_{i=1}^{N} $.
+
+\subsection{Learning Rate Selection}
+
+The learning rate, $\eta$ in Eq.~\eqref{eq:sgd}, controls the magnitude of the 
+updates to the parameters at each update step. There is significant theory on
+the optimal selection of learning rates in the case where the loss is a convex
+function of the parameters, but less so when the loss is non-convex w.r.t.~the
+parameters, as is the case in deep learning. Here, researchers often perform
+simulations to determine the best learning rate on the basis of validation 
+accuracy.
+
+Nevertheless, some general comments can be made on the topic of learning rate 
+selection in DL: 
+
+\begin{enumerate}
+\item a larger learning rate generally reduces the loss more quickly than a
+smaller learning rate allowing one to see results more quickly, but, \dots
+\item a larger learning rate may make training unstable
+\item a larger learning rate -- for a fixed mini-batch size -- can be said to
+be noisier than a smaller learning rate. Such noise tends to be helpful for 
+promoting generalization, e.g., wide minima argument, however if the gradient 
+is too noisy then the gradient signal-to-noise ratio may be too low thus 
+slowing learning.
+\item on the regularization effect of large initial learning rate.
+\end{enumerate}
+
+\subsection{Mini-Batch Size Selection}
+
+Generally, there is a strong interplay between the batch size and the learning
+rate. For training efficiency, one generally prefers the largest batch size
+without overflowing available GPU memory.
+
+Too large a batch size behaves similarly as too small a learning rate, thus may 
+converge to a ``sharper'' minimum of the loss landscape. Conversely, too small 
+a batch and the variance of the expectation in Eq.~\eqref{eq:sgd} will be too 
+high.
+
+\subsection{Segmentation Model Architectures}
+
+Several segmentation architectures based on deep neural networks were
+considered: 
+
+\begin{description}
+\item[FCN] Fully convolutional networks (FCN) were proposed 
+by~\cite{long2015fully} \dots
+
+\item[U-Net] Was originally proposed by~\cite{ronneberger2015unet} for 
+biomedical image segmentation, where sharp edge boundaries, for example between 
+affected and unaffected skin lessions are important. This architecture has 
+since been successfully applied in many natural image domains unrelated to 
+medical imaging. 
+The model takes its name from its ``U'' shaped network diagram whereby the
+input is encoded into a progressively smaller representation which reaches a 
+bottleneck at the bottom of the ``U'', which is then gradually upsampled to the 
+original image size while features from earlier encodings are concatenated to 
+the decoded representations at each layer for spatial consistency.
+
+\item[DeepLab] desc
+
+\item[CRF] The conditional random field~\cite{krahenbuhl2011efficient} is not
+itself a segmentation architecture, but a graphical model that is commonly used
+for~\emph{structured prediction} tasks, and post-processing segmentation
+predictions in particular.
+
+\end{description}
+
+\subsection{Evaluation Criteria}
+
+Semantic segmentation performance is generally assessed in terms of the
+intersection between predictions and the ground truth segmentation mask -- the
+true positives -- divided by the union of the predictions and the ground truth, 
+which includes both false negatives and false positives. This quantity is
+referred to as the intersection-over-union (IoU), or mIoU after taking the
+mean over samples in a dataset. This metric addresses a limitation of reporting 
+pixelwise accuracy, since most datasets are dominated by background pixels,
+thus a high accuracy could be obtained by a constant classifier that simply
+predicts ``background''. Conversely, the binary IoU is formally defined as:
+
+\begin{equation}
+\frac{TP}{FN + TP + FP}
+\end{equation}
+
+Despite its widespread use, the binary mIoU metric has some limitations:
+
+\begin{enumerate}
+\item If legitimate images contain~\emph{none} of the foreground classes, i.e.,
+the true label is $100\%$ background, the numerator ``TP'' is undefined and an
+IoU score of 0 is assigned to a ``true negative'' prediction.
+
+\item If the foreground pixel area varies significantly, IoU 
+scores may be less comparable between images. For example, an image with $1\%$
+\texttt{mussel} pixels in which $90\%$ are predicted correctly would be assigned
+an equal weight w.r.t.~the sample mean as an image with $50\%$~\texttt{mussel}
+of which only $50\%$ are identified as such. In this scenario, the sample with
+$1\%$~\texttt{mussel} inflates the mIoU score.
+\end{enumerate}
+
+In light of these limitations, several variants of mIoU have been proposed to 
+incorporate various weighting schemes.
+
+\subsection{Data Augmentation and Pre-Processing}
+
+\begin{enumerate}
+
+\item Randomly flip images horizontally and vertically.
+
+\item Normalize pixels from [0, 1] to [-1, 1].
+
+\end{enumerate}
+
+\section{Experiments}
+
+The underwater dataset is referred to as ``In-Situ''.
+
+\subsection{Mussel Biomass Prediction from Ground Truth Segmentation}
+
+In this section we assess the quality of the obtained segmentation labels and
+characterize the noise inherent in relating the mussel biomass to those mussels
+identifiable by human eye.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\linewidth]{img/Train-all-109-annotate-outliers}
+\caption{Relationship between mussel count, biomass, and diver estimated live
+mussel coverage versus pixels assigned to mussel class in ground truth
+segmentation labels for GLNI training data ($N=109$). Note that because only 
+those mussels that could be clearly identified as such were labeled, an upper 
+triangular effect is observed where some images have few labeled mussels, 
+but high biomass (e.g., due to occlusion from~\emph{Cladophora}). Removing 9 
+such outliers (shown in red) increases the $R^2$ value three fold from $\approx
+0.2$ to $0.63$. All ``outliers'' were intentionally under labeled due to
+considerable occlusion by Cladophora, or a lack of illumination.}
+\label{fig:train-biomass-from-labels}
+\end{figure}
+
 
 \subsection{Training and Testing on In-Situ Dataset}
 
+plot showing IoU along with CE loss.
+
+
 \subsection{Training and Testing on Lab Dataset}
+
+See Figure~\ref{fig:lab-to-lab-biomass-from-pixels}.
+
+\newcommand{\labtolab}{./img/lab_to_lab/}
+
+\begin{figure}
+\centering
+\subfigure[]{
+\includegraphics[width=0.9\linewidth]{\labtolab/lab_predict_biomass_from_pixels_no_cameraval_100-val_100__fcn8slim_lr1e-03_wd5e-04_bs32_ep50_seed1_epoch40.eps}
+\label{sub:lab-biomass-default}}
+\subfigure[]{
+\includegraphics[width=0.9\linewidth]{\labtolab/lab_predict_biomass_from_pixelsval_100-val_100__fcn8slim_lr1e-03_wd5e-04_bs32_ep50_seed1_epoch40.eps}
+\label{sub:lab-biomass-camera}}
+\caption{Relationship between mussel biomass in grams and fraction of pixels in 
+image mask (left column) or prediction (right column) assigned to mussel class.
+Plot~\subref{sub:lab-biomass-default} is based on raw pixel count in images, 
+while~\subref{sub:lab-biomass-camera} adjusts the number of pixels by the
+product of the vertical and horizontal squares in the frame divided by the 
+total number of squares ($16 \times 25$). The $R^2$ score, or proportion of
+variance in biomass accounted for by mussel pixels is annotated in each plot.}
+\label{fig:lab-to-lab-biomass-from-pixels}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\linewidth]{\labtolab/val_100-val_100__Lab_3796-1_2018-08-13_image-1_patch_width1000_crf__fcn8slim_lr1e-03_wd5e-04_bs32_ep50_seed1_epoch40.eps}
+\caption{Sample image patch and predictions with IoU score. Post processing 
+by CRF improves IoU by 10\% absolute, primarily by eliminating the FP
+predictions associated with the debris.}
+\label{fig:lab-to-lab-sample}
+\end{figure}
+
 
 \subsection{Zero-Shot Generalization From In-Situ to Lab Dataset}
 
@@ -171,9 +405,19 @@ square pixels for clarity.}
 
 \section{Conclusion}
 
-\section{Comparison of Data Annotation Services}
+\clearpage
+
+%\bibliographystyle{spbasic} % basic style, author-year citations
+\bibliography{CCIW_Zebra}   % name your BibTeX data base
+
+\clearpage
+
+\appendix
+
+\section{Data Annotation Services}
 
 \begin{table}[]
+\centering
 \caption{A comparison of three image labeling services for generating ground
 truth semantic segmentation masks for mussel images:
 \texttt{LabelMe}~(\url{https://github.com/wkentaro/labelme}),
@@ -354,6 +598,15 @@ fill'' is selected which will use the red colour set previously for mussel.
 Similarly, to label background pixels, switch the Fill Type to ``BG color 
 fill''. Repeat this step as necessary until satisfied.
 
+\begin{figure}
+\centering
+\includegraphics[width=0.4\linewidth]{img/GIMP_edit_mask}
+\caption{Modifying mussel segmentation masks using GIMP software. Transparent 
+red colour corresponds to mussel label. Selected area corresponds to modified 
+label.}
+\label{fig:gimp-label}
+\end{figure}
+
 \item To export a new mask in the correct format, we will now delete the JPEG 
 layer. From the Layers pane, right click on the jpg file and select ``Delete
 Layer''. Now select the PNG layer that we have been editing, and restore the 
@@ -368,6 +621,16 @@ see~\url{https://docs.gimp.org/2.8/en/gimp-image-convert-indexed.html}.
 \item Finally, from the File menu, Export As and append~\texttt{\_gimp.png} to 
 the end of the file for reproducibility. Each Lab sample should now be 
 associated with the following collection of five (5) images:
+
+\begin{figure}
+\centering
+\subfigure[]{
+\includegraphics[width=0.4\linewidth]{img/GIMP_Indexed-color-conversion}}
+\subfigure[]{
+\includegraphics[width=0.34\linewidth]{img/GIMP_Export-Image-as-PNG}}
+\caption{gimp-usage}
+\label{fig:gimp-export-menu}
+\end{figure}
 
 \begin{enumerate}
 \item \texttt{Lab\_2907-3\_2018-07-09\_image-1.jpg} -- Original RGB JPEG image.
@@ -386,209 +649,5 @@ testing scripts.
 \end{enumerate}
 
 \end{enumerate}
-
-\iffalse
-
-\section{Data Acquisition}
-
-\subsection{Field Sampling}
-
-Divers go to specific sites (denoted by PSN code) to image and then harvest mussel samples. The diver first estimate the overall percentage coverage of mussels over the site extent. Three square quadrats (metal frames with yellow and black stripes with inside area of 0.15 squared meters) are laid down on the lake bed at three representative locations in term of mussel coverage for the site. The diver then estimates visually the percentage of live mussels (full) and the percentage of empty mussels inside each quadrat. If cladophora is present, images/videos are generally acquired before and after manual harvesting of cladophora.
-
-Mussels are harvested by scrapping them from the lake bed surface and aspiring them in a tube. In rough water conditions, some mussels might break or be carried by the current. Divers make a visual estimate of sampling efficiency (percentage of mussels in the quadrats that are collected for analysis). Images/videos are acquired before and in some cases during the harvesting of mussels.
-
-\subsection{Lab Analysis}
-Mussels (and cladophora) are freeze-dried and brought back to the lab for analysis. The mussels are then manually counted, sorted by size with a sieve and weighted (biomass).
-
-\subsection{Imaging Data}
-Underwater video data was acquired between 2012-2018 by a hand-held camera for most of the dives. From these videos, trimmed videos were manually extracted for each portion over a quadrat. Still images were either acquired by direct image or extracted from videos. Some images were acquired by a camera system attached to a metal frame on top of quadrats (2016-2018). When multiple images were acquired for the same quadrat, the last image is deemed to be of highest quality. However, in some instances all the images available are taken before harvesting of cladophora, which might grow on top of mussels.
-
-
-\section{Data Preparation}
-
-Python scripts to generate the data described above from the data provided by WQMSD (Megan McCusker).
-
-
-\subsection{Imaging Data Naming Convention}
-Original video data file names were standardized to
-\begin{verbatim}
-f"{PSN}_{YYYY}-{MM}-{DD}.{EXT}"
-\end{verbatim}
-and saved on an external hard-drive in the folder
-\begin{verbatim}
-f"MusselsCurated/GLNI_2012-2018/GLNI_diver_videos/{PSN}/"
-\end{verbatim}
-In total, 493 videos were acquired for a total of 165GB of data. Format (EXT) of the videos were either .mp4, .mpg, .avi or .wmv.
-
-Names of raw images acquired from a camera mounted on a frame were standardized to
-\begin{verbatim}
-f"GLNI_{PSN}-{Quadrat#}_{YYYY}-{MM}-{DD}_image-{Image#}.nef"
-\end{verbatim}
-and saved on an external hard-drive in the folder
-\begin{verbatim}
-f"MusselsCurated/GLNI_2012-2018/GLNI_quadrat_raw_images/"
-\end{verbatim}
-The .nef file format stands for the raw Nikon image format. In total, there are 921 raw image files taking 36.2GB of disk space.
-
-Videos were trimmed manually by quadrat using the Windows Photo App and saved as
-\begin{verbatim}
-f"GLNI_{PSN}-{Quadrat#}_{YYYY}-{MM}-{DD}_video-{File#}.mp4"
-\end{verbatim}
- in the folder
-\begin{verbatim}
-f"MusselsCurated/GLNI_2012-2018/GLNI_quadrats_stills_images_videos/"
-\end{verbatim}
-and subfolder
-\begin{verbatim}
-f"{PSN}/{YYYY}/{Mmm}.{DD}/Videos/Quad{Quadrat#}/"
-\end{verbatim}
-where:
-\begin{description}
-\item[PSN] is the diving location code.
-\item[YYYY] is the four digits year.
-\item[MM] is the two digits month (with leading zero).
-\item[DD] is the two digits day (with leading zero).
-\item[Mmm] is the first three letters of the month (with first letter capitalized).
-\item[Quadrat\#] is the quadrat number (1, 2 or 3).
-\item[File\#] is the video.image/still number when multiple sequences of the same quadrat were taken.
-\end{description}
-In addition, short videos of the metadata recorded by divers on a white board was saved in the subfolder
-\begin{verbatim}
-f"{PSN}/{YYYY}/{Mmm}.{DD}/Videos/Meta/"
-\end{verbatim}
-under the name
-\begin{verbatim}
-f"GLNI_{PSN}-Meta_{YYYY}-{MM}-{DD}_video-1.mp4"
-\end{verbatim}
-From these videos, a limited number of still images were extracted using the Windows Photo App and saved as
-\begin{verbatim}
-f"GLNI_{PSN}-{Quadrat#}_{YYYY}-{MM}-{DD}_still-{File#}.jpg"
-\end{verbatim}
-in the subfolder
-\begin{verbatim}
-f"{PSN}/{YYYY}/{Mmm}.{DD}/Stills/Quad{Quadrat#}/"
-\end{verbatim}
-Also, raw images were postprocessed with default parameters and compressed to JPEG images with quality factor 90 using a Python script. These compressed images were saved as
-\begin{verbatim}
-f"GLNI_{PSN}-{Quadrat#}_{YYYY}-{MM}-{DD}_image-{File#}.jpg"
-\end{verbatim}
-in the subfolder
-\begin{verbatim}
-f"{PSN}/{YYYY}/{Mmm}.{DD}/Images/Quad{Quadrat#}/"
-\end{verbatim}
-For this project, the difference between "stills" and "images" is the source: stills are extracted from video files while images are taken directly from a camera. In total, there are 2089 trimmed video, compressed images or video still files taking a total of 14.6GB of space.
-
-
-\subsection{Table Data}
-
-The source Excel spreadsheet obtained from Megan McCusker of the Water Quality Monitoring and Surveillance Division (WQMDS) is stored in the external hard-drive as
-\begin{verbatim}
-"GLNI_Miussel_Analysis_Data_2012-2018.xlsx"
-\end{verbatim}
-in the folder
-\begin{verbatim}
-f"MusselsCurated/Tables/"
-\end{verbatim}
-
-This spreadsheet was reformatted into three tables: "Sites.csv", "Dives.csv" and "Analysis.csv". The "Sites.csv" table contains the following columns:
-\begin{description}
-\item[PSN] Unique code for site identification
-\item[Lake] Name of lake
-\item[Name] Name of site
-\item[Latitude] decimal latidunal (North-South) position (GPS coordinates)
-\item[Longitude] decimal longitidunal (East-West) position (GPS coordinates)
-\end{description}
-The Sites table is extracted from the "site names" sheet in the source Excel spreadsheet. The following entries were added under "ERIE SITES" to represent locations for "Nanticoke Shoal" (July 19, 2016 dive):
-\[
-\begin{array}{llll}
-PSN & Latitude & Longitude & Name \\
-502	& 42.7728 &	-79.9694	& Peacock Point\\
-504	& 42.7881 &	-79.9838	& Peacock Point
-\end{array}
-\]
-Note: the "Name" field in the "Sites.csv" table should be changed to "Site Name" to avoid confusion with "Name" field from images, videos or stills.
-
-The "Dives.csv" table contains information that stays constant for a given dive at a specific site and day. It includes the following columns:
-\begin{description}
-\item[Dive Index] Unique index for the dive
-\item[CSN] Code for dive number (unique for each dive index)
-\item[Cruise \#] Code for the cruise (not-unique)
-\item[PSN] Code for site identification (match PSN from "Sites.csv")
-\item[Date] Date of the dive (YYYY-MM-DD)
-\item[Depth (m)] Depth of water at the site
-\item[Overall Coverage] Percentage mussel coverage at the site as visually estimated by diver
-\item[Silt (\%)]	1/512 mm to 1/64 mm in diameter.
-\item[Clay (\%)	] Less than 1/512 mm in diameter.
-\item[Sand (\%)] 1/16 to 2 mm in diameter.
-\item[Gravel (\%)] 2 to 64 mm in diameter.
-\item[Cobble (\%)] 64 to 256 mm in diameter.
-\item[Rock (\%)] Not clear, maybe something of size between cobble and boulders.
-\item[Bedrock (\%)] Underlying hard rock structure.
-\item[Boulders (\%)] Greater than 256 mm in diameter.
-\item[Shale (\%)] Underlying brittle rock structure.
-\item[Underlying Substrate Type] Type of rock found under the sediments.
-\item[Underlying Substrate Depth (cm)] Depth under lake bed.
-\end{description}
-Note that each substrate type was independently visually estimated by the diver, so the total percentage does not always add up to 100\%.
-
-The "Analysis.csv" table contains information pertaining to a particular quadrat, which is a square metal frame of area of $0.15 m^2$. It contains the following columns:
-\begin{description}
-\item[Analysis Index] Unique index for the analysis.
-\item[Dive Index] Index of the dive associated with the analysis.
-\item[Quadrat] Quadrat number (unique for each dive index).
-\item[LiveCoverage] Percentage of area with live (full) mussels within the quadrat as visually estimated by diver.
-\item[EmptyCoverage] Percentage of area with empty/broken mussels within the quadrat.
-\item[Biomass] Total mass (g) of mussels tissue within the quadrat as measured in the lab.
-\item[Count] Total number of live mussels within the quadrat as counted in the lab.
-\item[Xmm] Percentage of mussels not passing the X mm sieve (estimated mussel size of more than X mm in diameter).
-\end{description}
-Sieve sizes are 16 mm, 14 mm, 12.5 mm, 10 mm, 8 mm, 6.3 mm, 4 mm and 2 mm. Note that in some cases, the sum of live and empty coverage exceeds 100\%. This inconsistency might either due to errors in estimation of the coverage or by considering live mussels underneath empty shells.
-
-The "FullVideos.csv" table links video names with "Dive Index". The "Video Name" column, which corresponds to the basename of each video file, serves as a unique index. It is associated with the "Dive Index" using the PSN number and the date. Finally, "Video Path" corresponds to the full file path of the original (names not curated) video file. It should eventually be changed to the file path of the standardized video files. Eventually, more metadata could be added in the table, such as file size, video duration, frame rate and frame resolution.
-
-The "QuadratVideos.csv" (and "QuadratStills.csv") tables links trimmed video files (extracted stills) per quadrat to an "Analysis Index". It contains the folllowing columns:
-\begin{description}
-\item[Source Video] The basename of the full video from which the trimmed video (stilll) was extracted. It corresponds to "Video Name" in the "Fullvideos.csv" table.
-\item[Name] The basename of the trimmed (per quadrat) video file.
-\item[Quadrat Video Path] The full path to the trimmed video (in the external hard-drive, not in the Google Drive). For "QuadratVideos.csv" only.
-\item[Quadrat Still Path] The full path to the still (in the external hard-drive, not in the Google Drive). For "QuadratStills.csv" only.
-\item[Analysis Index] The index of the anlaysis associated with the trimmed video. It is found from the PSN, date and quadrat number.
-\end{description}
-
-The "ImageTable.csv" table links raw images to the "Analysis Index". It contains the folllowing columns:
-\begin{description}
-\item[Analysis Index]
-\item[Raw Image Path] The raw image path in the external hard-drive.
-\item[Name] The basename of the raw image path.
-\item[Timestamp] The timestamp when the image was acquired, as recorded in image metadata.
-\end{description}
-Note that compressed images (.jpg) are stored in the Google Drive. The "ImageTable.csv" is assembled in three steps. First, a table is made from image names from 2017-2018. A second table for images from 2016 (without quadrat information) is populated, with quadrat information manually inputed. Finally, the two tables are merged into "ImageTable.csv".
-
-The Google Colab Notebook "ImagingDataInventory.ipynb" compares the imaging data listed in "ImageTable.csv", "QuadratVideos.csv" and "QuadratStills.csv" with the imaging data stored in the Google Drive. The list of file names for which any difference is found is returned for each of the three tables. As all imaging data is updated on the Google Drive, the difference should be an empty set.
-
-
-\subsection{Merging Tables}
-
-The Google Colab Notebook "TableDataPreparation.ipynb" generates two merged tables: a large un-processed "MergedTable.csv" and a smaller pre-processed "SimplifiedImagingAnalysis.csv".
-
-The "MergedTable.csv" table is assembled in two steps. A first table is obtained by merging "Analysis.csv" and "Dives.csv" on "Dive Index" and then merging the resulting table with "Sites.csv" on "PSN". This first table contains all the data analysis information. A second table is generated by appending "ImageTable.csv", "QuadratVideos.csv" and "QuadratStlls.csv" (which share the "Name" field). This second table links all imaging information to the "Analysis Index". The two tables are then merged on "Analysis Index"  to generate "MergedTable.csv". Note that "Name" has to be changed to "Site Name" in "Sites.csv" to differentiate from the "Name" column in the other tables. The merged table should be used in a read-only mode as it has multiple redundant information spread out through many rows.
-
-For the "SimplifiedImagingAnalysis.csv" table, a single imaging data per analysis is selected. Pre-processing steps include:
-\begin{itemize}
-\item Replacing null values to 0 for "Shale (\%)" in "Dives.csv"
-\item Replacing null values of "Live Coverage" in "Analysis.csv" to the corresponding "Overall Coverage" value from "Dives.csv"
-\item Replacing percentage values to count for mussel size by replacing null values to "0" in "Xmm" column and by multiplying "Xmm" column with "Count" column in "Analysis.csv".
-\end{itemize}
-The last imaging data available is selected for each "Analysis Index" with order of preference: i) raw images, ii) quadrat videos, iii) stills. Only a subset of columns useful for image analysis are kept.
-
-
-\section{Table Data Exploration}
-
-The Google Colab Notebook "TableDataExploration.ipynb" generates statistics and summaries for different columns of table data.  In particular, it displays the diving sites on a map, count the number of dives and boat cruises per day, per month and per year, and displays histograms for mussels count, biomass, size distribution, depth, and substrate type percentage. Finallly, it provides a count for the number of analysis and the number of analysis with associated imaging data and the number of unique analysis associated with imaging data.
-
-
-The Google Colab Notebook "TableDataAnalysis.ipynb" performs a correlation analysis between different columns of table data.
-
-\fi
 
 \end{document}
