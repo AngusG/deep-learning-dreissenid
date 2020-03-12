@@ -403,6 +403,43 @@ square pixels for clarity.}
 \label{fig:zero-shot-situ-lab}
 \end{figure}
 
+
+\subsection{Predicting Live Mussel Count}
+
+The labels in the lab analysis for all $N=40$ images from the 2019 Lab test 
+split were used to characterize the irreducible error between 
+the~\texttt{Count} and~\texttt{Biomass} variables. This serves as a key
+baseline before attempting to predict live mussel count using DL. 
+Figure~\ref{fig:count-from-biomass} depicts this relationship before and after 
+correcting biomass by the mussel size distribution variable. 
+
+For sample index $i$, a size distribution vector $\gamma \in \mathbb{R}^8$ with 
+elements $j$ being the fraction of mussels not passing the $X_j$ mm sieve, 
+$X \in \{16, 14, 12.5, 10, 8, 6.3, 4, 2\}$, the biomass $\text{B}_i$ was 
+adjusted according to:
+
+\begin{equation} \label{eq:size-distribution}
+\text{Count}_i = \text{B}_i \cdot \Sigma_{j=1}^8 \bigg( \gamma_j \cdot  
+\sqrt{\frac{2 \text{mm}}{X_j}} \bigg)
+\end{equation}
+
+The constant 2 mm in the numerator of Eq.~\eqref{eq:size-distribution} is the 
+minimum sieve size, such that biomass associated with this bin contributes 
+$1:1$ to the mussel Count, while the weight associated with biomass belonging 
+to larger mussels decreases with the square root of the ratio of the diameter
+to the smallest 2 mm diameter.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\linewidth]{img/lab_count_from_biomass.eps}
+\caption{The relationship between live mussel count and biomass (grams)
+for all $N=40$ samples from the 2019~\texttt{Lab} dataset, (a) before, and (b) 
+after correcting for the size distribution using
+Eq.~\eqref{eq:size-distribution}. The dashed lines indicate two standard
+deviations from the line of best fit.}
+\label{fig:count-from-biomass}
+\end{figure}
+
 \section{Conclusion}
 
 \clearpage
