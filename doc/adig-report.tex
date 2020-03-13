@@ -120,7 +120,36 @@ L7S 1A1
 \section*{Executive Summary}
 % 250 words or less
 
-Goes here
+Measuring invasive mussel populations is essential to manage their impact on 
+Great Lake ecosystems. Existing measurements are performed manually by divers 
+that harvest mussels for a subsequent lab analysis. This process is expensive 
+and difficult to scale throughout the Great Lakes, yielding incomplete data. 
+Conversely, this proof-of-concept examines the use of artificial intelligence
+(AI) to infer live coverage, biomass, and population, of in place mussels from
+still images and video.
+
+Qualitatively, the AI models identify both clusters as well as individual 
+mussels on held out test cases, with relatively few false alarms. Further, 
+models were found to generalize reasonably well to diverse underwater 
+illuminations, seasonality, camera orientations, camera resolutions, and video 
+data, after training on only small image patches associated with 176 full-image 
+labels. 
+
+Correlation between the predictions and lab measurements (e.g.~biomass, 
+counts) for the underwater data is currently low, primarily due to occlusion 
+from sediment and vegetation, empty shells, and some cases with low 
+illumination. Only mussels that could be clearly identified were annotated as 
+such. Agreement between the predictions and diver estimated live coverage is
+higher.
+For images taken in a lab, biomass and count were estimated reliably, and 
+with less variance than using the human-supplied segmentations. 
+
+Results could be further improved by requesting 100 additional labels
+from an online service at \$6.40 USD each. Image acquisition should ensure 
+sufficient illumination; the camera to object distance relatively consistent;
+the scene free of excess vegetation; and empty shells similar in colour as live 
+mussel removed, or treated as ``mussel''. These changes will enable more 
+accurate biomass and population counts in place.
 
 \clearpage
 
