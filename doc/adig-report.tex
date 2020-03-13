@@ -392,8 +392,9 @@ textured area of the mussle shells are identified correctly.
 \includegraphics[width=0.9\linewidth]{\zshot/val_101-lab_100__Lab_3801-1_2018-07-11_image-1_patch_width1200__fcn8s_lr1e-03_wd5e-04_bs25_ep80_seed4_epoch70.eps}}
 
 \caption{Qualitative results and intersection-over-union (IoU) score arising
-from training the~\texttt{FCN8s} model on~\emph{in-situ} underwater data
-(\texttt{val\_v101} split) and testing on Lab data (\texttt{v100}) zero-shot. 
+from training the~\texttt{FCN8s} model on~\emph{in situ} underwater data
+(\texttt{val\_v101} split -- ``in distribution'') and testing on Lab data 
+(\texttt{v100} -- ``out of distribution''), a.k.a ``zero-shot'' generalization. 
 The first column is an input patch in RGB format, second column 
 overlays the real valued sigmoid prediction score with the input, and the last 
 row are the ground truth binary masks. A failure case is shown in the first
@@ -419,15 +420,15 @@ $X \in \{16, 14, 12.5, 10, 8, 6.3, 4, 2\}$, the biomass $\text{B}_i$ was
 adjusted according to:
 
 \begin{equation} \label{eq:size-distribution}
-\text{Count}_i = \text{B}_i \cdot \Sigma_{j=1}^8 \bigg( \gamma_j \cdot  
-\sqrt{\frac{2 \text{mm}}{X_j}} \bigg)
+\text{Count}_i = \text{B}_i \cdot \Sigma_{j=1}^8 \bigg( \gamma_j \cdot \frac{2 
+\text{mm}}{X_j} \bigg)
 \end{equation}
 
 The constant 2 mm in the numerator of Eq.~\eqref{eq:size-distribution} is the 
 minimum sieve size, such that biomass associated with this bin contributes 
 $1:1$ to the mussel Count, while the weight associated with biomass belonging 
-to larger mussels decreases with the square root of the ratio of the diameter
-to the smallest 2 mm diameter.
+to larger mussels decreases with the ratio of the diameter to the smallest 2 mm
+diameter.
 
 \begin{figure}
 \centering
@@ -439,6 +440,49 @@ Eq.~\eqref{eq:size-distribution}. The dashed lines indicate two standard
 deviations from the line of best fit.}
 \label{fig:count-from-biomass}
 \end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\linewidth]{img/lab_predict_count_val_100-val_100__fcn8slim_lr1e-03_wd5e-04_bs32_ep50_seed1_epoch40.eps}
+\caption{Prediction of live mussel count for $N=38$ samples (two outliers were
+removed, see text for details) from the 2019~\texttt{Lab} dataset, (a) before, 
+and (b) after camera adjustment. Prediction is based on watershed segmentation 
+of the prediction mask. The dashed lines indicate two standard deviations from
+the line of best fit.}
+\label{fig:count-from-watershed}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfigure[]{
+\includegraphics[width=0.4\linewidth]{img/Lab_3554-1_2018-07-04_image-1_watershed_actual_count21_pcount16.png}
+\label{sub:watershed-3554-1}}
+\subfigure[]{
+\includegraphics[width=0.4\linewidth]{img/Lab_3796-1_2018-08-13_image-1_watershed_actual_count122_pcount43.png}
+\label{sub:watershed-3796-1}}
+\caption{Two examples of watershed segmentation results for counting live
+mussels in the 2019~\texttt{Lab} dataset. Each colour denotes a unique mussel
+instance. 
+In~\subref{sub:watershed-3554-1}, 21 total mussels were reported in 
+the lab analysis, of which 16 are identified. The six mussels that were 
+missed are the six smallest in diameter. It was found that the distance 
+thresholds in the watersheed algorithm could be tuned to recover some of the 
+smaller mussels, but there was a trade-off in terms of the type of error we see 
+in~\subref{sub:watershed-3796-1} where some mussels that were touching could 
+not be separated.}
+\label{fig:watershed-samples}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\linewidth]{./img/trainval_111-Tripod__Lab_1352_2019-05-23_GoPro-1__fcn8s_lr1e-03_wd5e-04_bs40_ep80_seed2amp_epoch79_iou_0p4103.jpg}
+\caption{Zero-shot generalization from~\texttt{trainval\_v111} split to Tripod
+site 1352, May 23, with IoU of 0.4103. Note that there are some false positives
+on the chain link, but this is reasonable as this object was not encountered
+during training, and forms a curved edge similar to that of a mussel.}
+\label{fig:tripod-1352}
+\end{figure}
+
 
 \section{Conclusion}
 
