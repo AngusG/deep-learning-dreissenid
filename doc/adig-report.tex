@@ -28,6 +28,13 @@
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
 \usepackage{booktabs} % for much better looking tables
 \usepackage{array} % for better arrays (eg matrices) in maths
 \usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
@@ -82,6 +89,27 @@ Quantify the Number and Density of Mussels in Lake Erie and Ontario}
          
 \pagenumbering{roman}         
 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
 \begin{document}
 
 \maketitle
@@ -131,24 +159,25 @@ still images and video.
 Qualitatively, the AI models identify both clusters as well as individual 
 mussels on held out test cases, with relatively few false alarms. Further, 
 models were found to generalize reasonably well to diverse underwater 
-illuminations, seasonality, camera orientations, camera resolutions, and video 
-data, after training on only small image patches associated with 176 full-image 
-labels. 
+illuminations, seasonality, camera orientations and resolutions, as well as 
+video, after training on only small patches extracted from 176 full size 
+labeled images. 
 
 Correlation between the predictions and lab measurements (e.g.~biomass, 
 counts) for the underwater data is currently low, primarily due to occlusion 
 from sediment and vegetation, empty shells, and some cases with low 
-illumination. Only mussels that could be clearly identified were annotated as 
-such. Agreement between the predictions and diver estimated live coverage is
-higher.
-For images taken in a lab, biomass and count were estimated reliably, and 
-with less variance than using the human-supplied segmentations. 
+illumination. Only mussels that could be unambiguously identified were 
+annotated as such. Agreement between the predictions and diver estimated live 
+coverage is higher. For images taken in the lab, biomass and count were 
+estimated reliably, with model predictions being more consistent than the
+human-supplied segmentation labels. 
 
-Results could be further improved by requesting 100 additional labels
-from an online service at \$6.40 USD each. Image acquisition should ensure 
+Results could be further improved by seeking additional labels from an online 
+service at \$6.40 USD each. Image acquisition should ensure 
 sufficient illumination; the camera to object distance relatively consistent;
-the scene free of excess vegetation; and empty shells similar in colour as live 
-mussel removed, or treated as ``mussel''. These changes will enable more 
+vegetation removed, or that models are deployed during earlier months when algae
+less present; empty shells similar in colour as live mussel removed, or treated
+as ``mussel''. These changes will enable more 
 accurate biomass and population counts in place.
 
 \clearpage
@@ -160,15 +189,16 @@ accurate biomass and population counts in place.
 \section*{Abbreviations}
 
 \begin{description}
-\item[ML] machine learning
+\item[API] application programming interface
+\item[CE] Cross entropy
+\item[CNN] convolutional neural network
 \item[DL] deep learning
 \item[DNN] deep neural network
-\item[CNN] convolutional neural network
 \item[FCN] fully convolutional neural network
-\item[CE] Cross entropy
-\item[SGD] stochastic gradient descent
 \item[IoU] intersection over union
 \item[mIoU] mean IoU
+\item[ML] machine learning
+\item[SGD] stochastic gradient descent
 \item[TP] true positive
 \item[w.r.t.] with respect to
 \end{description}
@@ -187,6 +217,112 @@ categories are assumed to have some semantic meaning, for example
 ``pedestrian'', ``road'', or ``vehicle''.
 
 \section{Data Preparation}
+
+A training dataset was prepared using~\texttt{GLNI} data primarily collected in 
+2017 and 2018. This data was attractive as a metal frame was used to hold the
+camera in a consistent position, thus the quadrat contents could be found at 
+mostly consistent pixel locations. Cropping the quadrat interior from 
+the~\texttt{GLNI} images, specifically the image with greatest suffix number in
+most cases, resulted in a $3000 \times 3000$ pixel image, which was reduced to 
+$75\%$ resolution by interpolation using OpenCV. The resulting $2250 \times 
+2250$ images -- ``originals'' -- were either labeled manually by the consultant 
+or using paid crowd-sourcing methods.
+
+\subsection{Sourcing Ground Truth Labels}
+
+This section describes the usage of three sources of ground truth semantic 
+segmentation labels. A detailed comparison of the three labeling methods is 
+provided in Table~\ref{tab:label-services}.
+
+\begin{enumerate}
+\item~\texttt{LabelMe}
+was initially developed as an online tool by 
+the MIT Computer Science and Artificial Intelligence Laboratory
+(CSAIL)~\cite{russell2008labelme}. Since then, high quality open source desktop 
+versions have been implemented in Python and the popular Qt graphics 
+library\footnote{\url{https://github.com/wkentaro/labelme}}. Slightly more than
+$50\%$ of the 233 originals that were labeled from scratch or modified during 
+the project were done by the consultant using this tool. The tool accepts 
+images in either jpeg or png format and outputs a~\texttt{json} file with the 
+same name as each image upon saving the annotation. The mean time to label an 
+original image from scratch was around 5-15 minutes, with some images with 
+hundreds of mussels taking 45 minutes.
+
+\item~\texttt{Figure Eight}~(\url{https://figure-eight.com/}:\footnote{formerly
+``CrowdFlower''}, is a human-in-the-loop data annotation company, and services 
+large enterprises like Google and Facebook. A labeling interface and set of
+instructions to be shown to workers was designed via a graphical online 
+interface and with some coding of environment variables. Several days were
+spent tuning the design of the task interface shown to workers and configuring 
+automated quality control tests before results of moderate quality were 
+returned. Overall the system required a high degree of supervision to ensure
+the responses were appropriate and that workers did not cheat. Additional 
+details including the final configuration are provided in 
+Appendix~\ref{sec:figure-eight}.
+
+Before a total of 46 images from the Aug.~2017 subset of the training set were
+deemed to be of sufficient quality for incorporation in the dataset, they had 
+to be adjusted and missing mussels added using the~\texttt{LabelMe} tool. To do 
+so, the 
+notebook~\href{https://github.com/AngusG/cciw-zebra-mussel/blob/master/labelme/figure-eight/postprocess-figure-eight-labels.ipynb}{postprocess-figure-eight-labels.ipynb}
+was used to convert the polygon vertices returned by~\texttt{Figure Eight} 
+in~\texttt{json} format into that used by~\texttt{LabelMe}.
+
+\item~\texttt{Scale AI}~(\url{https://scale.com/})
+
+Unlike LabelMe and FigureEight, the Scale service is more of a black-box in 
+which the user submits query images via an API in their preferred programming
+language -- see source code Listing~\ref{lst:scale} for a minimal working 
+Python example -- and a response is received within 4 to 48 hours in most 
+cases. Rather than having to design a user interface, labeling instructions are 
+provided as a text string argument to the API call. Upon receiving the 
+response, users can audit the results via their website and view transparent 
+labels imposed on the input image. In total 59 images were labeled by this 
+service. Most labels were of high quality and could be used as-is, while a 
+small number were adapted using the free GNU Image Manipulation Program (GIMP) 
+with the procedure outlined in Appendix~\ref{sec:gimp}.
+
+\end{enumerate}
+
+\begin{table}[]
+\centering
+\caption{A comparison of three image labeling services for generating ground
+truth semantic segmentation masks for mussel images:
+\texttt{LabelMe},~\texttt{Figure Eight}, and~\texttt{Scale AI}.
+Analysis done assuming two ($C=2$) classes ``mussel'' and ``background'', but
+is expected to remain consistent for $C \leq 20$. Row F) ``Latency'' means the
+time elapsed between when a label is requested for a particular image and the
+time it is delivered, whereas G) ``Throughput'' refers to the number of images
+processed per unit time (parallelism, i.e., many workers, increases
+throughput). Clarifications: row J) Yes$^*$: User is responsible
+for the creation of test examples that automatically reject low quality
+judgments, otherwise the user must manually reject them. Rejected judgments 
+incur the same fee as accepted judgments. Row M) Slack$^*$: Questions about 
+volume discounts and re-submitting labels rejected during audit were 
+acknowledged 02-28-2020 but remain unanswered.}
+\begin{tabular}{lccc}
+\toprule
+Service & Manual (\texttt{LabelMe}) & \texttt{Figure Eight} & \texttt{Scale AI} 
+\\ \midrule
+A) Interface type & Desktop GUI & Web Interface & API \\ \midrule
+B) Overhead complexity \\ (Amazon MTurk = 10) & 2 & 5 & 1 \\ \midrule
+C) Trial mode duration \\ (in images labeled) & NA & 1000 (Paid) & 5 (Free) \\ 
+\midrule
+D) Minimum fee after trial & NA & 10,000 USD & NA \\ \midrule
+E) Cost per image (USD) & -- & 2.25 & 6.40$^*$ \\ \midrule
+F) Latency (m=min, h=hour) & $<60$m & $<60$m & $4-48$h \\ \midrule
+G) Throughput & Low & High & High \\ \midrule
+H) Quality & High & Medium--Low & High \\ \midrule
+I) Guaranteed label for \\ all pixels & No & No & Yes \\ \midrule
+J) User responsible for \\ quality assurance (QA) & Yes & Yes$^*$ & No \\  
+\midrule
+K) Edit labels in~\texttt{LabelMe} & Yes & Yes & No \\ \midrule
+L) Edit labels in~\texttt{GIMP} & Yes & Yes & Yes \\ \midrule
+M) User support & None & Email, Video Call & Slack$^*$ \\ \midrule
+N) Images labeled & 126 & 64 & 59 \\ \bottomrule
+\end{tabular}
+\label{tab:label-services}
+\end{table}
 
 \section{Machine Learning Methodology}
 
@@ -502,18 +638,70 @@ not be separated.}
 \label{fig:watershed-samples}
 \end{figure}
 
+\iffalse
 \begin{figure}
 \centering
 \includegraphics[width=\linewidth]{./img/trainval_111-Tripod__Lab_1352_2019-05-23_GoPro-1__fcn8s_lr1e-03_wd5e-04_bs40_ep80_seed2amp_epoch79_iou_0p4103.jpg}
 \caption{Zero-shot generalization from~\texttt{trainval\_v111} split to Tripod
-site 1352, May 23, with IoU of 0.4103. Note that there are some false positives
-on the chain link, but this is reasonable as this object was not encountered
-during training, and forms a curved edge similar to that of a mussel.}
+site 1352, still image from May 23, with an IoU of 0.4103 with the ground truth 
+mask. Note that there are some false positives on the chain link, but this is 
+reasonable as the object was not encountered during training, and forms a 
+curved edge with shadow similar to that of a mussel.}
 \label{fig:tripod-1352}
 \end{figure}
+\fi
 
 
-\section{Conclusion}
+\section{Conclusion and Recommendations}
+
+The following recommendations are optional, and may be adopted independently of 
+the other recommendations or simultaneously. Adopting any of these changes 
+should increase the accuracy with which biomass and population counts can be 
+estimated.
+
+\begin{description}
+	
+	\item[Crowdsource Additional High Quality Labels] It is anticipated that 
+	performance in terms of both prediction IoU and lab measurements could be 
+	further improved by seeking additional labels. Based on the comparison
+	outlined in Table~\ref{tab:label-services}, the most suitable service in 
+	light of estimated volume and label quality is Scale, which charges a flat 
+	\$6.40 USD fee per label. This is a relatively inexpensive and guaranteed
+	way to improve model performance.
+	
+	\item[Illumination]	It was observed that some images use artificial 
+	lighting while many do not. It would be helpful to standardize this, 
+	ideally using the additional light unless the scene is already well lit.
+	
+	\item[Distance from Camera to Bottom] The camera to object distance should 
+	be as consistent as possible.
+	
+	\item[Occlusion] Vegetation should be removed
+	
+	\item[Seasonal Changes] It is known that Cladophora and other green algae 
+	grow as the summer season progresses. As an alternative to manual removal 
+	of debris from the area of interest, the collection of training data and 
+	model deployment could be coordinated around a specific time interval each 
+	year, for example May and June when algae is less present.
+	
+	\item[Ambiguous Shells] Empty shells pose a challenge both for labeling and 
+	the models. Although models showed a good ability to distinguish the mostly
+	darker Zebra mussels from white shells, the Quagga mussel can be lighter in 
+	colour than the Zebra and hard to discriminate from the spurious shells 
+	during labeling. Depending on the orientation of the shell, if the exterior
+	is facing up it it impossible to determine if it is ``dead'', or contains a
+	second shell piece underneath and is a live animal. 
+	
+	Rather than interpreting the categorical~\texttt{mussel} label to include
+	Zebra and Quagga mussels and not white shells, it would be helpful to 
+	standardize around the shell colour, and for example use separate classes 
+	for dark versus white shells, or try to capture images in areas with few 
+	empty shells and include them in the~\texttt{mussel} class. 
+	Alternatively, empty shells could be removed but this requires manual 
+	intervention.
+	
+\end{description}
+
 
 \clearpage
 
@@ -526,44 +714,8 @@ during training, and forms a curved edge similar to that of a mussel.}
 
 \section{Data Annotation Services}
 
-\begin{table}[]
-\centering
-\caption{A comparison of three image labeling services for generating ground
-truth semantic segmentation masks for mussel images:
-\texttt{LabelMe}~(\url{https://github.com/wkentaro/labelme}),
-\texttt{Figure Eight}~(\url{https://figure-eight.com/}),
-and~\texttt{Scale AI}~(\url{https://scale.com/}).
-Analysis done assuming two ($C=2$) classes ``mussel'' and ``background'', but
-is expected to remain consistent for $C \leq 20$. Row F) ``Latency'' means the
-time elapsed between when a label is requested for a particular image and the
-time it is delivered, whereas G) ``Throughput'' refers to the number of images
-processed per unit time (parallelism, i.e., many workers, increases
-throughput). Note: The asterisk ($^*$) for J) for~\texttt{Figure Eight} means
-that the user is responsible for the creation of test examples that
-automatically reject low quality judgments, otherwise the user must manually
-reject them. Rejected judgments incur the same fee as accepted judgments.}
-\begin{tabular}{lccc}
-\toprule
-Service & Manual (\texttt{LabelMe}) & \texttt{Figure Eight} & \texttt{Scale AI} 
-\\ \midrule
-A) Interface type & Desktop GUI & Web Interface & API Only \\ \midrule
-B) Initial setup complexity \\ (Amazon MTurk = 10) & 2 & 5 & 1 \\ \midrule
-C) Length of trial \\ (images labeled) & NA & 1000 (Paid) & 5 (Free) \\ \midrule
-D) Minimum fee after trial & NA & 10,000 USD & NA \\ \midrule
-E) Cost per image (USD) & NA & 2.25 & 6.40 \\ \midrule
-F) Latency (minutes) & $1-10$ & $< 60$ & $60-240$ \\ \midrule
-G) Throughput & Low & High & Medium \\ \midrule
-H) Quality & High & Medium & High \\ \midrule
-I) Guaranteed label for \\ all pixels & No & No & Yes \\ \midrule
-J) User responsible for \\ quality assurance (QA) & Yes & Yes$^*$ & No \\  
-\midrule
-K) Ability to edit \\ labels in~\texttt{LabelMe} & Yes & Yes & No \\ \midrule
-L) User support & Github & Email & Slack \\ 
-\bottomrule
-\end{tabular}
-\end{table}
-
 \subsection{Figure Eight}
+\label{sec:figure-eight}
 
 Additional settings were required for good results with this platform. 
 Under the Design tab, at the bottom of the page there is an option to enable 
@@ -622,6 +774,33 @@ This section enumerates the complete set of steps to process the output of the
 Scale AI platform for use by the python model training scripts.
 
 \begin{enumerate}
+
+\item Request labels from Scale using Listing~\ref{lst:scale}, 
+where~\texttt{csv\_file} is a list of files available at a public URL 
+like:\\
+\texttt{https://<bucket>.amazonaws.com/<path>/GLNI\_PSN-Quad\_YYYY-MM-DD\_image-\#.jpg}
+
+\begin{lstlisting}[language=python, caption=A complete Python snippet for 
+requesting semantic segmentation labels from the Scale annotation service
+for an arbitrary number of images specified in~\texttt{csv\_file}., 
+frame=single, label={lst:scale}]
+import scaleapi
+client = scaleapi.ScaleClient(API_KEY)  # API_KEY from scale.com
+with open(os.path.join(csv_path, csv_file)) as f:
+  csv_reader = csv.reader(f, delimiter=',')
+  for row in csv_reader:
+    resp = client.create_segmentannotation_task(
+      urgency='standard',  # optional: immediate
+      callback_url='your@email.com',
+      instruction='Draw a tight polygon around the live **mussels**
+        in the image. Ignore empty white shells.',
+      attachment_type='image',
+      attachment=row[0],
+      labels=['background', 'mussel'],
+      allow_unlabeled=False
+    )
+\end{lstlisting}    
+
 \item Run the python
 notebook~\href{https://github.com/AngusG/cciw-zebra-mussel/blob/master/labelme/scale}{postprocess-scale-labels.ipynb}
 to convert the RGB colour labels from the~\texttt{Scale AI} API into the format
@@ -662,14 +841,17 @@ ls -l VOCdevkit/VOC2012/JPEGImages/ | wc -l
 \end{enumerate}
 
 \subsection{Editing Segmentation Masks in GIMP}
+\label{sec:gimp}
 
-This section outlines a procedure for editing segmentations masks that are 
-already in PNG format, for example to clean up the automatically generated 
-masks for the Lab images from the
-notebook~\href{https://github.com/AngusG/cciw-zebra-mussel/blob/master/labelme/autolabel-lab-testing-set.ipynb}{autolabel-lab-testing-set.ipynb}.
+This section outlines a procedure for editing segmentations masks in PNG format
+rather than as~\texttt{json} vertices, for example to clean up the
+automatically generated masks for the Lab images from the
+notebook~\href{https://github.com/AngusG/cciw-zebra-mussel/blob/master/labelme/autolabel-lab-testing-set.ipynb}{autolabel-lab-testing-set.ipynb},
+ or those returned by the~\url{https://scale.com/} service.
 
 I recommend using the~\href{https://www.gimp.org/}{GNU Image Manipulation
-Program} (GIMP), which is a free and open source professional graphics program.
+Program} (GIMP), which is a free and open source professional graphics software 
+program, albeit with a bit of a learning curve.
 
 \begin{enumerate}
 \item Select a~\texttt{*.jpg} image, right click and open with GIMP Image 
