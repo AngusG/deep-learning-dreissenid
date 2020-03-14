@@ -242,8 +242,8 @@ if __name__ == '__main__':
 
     best_val_loss = 10
 
-    #if args.fp16:
-    net, optimizer = amp.initialize(net, optimizer, opt_level='O3')
+    if args.fp16:
+        net, optimizer = amp.initialize(net, optimizer, opt_level='O3')
 
     #save_checkpoint(net, 100, 100, 0, save_path, ckpt_name)
     #save_amp_checkpoint(net, amp, optimizer, 100, 100, 0, save_path, ckpt_name)
@@ -292,9 +292,12 @@ if __name__ == '__main__':
             batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())
             train_loss += batch_loss.item()
 
-            #batch_loss.backward() # bprop
-            with amp.scale_loss(batch_loss, optimizer) as scaled_loss:
-                scaled_loss.backward()
+
+            if args.fp16:
+                with amp.scale_loss(batch_loss, optimizer) as scaled_loss:
+                    scaled_loss.backward()
+            else:
+                batch_loss.backward() # bprop
 
             optimizer.step() # update parameters
 
@@ -326,10 +329,12 @@ if __name__ == '__main__':
         writer.add_image('labels', lab_grid, global_step)
 
         if epoch % 10 == 0:
-            save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
             #if val_loss < best_val_loss:
             #    best_val_loss = val_loss
-
+            if args.fp16:
+                save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
+            else:
+                save_checkpoint(net, val_loss, train_loss, epoch, save_path, ckpt_name)
 
         '''
         train_eval_start_time = time.time()
@@ -354,6 +359,9 @@ if __name__ == '__main__':
             logwriter = csv.writer(logfile, delimiter=',')
             logwriter.writerow(
                 [epoch, lr, np.round(train_loss, 4), np.round(val_loss, 4)])
+    if args.fp16:
+        save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
+    else:
+        save_checkpoint(net, val_loss, train_loss, epoch, save_path, ckpt_name)
 
-    save_amp_checkpoint(net, amp, optimizer, val_loss, train_loss, epoch, save_path, ckpt_name)
     writer.close()
