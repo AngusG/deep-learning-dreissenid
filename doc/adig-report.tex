@@ -29,6 +29,7 @@
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{multirow}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -415,6 +416,33 @@ N) Images labeled & 126 & 64 & 59 \\ \bottomrule
 \label{tab:label-services}
 \end{table}
 
+\subsection{Data Analysis}
+
+Each of th $N=121$ original images which form the training set are
+associated with a lab measurements and visually estimated live coverage. 
+The analysis shown in Figure~\ref{fig:data-analysis} suggests that live
+coverage is a poor predictor of biomass and count, however, biomass predicts 
+the live coverage with $R^2 = 0.4090$. These results serve as a reference for 
+the machine learning based predictions, which like the human diver, relies 
+solely on visual cues to infer biomass and population count.
+
+\begin{figure}
+\centering
+\subfigure[]{
+\includegraphics[width=0.9\linewidth]{img/train_v111_predict_biomass_and_count_from_live_coverage.eps}
+\label{fig:bio-ct-fr-cov}}
+\subfigure[]{
+\includegraphics[width=0.9\linewidth]{img/train_v111_predict_live_coverage_from_biomass_and_count.eps}
+\label{fig:cov-fr-bio-ct}}
+\caption{Plotting~\subref{fig:bio-ct-fr-cov} mussel biomass and count versus 
+live coverage estimated by diver, and~\subref{fig:cov-fr-bio-ct} vice versa, 
+for GLNI training data ($N=121$). Note that the $R^2$ coefficient of 
+determination varies between the two rows since it is not symmetric.}
+\label{fig:data-analysis}
+\end{figure}
+
+
+
 \section{Machine Learning Methodology}
 
 The practice of machine learning involves the selection, or search for ``good'' 
@@ -558,7 +586,7 @@ incorporate various weighting schemes.
 
 The underwater dataset is referred to as ``In-Situ''.
 
-\subsection{Mussel Biomass Prediction from Ground Truth Segmentation}
+\subsection{Biomass Prediction from Ground Truth Segmentation}
 
 In this section we assess the quality of the obtained segmentation labels and
 characterize the noise inherent in relating the mussel biomass to those mussels
@@ -580,12 +608,55 @@ considerable occlusion by Cladophora, or a lack of illumination.}
 \end{figure}
 
 
-\subsection{Training and Testing on In-Situ Dataset}
+\subsection{Underwater Dataset}
 
 plot showing IoU along with CE loss.
 
+Model trained on~\texttt{val\_v101} set and evaluated on~\texttt{2018-06}
+subset labeled by Scale.
 
-\subsection{Training and Testing on Lab Dataset}
+\begin{table}[]
+\caption{Confusion matrix for model trained on~\texttt{val\_v101} set and
+evaluated on~\texttt{2018-06}.}
+\centering
+\begin{tabular}{llcc}
+\toprule
+\multicolumn{1}{c}{\multirow{2}{*}{Label}} & \multicolumn{1}{c}{1} & 0.26 & 
+0.09 \\ \cmidrule{2-4}
+\multicolumn{1}{c}{} & \multicolumn{1}{c}{0} & 0.19 & 0.46 \\ \cmidrule{2-4}
+ &  & 1 & 0 \\
+ &  & \multicolumn{2}{c}{Prediction} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}
+\centering
+\subfigure[]{
+\includegraphics[width=0.45\linewidth]{./img/GLNI_2909-1_2018-06-28_image-1_crop.jpg}
+\label{sub:iou-i-1}}
+\subfigure[]{
+\includegraphics[width=0.45\linewidth]{./img/GLNI_2909-1_2018-06-28_image-1_crop__fcn8s_lr1e-03_wd5e-04_bs25_ep80_seed4_epoch70__TP66638_FP29221_FN540291_IoU0p1048.eps}
+\label{sub:iou-p-1}}
+\subfigure[]{
+\includegraphics[width=0.45\linewidth]{./img/GLNI_3796-2_2018-06-26_image-3_crop.jpg}
+\label{sub:iou-i-2}}
+\subfigure[]{
+\includegraphics[width=0.45\linewidth]{./img/GLNI_3796-2_2018-06-26_image-3_crop__fcn8s_lr1e-03_wd5e-04_bs25_ep80_seed4_epoch70__TP2199076_FP479652_FN184805_IoU0p7680.eps}
+\label{sub:iou-p-2}}
+\caption{Visualization of intersection-over-union (IoU) calculation for a 
+sample with a low IoU value [\subref{sub:iou-i-1}-\subref{sub:iou-p-1}] and 
+high IoU value [\subref{sub:iou-i-2}-\subref{sub:iou-p-2}]. 
+For~\subref{sub:iou-p-1}: true positives (TP) = 66,638, false positives (FP) =
+29,221, false negatives (FN) = 540,291, and IoU = 0.1015. 
+For~\subref{sub:iou-p-2}: TP = 2,199,076, FP = 479,652, FN = 184,805, and IoU = 
+0.7680. Samples from a held out the~\texttt{2018-06} split labeled by Scale and
+model trained on~\texttt{val\_v101} split. Note that high FN 
+in~\subref{sub:iou-p-1} may be due to under-labeling tendencies.}
+\label{fig:iou-example}
+\end{figure}
+
+
+\subsection{Lab Dataset}
 
 See Figure~\ref{fig:lab-to-lab-biomass-from-pixels}.
 
@@ -619,7 +690,7 @@ predictions associated with the debris.}
 \end{figure}
 
 
-\subsection{Zero-Shot Generalization From In-Situ to Lab Dataset}
+\subsection{Generalization From Underwater to Lab Dataset}
 
 Figure~\ref{fig:zero-shot-situ-lab} shows model predictions that arise from
 training on underwater data and evaluated on an unseen distribution of Lab
