@@ -46,7 +46,7 @@
 
 \usepackage{natbib}
 \bibliographystyle{abbrvnat}
-\setcitestyle{authoryear,open={((},close={))}}
+\setcitestyle{authoryear} %,open={((},close={))}}
 
 \usepackage{subfigure}
 %\usepackage{pageslts}
@@ -210,23 +210,106 @@ accurate biomass and population counts in place.
 
 \section{Introduction}
 
+Measuring the density of invasive Zebra and Quagga mussels is essential to 
+manage their adverse impacts on Great Lake ecosystems. Measurements are
+currently performed manually by teams of divers that collect mussels
+from a known area for analysis in a lab where they are subsequently freeze 
+dried, weighed, and their diameter determined by sieve. This process is 
+laborious, costly, and cannot be readily scaled up for mapping large areas 
+throughout the Great Lakes. To this end, a proof-of-concept was 
+devised to examine the feasibility of using artificial intelligence (AI) to 
+infer live coverage, biomass, and mussel populations in place underwater 
+solely from still images and video data.
+
 The task of predicting mussel biomass, count, and percent coverage was cast as
 that of~\emph{semantic segmentation} in machine learning. This means that a 
 categorical prediction is assigned to each pixel in an image, where the
-categories are assumed to have some semantic meaning, for example 
-``pedestrian'', ``road'', or ``vehicle''.
+categories are associated to some~\emph{semantic} meaning, for example 
+``pedestrian'', ``road'', or ``vehicle''. In general, the number of samples
+required to learn to discriminate between $C$ classes with a fixed accuracy 
+increases with $C$.\footnote{It follows from an information-theoretic analysis
+of traditional classification that the sample complexity scales linearly with
+$C$ at best, although the precise form of this relationship is not clear for 
+semantic segmentation with deep neural networks.} The problem was therefore
+formulated as a pixelwise binary classification between~\texttt{background} 
+and~\texttt{mussle}. It is expected that the number of pixels output 
+as~\texttt{mussle}, combined with the camera resolution, distance, and surface
+area should be predictive of the mussel biomass and their count after 
+further processing.
 
 \section{Data Preparation}
 
+It is known that~\emph{supervised} machine learning, and deep learning in 
+particular, often relies on vast quantities of labeled samples from which to 
+learn. Although 1,608 analyses with ground truth scalar measurements such as 
+biomass have been provided, there are computational as well as 
+information-theoretic challenges associated with attempting to learn directly 
+from such a dataset. 
+The computational challenge is that the typical image resolution used to train
+state-of-the-art deep neural networks such that they do not exceed available
+GPU memory is around 256 square pixels -- about an order of magnitude less than
+the high image resolutions in the mussels dataset. 
+
+The second challenge is that learning an end-to-end prediction on the basis of 
+a scalar error, for example w.r.t.~biomass, has a low signal-to-noise 
+ratio. Such an approach would require i) reducing the image resolution until
+models fit in memory resulting in significant information loss, ii) yield
+spurious correlations, for example between substrate type and count, as 
+the actual task of~\emph{counting} mussel instances would not be solved, 
+nor would sufficient detail be available to do so.
+
+Fortunately, fully convolutional neural network (FCN) architectures gracefully 
+scale to arbitrary image resolutions, and can thus be trained on batches 
+comprised of smaller patches and tested on whole images. 
+
 A training dataset was prepared using~\texttt{GLNI} data primarily collected in 
-2017 and 2018. This data was attractive as a metal frame was used to hold the
-camera in a consistent position, thus the quadrat contents could be found at 
-mostly consistent pixel locations. Cropping the quadrat interior from 
-the~\texttt{GLNI} images, specifically the image with greatest suffix number in
-most cases, resulted in a $3000 \times 3000$ pixel image, which was reduced to 
-$75\%$ resolution by interpolation using OpenCV. The resulting $2250 \times 
-2250$ images -- ``originals'' -- were either labeled manually by the consultant 
-or using paid crowd-sourcing methods.
+2017 and 2018. This data was attractive as a metal frame held the camera, thus
+the quadrat to camera mapping was approximately fixed. Furthermore, a
+consistent distance between the camera and substrate was believed to increase
+the robustness of learned features to other sources of variation including 
+seasonality, water colour, substrate type, and partial occlusions.
+
+In many cases multiple images were captured for the same analysis and assigned 
+a~\textbf{File \#}. Generally, the image with the highest suffix number was 
+selected for inclusion in the dataset, which greatly reduced the number 
+of candidates for labeling (e.g.~from 403 to 179 for the 
+2019~\texttt{GLNI} data). 
+
+The quadrat interior was extracted resulting in a 3000 square pixel image,  
+which was scaled by $75\%$ with interpolation using OpenCV. The resulting 2250
+square pixel image -- the ``originals'' -- were either labeled manually by the 
+consultant or using paid crowd-sourcing methods. Pairs of original and labeled
+image were then cropped to $250 \times 250$ pixel patches, depicted in
+Figure~\ref{fig:original-to-patch}. 
+
+The training set (\texttt{train\_v111}) contains 121 originals and 9,801 
+patches, while the 2019 GLNI validation set (\texttt{val\_v101}) contains 55 
+originals and 4,455 patches. For model deployment and assessment of 
+generalization to non-GLNI data, for example Tripod and WHERD, it is 
+recommended to train on both splits (\texttt{trainval\_v111}) for 14,256 total 
+patches. 
+This is competitive with the PASCAL Visual Object Classes (VOC) Challenge 
+dataset, which has become a standard benchmark for semantic segmentation 
+models, is of a similar resolution and contains 6,929 ground truth 
+segmentations but 20 object classes~\citep{everingham2015pascal}. As such, it
+is anticipated that publication of this dataset may be of independent interest 
+to the machine learning and computer vision communities.
+
+\begin{figure}
+\centering
+\subfigure[]{
+\includegraphics[width=0.44\linewidth]{./img/GLNI_12-2_2019-07-25_image-1_crop_img_viz.jpg}
+\label{sub:original-img-to-patch}}
+\subfigure[]{
+\includegraphics[width=0.44\linewidth]{./img/GLNI_12-2_2019-07-25_image-1_crop_lab_viz.png}
+\label{sub:original-lab-to-patch}}
+\caption{Extraction of $250 \times 250$ pixel patches from an 
+original input~\subref{sub:original-img-to-patch} and its ground truth
+segmentation~\subref{sub:original-lab-to-patch}. This step yields 81 training 
+images per sample and provides a sense of the spatial context of the
+predictions.}
+\label{fig:original-to-patch}
+\end{figure}
 
 \subsection{Sourcing Ground Truth Labels}
 
@@ -238,9 +321,11 @@ provided in Table~\ref{tab:label-services}.
 \item~\texttt{LabelMe}
 was initially developed as an online tool by 
 the MIT Computer Science and Artificial Intelligence Laboratory
-(CSAIL)~\cite{russell2008labelme}. Since then, high quality open source desktop 
+(CSAIL)~\citep{russell2008labelme}. Since then, high quality open source 
+desktop 
 versions have been implemented in Python and the popular Qt graphics 
-library\footnote{\url{https://github.com/wkentaro/labelme}}. Slightly more than
+library\footnote{Tool available for download at this 
+URL~\url{https://github.com/wkentaro/labelme}}. Slightly more than
 $50\%$ of the 233 originals that were labeled from scratch or modified during 
 the project were done by the consultant using this tool. The tool accepts 
 images in either jpeg or png format and outputs a~\texttt{json} file with the 
@@ -283,6 +368,12 @@ small number were adapted using the free GNU Image Manipulation Program (GIMP)
 with the procedure outlined in Appendix~\ref{sec:gimp}.
 
 \end{enumerate}
+
+Given the high quality, transparent pricing scheme and ability to handle
+arbitrary volumes, as well as the autonomy and expediency with which results 
+are returned, it is recommended to use the Scale service for all future 
+labeling needs until volumes exceed 1000 images, after which point volume 
+discounts or a custom solution should be considered.
 
 \begin{table}[]
 \centering
