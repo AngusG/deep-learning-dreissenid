@@ -203,3 +203,16 @@ def run_crf(rgb, pred_np):
     Q[0][Q[0] < 0.5] = 0
 
     return Q[0, :, :]
+
+
+def img_to_nchw_tensor(img, device):
+    
+    # pre-processing image consistent with PyTorch training transforms
+    img = img / 255.
+    img = ((img - np.array([0.5, 0.5, 0.5])) / np.array([0.5, 0.5, 0.5]))
+    imgt = torch.FloatTensor(img).to(device)
+    imgt = imgt.unsqueeze(0)
+    # Note: need to call contiguous after the permute 
+    # else max pooling will fail
+    nchw_tensor = imgt.permute(0, 3, 1, 2).contiguous()
+    return nchw_tensor
