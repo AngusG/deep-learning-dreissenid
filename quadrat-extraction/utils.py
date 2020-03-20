@@ -81,7 +81,6 @@ def get_intersection_pts(coords, img_w, img_h):
             d0 /= d0_norm
         except:
             print('exception')
-            pass
 
         for j in range(i + 1, len(coords)):
 
@@ -91,7 +90,6 @@ def get_intersection_pts(coords, img_w, img_h):
                 d1 /= d1_norm
             except:
                 print('exception')
-                pass
 
             if np.linalg.norm(d1) < 1.1 and np.linalg.norm(d0) < 1.1:
                 angle = np.rad2deg(np.arccos(np.minimum(1, np.dot(d0, d1))))
@@ -345,7 +343,6 @@ def crop_still_image(img, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100
         
         # clean up coordinates
         if len(linesP) > 1:
-            pass
             coords = reject_outlier_lines(coords, outlier_angle_thresh)
             coords = merge_noisy_lines(coords.astype('int64'))
             
@@ -394,6 +391,104 @@ def crop_still_image(img, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100
             # find all intersection points
             if len(linesP) > 1:
                 corners_np = get_intersection_pts(coordsR, img_w, img_h)
+                if do_draw:
+                    for i in range(len(corners_np)):
+                        cv2.circle(img, (int(corners_np[i, 0]), 
+                                         int(corners_np[i, 1]) ), 25,
+                                   (255, 0, 0), thickness=8, lineType=8, shift=0)
+        else:
+            # draw lines on canvas
+            img = draw_lines_from_coords(img, coords)    
+            corners_np = np.zeros(1)
+        
+        if len(corners_np) > 3:
+            centroid, crop, cluster_centers = centroid_and_crop_pts_kmeans(corners_np)            
+            
+            if do_draw:
+                cv2.circle(img, (int(centroid[0]), int(centroid[1])), 20, 
+                               (0, 0, 0), thickness=6, lineType=8, shift=0)
+            
+                for i in range(len(crop)):
+                    cv2.circle(img, ( int(crop[i, 0]), int(crop[i, 1]) ), 10, 
+                               (255, 255, 255), thickness=8, lineType=8, shift=0)
+            
+                # Draw k-means cluster centers with big green circles
+                for i in range(len(cluster_centers)):
+                    cv2.circle(img, (int(cluster_centers[i, 0]), 
+                                     int(cluster_centers[i, 1])), 40, 
+                               (0, 255, 0), thickness=8, lineType=8, shift=0)
+        else:
+            crop = np.zeros(1)
+    else:
+        crop = np.zeros(1)
+
+    return img, edges, crop
+
+
+def crop_still_image_no_rotate(img, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1, canny_1=30, canny_2=400, outlier_angle_thresh=20, do_draw=True):
+    """Crop the quadrat from a still image 'img'.
+    
+    @param rho -- Distance resolution of the accumulator (pixels).
+    @param theta -- Angle resolution of the accumulator (radians).
+    @param threshold -- Accumulator threshold, return lines with 
+                        more than threshold of votes. (intersection points)
+    @param minLineLength -- Minimum line length. Line segments shorter than 
+                            that are rejected. (pixels)
+    @param maxLineGap -- Maximum allowed gap between points on the same line 
+                         to link them. (pixels)
+    @param canny_threshold1 Histeresis threshold 1
+    @param canny_threshold2 Histeresis threshold 2
+    """
+    trim_px = 2
+    DP1, DP2 = 0, 1
+    X, Y = 0, 1
+    
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    linesP = [i for i in np.arange(17)]
+    while len(linesP) > 14:
+        # run the Canny edge detector on the rotated gray scale image
+        edges = cv2.Canny(img, threshold1=canny_1, threshold2=canny_2, L2gradient=False)
+        edges = edges[trim_px:-trim_px, trim_px:-trim_px]
+        # run the probabilistic hough lines transform
+        linesP = cv2.HoughLinesP(edges, rho, theta, threshold=threshold, minLineLength=mll, maxLineGap=mlg)
+        if linesP is None:
+            break
+        canny_2 += 10
+    
+    img = img[trim_px:-trim_px, trim_px:-trim_px, :]
+    #img = np.ascontiguousarray(img, dtype=np.uint8)
+    img_h = img.shape[0]
+    img_w = img.shape[1]
+
+    # @param lines The extremes of the detected lines if any (<N_LINES_FOUND>, 1, x_0, y_0, x_1, y_1). (pixels)\
+    if linesP is not None:
+        coords = np.zeros((len(linesP), 2, 2)).astype('int') # points, start/end, x/y
+        for i in range(len(linesP)):
+            l = linesP[i][0]
+            coords[i, DP1, X] = l[0] # x1
+            coords[i, DP1, Y] = l[1] # y1
+            coords[i, DP2, X] = l[2] # x2
+            coords[i, DP2, Y] = l[3] # y2
+        
+        # clean up coordinates
+        if len(linesP) > 1:
+            coords = reject_outlier_lines(coords, outlier_angle_thresh)
+            coords = merge_noisy_lines(coords.astype('int64'))
+            
+        print('Using %d of %d lines' % (len(coords), len(linesP)))
+        
+        if len(coords) < 8:
+            print('It is likely that: \n i)  all four quadtrat corners are not visible \n ii) image is blurry, or partly occluded')
+        
+        # attempt to rotate the image
+        if len(coords) > 3:
+            # draw lines on canvas from coordsR
+            if do_draw:
+                img = draw_lines_from_coords(img, coords)
+            # find all intersection points
+            if len(linesP) > 1:
+                corners_np = get_intersection_pts(coords.astype('float'), img_w, img_h)
                 if do_draw:
                     for i in range(len(corners_np)):
                         cv2.circle(img, (int(corners_np[i, 0]), 
