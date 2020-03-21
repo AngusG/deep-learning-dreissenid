@@ -1,5 +1,6 @@
 # flake8: noqa
 from .fcn32s import FCN32s
+from .fcn32s_slim import FCN32slim
 from .fcn16s import FCN16s
 from .fcn16s_slim import FCN16slim
 from .fcn8s import FCN8s

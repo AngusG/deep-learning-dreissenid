@@ -35,7 +35,9 @@ from torchsummary import summary
 from task_3_utils import (save_checkpoint,
                           save_amp_checkpoint,
                           evaluate,
-                          evaluate_loss,
+                          #evaluate_loss,
+                          #evaluate_binary_iou,
+                          evaluate_loss_and_iou,
                           adjust_learning_rate)
 
 from folder2lmdb import VOCSegmentationLMDB
@@ -56,10 +58,11 @@ if __name__ == '__main__':
 
     # dataset, admin, checkpointing and hw details
     parser.add_argument('--dataroot', help='path to dataset', type=str,
-                        default='/scratch/ssd/' + os.environ['USER'] + '/cciw/LMDB')
+                        default='/scratch/' + os.environ['USER'] + '/cciw/LMDB')
     parser.add_argument('--data_version', help='dataset version according to \
                         https://semver.org/ convention', type=str,
-                        default='v111', choices=['v100', 'v101', 'v110', 'v111'])
+                        default='v120', choices=['v100', 'v101', 'v110', 'v111',
+                                                 'v112', 'v120'])
     parser.add_argument('--split', help='training split', type=str,
                         default='train', choices=['train', 'trainval'])
     parser.add_argument('--logdir', help='directory to store checkpoints; \
@@ -73,17 +76,17 @@ if __name__ == '__main__':
     #parser.add_argument('--sess', default='def', type=str, help='session id')
 
     # model arch and training meta-parameters
-    parser.add_argument('-a', '--arch', metavar='ARCH', default='fcn16slim')
+    parser.add_argument('-a', '--arch', metavar='ARCH', default='fcn8slim')
                         #choices=model_names, help='model architecture: ' +
                         #' | '.join(model_names) + ' (default: fcn_resnet50)')
     parser.add_argument('--epochs', help='number of epochs to train for',
-                        type=int, default=100)
+                        type=int, default=80)
     parser.add_argument('--drop', help='epoch to first drop the initial \
-                        learning rate', type=int, default=40)
+                        learning rate', type=int, default=30)
     parser.add_argument('--bs', help='SGD mini-batch size',
-                        type=int, default=25)
+                        type=int, default=50)
     parser.add_argument('--lr', help='initial learning rate',
-                        type=float, default=1e-4)
+                        type=float, default=1e-3)
     parser.add_argument('--wd', help='weight decay regularization',
                         type=float, default=5e-4)
     parser.add_argument('--bilinear', help='bilinear upsampling or transposed \
@@ -104,6 +107,7 @@ if __name__ == '__main__':
 
     save_path = osp.join(
         args.logdir,
+        args.split + '_' + args.data_version,
         args.arch + '/lr%.e/wd%.e/bs%d/ep%d/seed%d/' % (args.lr, args.wd, args.bs, args.epochs, args.seed))
     print('Saving model to ', save_path)
 
@@ -202,6 +206,9 @@ if __name__ == '__main__':
     elif args.arch == 'fcn32s':
         from fcn import FCN32s
         net = FCN32s(n_class=1).to(device)
+    elif args.arch == 'fcn32slim':
+        from fcn import FCN32slim
+        net = FCN32slim(n_class=1).to(device)
 
     #net = pytorch_unet.UNet(1).to(device)
     print(summary(net, input_size=(3, 224, 224)))
@@ -222,11 +229,23 @@ if __name__ == '__main__':
         # pos_weight by inverse frequency of `mussel` pixels
         if args.data_version == 'v101':
             pos_weight = 3.6891
+
         elif args.data_version == 'v111':
             if args.split == 'train':
                 pos_weight = 3.4270 # train
             else:
                 pos_weight = 3.6633 # trainval
+
+        elif args.data_version == 'v112':
+            if args.split == 'train':
+                pos_weight =  3.6021 # train
+
+        elif args.data_version == 'v120':
+            if args.split == 'train':
+                pos_weight = 3.1849  # train
+            else:
+                pos_weight = 3.4297 # trainval
+
         train_pos_weight = torch.FloatTensor([pos_weight]).to(device)
     loss_fn = nn.BCEWithLogitsLoss(pos_weight=train_pos_weight)
 
@@ -267,14 +286,15 @@ if __name__ == '__main__':
     # Train
     for epoch in range(start_epoch, args.epochs):
 
-        '''
         eval_start_time = time.time()
-        val_iou, val_loss = evaluate(net, valloader, loss_fn, device)
+        net.eval()
+        val_loss, val_iou = evaluate_loss_and_iou(net, valloader, val_loss_fn, device)
         print('Epoch [%d/%d], val IoU %.4f, val loss %.4f, took %.2f sec, ' % (
             (epoch, args.epochs, val_iou, val_loss, time.time() - eval_start_time)))
-        '''
-        epoch_start_time = time.time()
+        writer.add_scalar('Loss/val', val_loss, epoch)
+        writer.add_scalar('IoU/val', val_iou, epoch)
 
+        epoch_start_time = time.time()
         train_loss = 0
         net.train()
         for batch, (inputs, targets) in enumerate(trainloader):
@@ -315,18 +335,16 @@ if __name__ == '__main__':
         epoch_time = time.time() - epoch_start_time
         train_loss /= len(trainloader)
 
-        net.eval()
-        val_loss = evaluate_loss(net, valloader, val_loss_fn, device)
-
-        writer.add_scalar('Loss/train', train_loss, global_step)
-        writer.add_scalar('Loss/val', val_loss, global_step)
-
+        #net.eval()
+        #val_loss = evaluate_loss(net, valloader, val_loss_fn, device)
+        #val_iou = evaluate_binary_iou(net, valloader, val_loss_fn, device)
+        writer.add_scalar('Loss/train', train_loss, epoch + 1)
         img_grid = torchvision.utils.make_grid(inputs[:16])
         sig_grid = torchvision.utils.make_grid(sig(pred[:16]))
         lab_grid = torchvision.utils.make_grid(targets[:16].unsqueeze(dim=1).float())
-        writer.add_image('images', img_grid, global_step)
-        writer.add_image('predictions', sig_grid, global_step)
-        writer.add_image('labels', lab_grid, global_step)
+        writer.add_image('images', img_grid, epoch)
+        writer.add_image('predictions', sig_grid, epoch)
+        writer.add_image('labels', lab_grid, epoch)
 
         if epoch % 10 == 0:
             #if val_loss < best_val_loss:
