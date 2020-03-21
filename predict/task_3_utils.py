@@ -141,7 +141,37 @@ def evaluate_loss_and_iou(net, data_loader, loss_fn, device):
 
             running_loss += batch_loss.item()
 
-    return running_loss / len(data_loader), running_iou / batch
+    return running_loss / len(data_loader), running_iou / float(batch + 1e-6)
+
+
+def evaluate_loss_and_iou_torchvision(net, data_loader, loss_fn, device):
+    """Evaluates the cross entropy loss and IoU of DL model given by `net` on
+    data from `data_loader`
+    """
+    sig = nn.Sigmoid()
+    batch = 0
+    running_iou = 0
+    running_loss = 0
+
+    for inputs, targets in data_loader:
+        break
+
+    with torch.no_grad():
+        for inputs, targets in tqdm(data_loader, unit=' images', unit_scale=inputs.shape[0]):
+            inputs, targets = inputs.to(device), targets.to(device)
+            pred = net(inputs)['out']
+            # dataloader outputs targets with shape NHW, but we need NCHW
+            batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())
+
+            bin_iou = eval_binary_iou(sig(pred).round(), targets)
+            if (bin_iou > 0).sum() > 1:
+                iou = bin_iou[bin_iou > 0].mean().item()
+                running_iou += iou
+                batch += 1
+
+            running_loss += batch_loss.item()
+
+    return running_loss / len(data_loader), running_iou / float(batch + 1e-6)
 
 
 def evaluate_binary_iou(net, data_loader, loss_fn, device):
