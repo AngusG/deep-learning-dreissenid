@@ -84,9 +84,9 @@ if __name__ == '__main__':
     parser.add_argument('--drop', help='epoch to first drop the initial \
                         learning rate', type=int, default=30)
     parser.add_argument('--bs', help='SGD mini-batch size',
-                        type=int, default=50)
+                        type=int, default=40)
     parser.add_argument('--lr', help='initial learning rate',
-                        type=float, default=1e-3)
+                        type=float, default=1e-4)
     parser.add_argument('--wd', help='weight decay regularization',
                         type=float, default=5e-4)
     parser.add_argument('--bilinear', help='bilinear upsampling or transposed \
