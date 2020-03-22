@@ -396,33 +396,24 @@ def crop_still_image(img, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100
                         cv2.circle(img, (int(corners_np[i, 0]), 
                                          int(corners_np[i, 1]) ), 25,
                                    (255, 0, 0), thickness=8, lineType=8, shift=0)
-        else:
-            # draw lines on canvas
-            img = draw_lines_from_coords(img, coords)    
-            corners_np = np.zeros(1)
-        
-        if len(corners_np) > 3:
-            centroid, crop, cluster_centers = centroid_and_crop_pts_kmeans(corners_np)            
             
-            if do_draw:
-                cv2.circle(img, (int(centroid[0]), int(centroid[1])), 20, 
-                               (0, 0, 0), thickness=6, lineType=8, shift=0)
-            
-                for i in range(len(crop)):
-                    cv2.circle(img, ( int(crop[i, 0]), int(crop[i, 1]) ), 10, 
-                               (255, 255, 255), thickness=8, lineType=8, shift=0)
-            
-                # Draw k-means cluster centers with big green circles
-                for i in range(len(cluster_centers)):
-                    cv2.circle(img, (int(cluster_centers[i, 0]), 
-                                     int(cluster_centers[i, 1])), 40, 
-                               (0, 255, 0), thickness=8, lineType=8, shift=0)
-        else:
-            crop = np.zeros(1)
-    else:
-        crop = np.zeros(1)
-
-    return img, edges, crop
+            if len(corners_np) >= 4:
+                if len(np.unique(corners_np, axis=0)) >= 4:
+                    centroid, crop, cluster_centers = centroid_and_crop_pts_kmeans(corners_np)            
+                    if do_draw:
+                        cv2.circle(img, (int(centroid[0]), int(centroid[1])), 20, 
+                                   (0, 0, 0), thickness=6, lineType=8, shift=0)
+                        for i in range(len(crop)):
+                            cv2.circle(img, ( int(crop[i, 0]), int(crop[i, 1]) ), 10, 
+                                       (255, 255, 255), thickness=8, lineType=8, shift=0)
+                        # Draw k-means cluster centers with big green circles
+                        for i in range(len(cluster_centers)):
+                            cv2.circle(img, (int(cluster_centers[i, 0]), 
+                                             int(cluster_centers[i, 1])), 40, 
+                                       (0, 255, 0), thickness=8, lineType=8, shift=0)
+                    return img, edges, crop
+    
+    return img, edges, np.zeros(1)
 
 
 def crop_still_image_no_rotate(img, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1, canny_1=30, canny_2=400, outlier_angle_thresh=20, do_draw=True):
@@ -494,33 +485,24 @@ def crop_still_image_no_rotate(img, rho=1, theta=np.pi/90, mll=300, mlg=100, thr
                         cv2.circle(img, (int(corners_np[i, 0]), 
                                          int(corners_np[i, 1]) ), 25,
                                    (255, 0, 0), thickness=8, lineType=8, shift=0)
-        else:
-            # draw lines on canvas
-            img = draw_lines_from_coords(img, coords)    
-            corners_np = np.zeros(1)
         
-        if len(corners_np) > 3:
-            centroid, crop, cluster_centers = centroid_and_crop_pts_kmeans(corners_np)            
-            
-            if do_draw:
-                cv2.circle(img, (int(centroid[0]), int(centroid[1])), 20, 
-                               (0, 0, 0), thickness=6, lineType=8, shift=0)
-            
-                for i in range(len(crop)):
-                    cv2.circle(img, ( int(crop[i, 0]), int(crop[i, 1]) ), 10, 
-                               (255, 255, 255), thickness=8, lineType=8, shift=0)
-            
-                # Draw k-means cluster centers with big green circles
-                for i in range(len(cluster_centers)):
-                    cv2.circle(img, (int(cluster_centers[i, 0]), 
-                                     int(cluster_centers[i, 1])), 40, 
-                               (0, 255, 0), thickness=8, lineType=8, shift=0)
-        else:
-            crop = np.zeros(1)
-    else:
-        crop = np.zeros(1)
+            if len(corners_np) >= 4:
+                if len(np.unique(corners_np, axis=0)) >= 4:
+                    centroid, crop, cluster_centers = centroid_and_crop_pts_kmeans(corners_np)            
+                    if do_draw:
+                        cv2.circle(img, (int(centroid[0]), int(centroid[1])), 20, 
+                                       (0, 0, 0), thickness=6, lineType=8, shift=0)
+                        for i in range(len(crop)):
+                            cv2.circle(img, ( int(crop[i, 0]), int(crop[i, 1]) ), 10, 
+                                       (255, 255, 255), thickness=8, lineType=8, shift=0)
+                        # Draw k-means cluster centers with big green circles
+                        for i in range(len(cluster_centers)):
+                            cv2.circle(img, (int(cluster_centers[i, 0]), 
+                                             int(cluster_centers[i, 1])), 40, 
+                                       (0, 255, 0), thickness=8, lineType=8, shift=0)
+                    return img, edges, crop
 
-    return img, edges, crop
+    return img, edges, np.zeros(1)
 
 
 def draw_lines(im, rho=1, theta=np.pi/90, mll=300, mlg=100, threshold=100, ds=1, canny_1=30, canny_2=400, outlier_angle_thresh=20):
