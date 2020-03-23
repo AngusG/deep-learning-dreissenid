@@ -114,6 +114,91 @@ def evaluate_loss(net, data_loader, loss_fn, device):
     return running_loss / len(data_loader)
 
 
+def evaluate_loss_and_iou(net, data_loader, loss_fn, device):
+    """Evaluates the cross entropy loss and IoU of DL model given by `net` on
+    data from `data_loader`
+    """
+    sig = nn.Sigmoid()
+    batch = 0
+    running_iou = 0
+    running_loss = 0
+
+    for inputs, targets in data_loader:
+        break
+
+    with torch.no_grad():
+        for inputs, targets in tqdm(data_loader, unit=' images', unit_scale=inputs.shape[0]):
+            inputs, targets = inputs.to(device), targets.to(device)
+            pred = net(inputs)
+            # dataloader outputs targets with shape NHW, but we need NCHW
+            batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())
+
+            bin_iou = eval_binary_iou(sig(pred).round(), targets)
+            if (bin_iou > 0).sum() > 1:
+                iou = bin_iou[bin_iou > 0].mean().item()
+                running_iou += iou
+                batch += 1
+
+            running_loss += batch_loss.item()
+
+    return running_loss / len(data_loader), running_iou / float(batch + 1e-6)
+
+
+def evaluate_loss_and_iou_torchvision(net, data_loader, loss_fn, device):
+    """Evaluates the cross entropy loss and IoU of DL model given by `net` on
+    data from `data_loader`
+    """
+    sig = nn.Sigmoid()
+    batch = 0
+    running_iou = 0
+    running_loss = 0
+
+    for inputs, targets in data_loader:
+        break
+
+    with torch.no_grad():
+        for inputs, targets in tqdm(data_loader, unit=' images', unit_scale=inputs.shape[0]):
+            inputs, targets = inputs.to(device), targets.to(device)
+            pred = net(inputs)['out']
+            # dataloader outputs targets with shape NHW, but we need NCHW
+            batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())
+
+            bin_iou = eval_binary_iou(sig(pred).round(), targets)
+            if (bin_iou > 0).sum() > 1:
+                iou = bin_iou[bin_iou > 0].mean().item()
+                running_iou += iou
+                batch += 1
+
+            running_loss += batch_loss.item()
+
+    return running_loss / len(data_loader), running_iou / float(batch + 1e-6)
+
+
+def evaluate_binary_iou(net, data_loader, loss_fn, device):
+    """Evaluates the binary IoU of DL model given by `net` on data from
+    `data_loader`
+    """
+
+    sig = nn.Sigmoid()
+
+    batch = 0
+    running_iou = 0
+
+    for inputs, targets in data_loader:
+        break
+
+    with torch.no_grad():
+        for inputs, targets in tqdm(data_loader, unit=' images', unit_scale=inputs.shape[0]):
+            inputs, targets = inputs.to(device), targets.to(device)
+            pred = sig(net(inputs))
+            bin_iou = eval_binary_iou(pred.round(), targets)
+            if (bin_iou > 0).sum() > 1:
+                iou = bin_iou[bin_iou > 0].mean().item()
+                running_iou += iou
+                batch += 1
+
+    return running_iou / batch
+
 
 def eval_binary_iou(outputs, targets, eps=1e-6):
     """Returns the average binary intersection-over-union score.
@@ -206,13 +291,13 @@ def run_crf(rgb, pred_np):
 
 
 def img_to_nchw_tensor(img, device):
-    
+
     # pre-processing image consistent with PyTorch training transforms
     img = img / 255.
     img = ((img - np.array([0.5, 0.5, 0.5])) / np.array([0.5, 0.5, 0.5]))
     imgt = torch.FloatTensor(img).to(device)
     imgt = imgt.unsqueeze(0)
-    # Note: need to call contiguous after the permute 
+    # Note: need to call contiguous after the permute
     # else max pooling will fail
     nchw_tensor = imgt.permute(0, 3, 1, 2).contiguous()
     return nchw_tensor

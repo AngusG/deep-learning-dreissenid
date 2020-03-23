@@ -25,7 +25,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 # import an off-the-shelf model for now
-#from torchvision.models import segmentation as models
+from torchvision.models import segmentation as models
 
 from unet import UNet
 #import pytorch_unet
@@ -37,7 +37,7 @@ from task_3_utils import (save_checkpoint,
                           evaluate,
                           #evaluate_loss,
                           #evaluate_binary_iou,
-                          evaluate_loss_and_iou,
+                          evaluate_loss_and_iou_torchvision,
                           adjust_learning_rate)
 
 from folder2lmdb import VOCSegmentationLMDB
@@ -46,13 +46,11 @@ from apex import amp
 
 if __name__ == '__main__':
 
-    '''
     model_names = sorted(
         name for name in models.__dict__
         if name.islower() and not name.startswith("__")
         and callable(models.__dict__[name])
         )
-    '''
 
     parser = argparse.ArgumentParser()
 
@@ -73,12 +71,11 @@ if __name__ == '__main__':
                         action="store_true")
     parser.add_argument('--gpu', help='physical id of GPU to use')
     parser.add_argument('--seed', help='random seed', type=int, default=1)
-    #parser.add_argument('--sess', default='def', type=str, help='session id')
 
     # model arch and training meta-parameters
-    parser.add_argument('-a', '--arch', metavar='ARCH', default='fcn8slim')
-                        #choices=model_names, help='model architecture: ' +
-                        #' | '.join(model_names) + ' (default: fcn_resnet50)')
+    parser.add_argument('-a', '--arch', metavar='ARCH', default='fcn_resnet50',
+                        choices=model_names, help='model architecture: ' +
+                        ' | '.join(model_names) + ' (default: fcn_resnet50)')
     parser.add_argument('--epochs', help='number of epochs to train for',
                         type=int, default=80)
     parser.add_argument('--drop', help='epoch to first drop the initial \
@@ -86,7 +83,7 @@ if __name__ == '__main__':
     parser.add_argument('--bs', help='SGD mini-batch size',
                         type=int, default=40)
     parser.add_argument('--lr', help='initial learning rate',
-                        type=float, default=1e-4)
+                        type=float, default=1e-3)
     parser.add_argument('--wd', help='weight decay regularization',
                         type=float, default=5e-4)
     parser.add_argument('--bilinear', help='bilinear upsampling or transposed \
@@ -175,12 +172,6 @@ if __name__ == '__main__':
     require a one-hot label format.
     """
     writer = SummaryWriter(save_path, flush_secs=30)
-
-    """
-    else:
-        print("=> creating model '{}'".format(args.arch))
-        net = models.__dict__[args.arch](num_classes=1).to(device)
-    """
     """
     n_channels=3 for RGB images
     n_classes is the number of probabilities you want to get per pixel
@@ -188,30 +179,10 @@ if __name__ == '__main__':
      - For 2 classes, use n_classes=1
      - For N > 2 classes, use n_classes=N
     """
-    if args.arch == 'unet':
-        bilinear = True if args.bilinear else False
-        net = UNet(n_channels=3, n_classes=1, bilinear=bilinear).to(device)
-    elif args.arch == 'fcn8s':
-        from fcn import FCN8s
-        net = FCN8s(n_class=1).to(device)
-    elif args.arch == 'fcn8slim':
-        from fcn import FCN8slim
-        net = FCN8slim(n_class=1).to(device)
-    elif args.arch == 'fcn16s':
-        from fcn import FCN16s
-        net = FCN16s(n_class=1).to(device)
-    elif args.arch == 'fcn16slim':
-        from fcn import FCN16slim
-        net = FCN16slim(n_class=1).to(device)
-    elif args.arch == 'fcn32s':
-        from fcn import FCN32s
-        net = FCN32s(n_class=1).to(device)
-    elif args.arch == 'fcn32slim':
-        from fcn import FCN32slim
-        net = FCN32slim(n_class=1).to(device)
+    print("=> creating model '{}'".format(args.arch))
+    net = models.__dict__[args.arch](num_classes=1).to(device)
 
-    #net = pytorch_unet.UNet(1).to(device)
-    print(summary(net, input_size=(3, 224, 224)))
+    #print(summary(net, input_size=(3, 224, 224)))
 
     # Prepare training procedure
     optimizer = torch.optim.SGD(
@@ -288,7 +259,7 @@ if __name__ == '__main__':
 
         eval_start_time = time.time()
         net.eval()
-        val_loss, val_iou = evaluate_loss_and_iou(net, valloader, val_loss_fn, device)
+        val_loss, val_iou = evaluate_loss_and_iou_torchvision(net, valloader, val_loss_fn, device)
         print('Epoch [%d/%d], val IoU %.4f, val loss %.4f, took %.2f sec, ' % (
             (epoch, args.epochs, val_iou, val_loss, time.time() - eval_start_time)))
         writer.add_scalar('Loss/val', val_loss, epoch)
@@ -305,8 +276,7 @@ if __name__ == '__main__':
             """inputs are in NCHW format: N=nb. samples, C=channels, H=height,
             W=width. Do inputs.permute(0, 2, 3, 1) to viz in RGB format."""
             inputs, targets = inputs.to(device), targets.to(device)
-            pred = net(inputs) # fprop for unet
-            #pred = net(inputs)['out'] # fprop for torchvision.models.segmentation
+            pred = net(inputs)['out'] # fprop for torchvision.models.segmentation
 
             # dataloader outputs targets with shape NHW, but we need NCHW
             batch_loss = loss_fn(pred, targets.unsqueeze(dim=1).float())

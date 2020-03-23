@@ -11,6 +11,13 @@ plt.rc('font', family='serif')
 from sklearn.metrics import r2_score
 
 
+def linear_regression(x, y):
+    A = np.vstack([x, np.ones(len(x))]).T
+    (m, c), res, r, s = np.linalg.lstsq(A, y, rcond=-1)
+    std = np.sqrt(res[0] / len(y))
+    return m * x + c
+
+
 def draw_rsquared(ax, x, y, fontsize):
     ax.annotate(r'$\mathbf{R^2}$ = %.4f' % r2_score(x, y),
                 xy=(.05, .85),
@@ -27,9 +34,9 @@ def pretty_axis(ax, fontsize):
     ax.tick_params(labelsize=fontsize - 2)
 
 
-def draw_sublabel(ax, text, fontsize):
+def draw_sublabel(ax, text, fontsize, coords):
     ax.annotate(text,
-                xy=(.85, .05),
+                xy=coords,
                 fontsize=fontsize + 1,
                 xycoords='axes fraction',
                 color='k')
