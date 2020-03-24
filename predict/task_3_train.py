@@ -197,6 +197,9 @@ if __name__ == '__main__':
     elif args.arch == 'fcn8slim':
         from fcn import FCN8slim
         net = FCN8slim(n_class=1).to(device)
+    elif args.arch == 'fcn8slimbn':
+        from fcn import FCN8slimbn
+        net = FCN8slimbn(n_class=1).to(device)
     elif args.arch == 'fcn16s':
         from fcn import FCN16s
         net = FCN16s(n_class=1).to(device)
