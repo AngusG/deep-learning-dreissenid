@@ -17,7 +17,7 @@ def draw_lines_from_coords(image, coords):
             image, 
             (int(coords[i, DP1, X]), int(coords[i, DP1, Y])),
             (int(coords[i, DP2, X]), int(coords[i, DP2, Y])),
-            (255, 0, 0), 5, cv2.LINE_AA
+            (0, 0, 255), 5, cv2.LINE_AA
         )
     return image
 
