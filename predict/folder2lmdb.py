@@ -15,14 +15,15 @@ from PIL import Image
 
 import six
 import string
+import argparse
 
 import lmdb
-import pickle
-import msgpack
-import tqdm
+#import pickle
+#import msgpack
+#import tqdm
 import pyarrow as pa
 
-import torch
+#import torch
 import torch.utils.data as data
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
@@ -253,4 +254,17 @@ def folder2lmdb(dpath, name="train", write_frequency=5000):
 
 
 if __name__ == "__main__":
-    folder2lmdb("/scratch/ssd/gallowaa/cciw/Lab/", name='train')
+
+    parser = argparse.ArgumentParser()
+
+    # mandatory arg
+    parser.add_argument('path', help='path to VOCDevkit dataset', type=str)
+    # optional arg
+    parser.add_argument('--split', help='dataset split to do', type=str,
+                        default='train', choices=['train', 'val', 'trainval'])
+
+    args = parser.parse_args()
+
+    folder2lmdb(args.path, name=args.split)
+
+    #folder2lmdb("/scratch/ssd/gallowaa/cciw/Lab/", name='train')
