@@ -198,22 +198,22 @@ def centroid_and_crop_pts_kmeans(corners):
     return centroid, crop, kmeans.cluster_centers_
 
 
-def centroid_and_crop_pts_k2means(corners):
+def centroid_and_crop_kmeans(corners, k):
     """Use K-means clustering to optimally find the 
-    image centroid and four crop points given 
-    just two corners"""
+    image centroid and four crop points given k clusters"""
     
-    kmeans = KMeans(n_clusters=2, random_state=0).fit(corners)
+    kmeans = KMeans(n_clusters=k, random_state=0).fit(corners)
     
     centroid = kmeans.cluster_centers_.mean(axis=0)
     
     crop = []
-    for i in range(2):
+    for i in range(k):
         cluster = corners[kmeans.labels_ == i]
         intra_cluster_d2centroid = np.linalg.norm(cluster - centroid, axis=1)
         indices = np.argsort(intra_cluster_d2centroid)
         crop.append(cluster[indices][0].astype('int'))
     crop = np.asarray(crop)
+    
     return centroid, crop, kmeans.cluster_centers_
     
 
