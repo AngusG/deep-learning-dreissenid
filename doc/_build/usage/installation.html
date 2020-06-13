@@ -25,6 +25,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -33,9 +34,10 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Reproduce Datasets for Machine Learning" href="reproduce-dataset.html" />
+    <link rel="next" title="Predict" href="predict.html" />
     <link rel="prev" title="Welcome to Mussel-Image-Analysis’s documentation!" href="../index.html" /> 
 </head>
 
@@ -83,8 +85,13 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproduce-dataset.html">Reproduce Datasets for Machine Learning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reproduce-dataset.html#preliminaries">1 Preliminaries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="predict.html">Predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="labelme.html">Dataset Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reproduce-dataset.html">Reproduce Datasets</a></li>
+</ul>
+<p class="caption"><span class="caption-text">This is a thumbnail gallery:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../gallery/uno-rst.html">Dummy Notebook 1 for Gallery</a></li>
 </ul>
 
             
@@ -149,7 +156,31 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>If you are running the notebooks online using the free
 <a class="reference external" href="https://colab.research.google.com/notebooks/intro.ipynb/">Google Colab</a>
@@ -167,13 +198,6 @@ if you wish to run files locally, a list of dependencies is provided below:</p>
 <em>sequence</em>. (And so on.)</p>
 </dd></dl>
 
-<dl class="py function">
-<dt id="utils.line_intersection">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">line_intersection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line1</span></em>, <em class="sig-param"><span class="n">line2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.line_intersection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the intersection between two lines 
-given two points from each.</p>
-</dd></dl>
-
 </div>
 
 
@@ -184,7 +208,7 @@ given two points from each.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="reproduce-dataset.html" class="btn btn-neutral float-right" title="Reproduce Datasets for Machine Learning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="predict.html" class="btn btn-neutral float-right" title="Predict" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to Mussel-Image-Analysis’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

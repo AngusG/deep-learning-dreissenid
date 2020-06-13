@@ -11,10 +11,12 @@ Welcome to Mussel-Image-Analysis's documentation!
    :caption: Contents:
 
    usage/installation
-   usage/predict
    usage/quadrat
+   usage/predict
    usage/labelme
    usage/reproduce-dataset
+
+   quadrat-lom-unused-train-images-from-glni-as-bonus
 
 
 Indices and tables

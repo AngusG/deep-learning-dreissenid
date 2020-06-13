@@ -25,6 +25,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -33,8 +34,11 @@
   
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Predict" href="predict.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -79,8 +83,11 @@
             
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quadrat Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="predict.html">Predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="labelme.html">Dataset Preparation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reproduce-dataset.html">Reproduce Datasets</a></li>
 </ul>
 
@@ -146,12 +153,69 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="quadrat-extraction">
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="quadrat-extraction">
 <h1>Quadrat Extraction<a class="headerlink" href="#quadrat-extraction" title="Permalink to this headline">¶</a></h1>
+<p>### To successfully extract a quadrat the algorithm assumes:</p>
+<ul class="simple">
+<li><p>All four corners of the quadrat are contained in the image, i.e. the side</p></li>
+</ul>
+<p>lengths or corners are not cropped from the scene.</p>
+<ul class="simple">
+<li><p>The quadrat side lengths are not occluded, e.g., by diver equipment, mesh bags, or vegetation.</p></li>
+<li><p>The image is sufficiently clear, i.e.~not turbulent or cloudy from disrupted sediment.</p></li>
+<li><p>The camera angle is within 65-90 degrees with respect to the top surface of</p></li>
+</ul>
+<p>the quadrat. Note that this is separate from quadrat rotation in the camera plane,
+which can be arbitrary.</p>
+<ul class="simple">
+<li><p>The camera is not too far from the quadrat such that the side lengths are less</p></li>
+</ul>
+<p>than 400 pixels for 1080x1440 resolution, 500 pixels for 1080x1920 HD resolution,
+or 400 for portrait mode in HD res.</p>
+<p>The algorithm still works reasonably well in some cases even when the
+assumptions are violated, e.g., input 7 with the mesh bag covering one of the
+corners, as missing corner coordinates can sometimes be inferred if enough
+complementary lines are detected. Conversely, even when the assumptions are
+satisfied, a best effort is made to extract the <em>interior</em> of the quadrat, but
+this occasionally won’t be possible due to missing or misleading lines and part
+of the quadrat may be included in the output.</p>
 <dl class="py function">
-<dt id="enumerate">
-<code class="sig-name descname">enumerate</code><span class="sig-paren">(</span><em class="sig-param">sequence</em><span class="optional">[</span>, <em class="sig-param">start=0</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#enumerate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="utils.crop_still_image">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">crop_still_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">img</span></em>, <em class="sig-param"><span class="n">rho</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">theta</span><span class="o">=</span><span class="default_value">0.03490658503988659</span></em>, <em class="sig-param"><span class="n">mll</span><span class="o">=</span><span class="default_value">300</span></em>, <em class="sig-param"><span class="n">mlg</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">threshold</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">ds</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">canny_1</span><span class="o">=</span><span class="default_value">30</span></em>, <em class="sig-param"><span class="n">canny_2</span><span class="o">=</span><span class="default_value">400</span></em>, <em class="sig-param"><span class="n">outlier_angle_thresh</span><span class="o">=</span><span class="default_value">20</span></em>, <em class="sig-param"><span class="n">do_draw</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.crop_still_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Crop the quadrat from a still image ‘img’.</p>
+<p>&#64;param rho – Distance resolution of the accumulator (pixels).
+&#64;param theta – Angle resolution of the accumulator (radians).
+&#64;param threshold – Accumulator threshold, return lines with more than threshold of votes (intersection points).
+&#64;param minLineLength – Minimum line length. Line segments shorter than that are rejected (pixels).
+&#64;param maxLineGap – Maximum allowed gap between points on the same line to link them (pixels).
+&#64;param canny_threshold1 Histeresis threshold 1.
+&#64;param canny_threshold2 Histeresis threshold 2.</p>
+<p>returns cropped image and edge mask</p>
+</dd></dl>
 
 </div>
 
@@ -160,6 +224,15 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="predict.html" class="btn btn-neutral float-right" title="Predict" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

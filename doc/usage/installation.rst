@@ -5,7 +5,7 @@ Installation
 If you are running the notebooks online using the free
 `Google Colab <https://colab.research.google.com/notebooks/intro.ipynb/>`_
 resource, then all required packages will be installed automatically when running
-the notebooks. Otherwise, 
+the notebooks. Otherwise,
 if you wish to run files locally, a list of dependencies is provided below:
 
 - opencv
@@ -15,5 +15,3 @@ if you wish to run files locally, a list of dependencies is provided below:
 
    Return an iterator that yields tuples of an index and an item of the
    *sequence*. (And so on.)
-
-.. autofunction:: utils.line_intersection
