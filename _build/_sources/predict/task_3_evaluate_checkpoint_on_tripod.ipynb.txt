@@ -1,0 +1,634 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "colab_type": "text",
+    "id": "0UXd9CuzgNx2"
+   },
+   "source": [
+    "# Evaluate Pre-Trained Models on the Tripod Test Split\n",
+    "\n",
+    "Used to generate figures and show how IoU degrades with time..\n",
+    "\n",
+    "__Note:__ To maintain a high priority Colab user status such that sufficient GPU resources are available in the future, ensure to free the runtime when finished running this notebook. This can be done using 'Runtime > Manage Sessions' and click 'Terminate'."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Check if notebook is running in Colab or local workstation\n",
+    "import sys\n",
+    "\n",
+    "IN_COLAB = 'google.colab' in sys.modules\n",
+    "\n",
+    "if IN_COLAB:\n",
+    "    !ln -sf /opt/bin/nvidia-smi /usr/bin/nvidia-smi\n",
+    "    !pip install gputil\n",
+    "    !pip install psutil\n",
+    "    !pip install humanize\n",
+    "\n",
+    "import psutil\n",
+    "import humanize\n",
+    "import os\n",
+    "import GPUtil as GPU\n",
+    "GPUs = GPU.getGPUs()\n",
+    "\n",
+    "try:\n",
+    "    # XXX: only one GPU on Colab and isn’t guaranteed\n",
+    "    gpu = GPUs[1]\n",
+    "    def printm():\n",
+    "        process = psutil.Process(os.getpid())\n",
+    "        print(\"Gen RAM Free: \" + humanize.naturalsize( psutil.virtual_memory().available ), \" | Proc size: \" + humanize.naturalsize( process.memory_info().rss))\n",
+    "        print(\"GPU RAM Free: {0:.0f}MB | Used: {1:.0f}MB | Util {2:3.0f}% | Total {3:.0f}MB\".format(gpu.memoryFree, gpu.memoryUsed, gpu.memoryUtil*100, gpu.memoryTotal))\n",
+    "    printm() \n",
+    "\n",
+    "    # Check if GPU capacity is sufficient to proceed\n",
+    "    if gpu.memoryFree < 10000:\n",
+    "        print(\"\\nInsufficient memory! Some cells may fail. Please try restarting the runtime using 'Runtime → Restart Runtime...' from the menu bar. If that doesn't work, terminate this session and try again later.\")\n",
+    "    else:\n",
+    "        print('\\nGPU memory is sufficient to proceeed.')\n",
+    "except:\n",
+    "    print('Select the Runtime → \"Change runtime type\" menu to enable a GPU accelerator, ')\n",
+    "    print('and then re-execute this cell.')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 71
+    },
+    "colab_type": "code",
+    "id": "4pzGY41DgyyQ",
+    "outputId": "6bebf55b-f9f5-4a59-abdd-4c101878f4d1"
+   },
+   "outputs": [],
+   "source": [
+    "if IN_COLAB:\n",
+    "\n",
+    "    from google.colab import drive\n",
+    "    drive.mount('/content/drive')\n",
+    "    DATA_PATH = r'/content/drive/My Drive/Data'\n",
+    "    \n",
+    "    # cd into git repo so python can find utils\n",
+    "    %cd '/content/drive/My Drive/cciw-zebra-mussel/predict'\n",
+    "\n",
+    "    sys.path.append('/content/drive/My Drive')\n",
+    "    \n",
+    "    # clone repo, install packages not installed by default\n",
+    "    !pip install pydensecrf"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "colab": {},
+    "colab_type": "code",
+    "id": "bneyBxcYgNx7"
+   },
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import os.path as osp\n",
+    "\n",
+    "import glob\n",
+    "\n",
+    "# for manually reading high resolution images\n",
+    "import cv2\n",
+    "import numpy as np\n",
+    "\n",
+    "# for comparing predictions to lab analysis data frames\n",
+    "import pandas as pd\n",
+    "\n",
+    "# for plotting\n",
+    "import matplotlib\n",
+    "# enable LaTeX style fonts\n",
+    "matplotlib.rc('text', usetex=True)\n",
+    "import matplotlib.pyplot as plt\n",
+    "plt.rc('text', usetex=True)\n",
+    "plt.rc('font', family='serif')\n",
+    "\n",
+    "# pytorch core library\n",
+    "import torch\n",
+    "# pytorch neural network functions\n",
+    "from torch import nn\n",
+    "# pytorch dataloader\n",
+    "from torch.utils.data import DataLoader\n",
+    "\n",
+    "# for post-processing model predictions by conditional random field \n",
+    "import pydensecrf.densecrf as dcrf\n",
+    "import pydensecrf.utils as utils\n",
+    "\n",
+    "from tqdm import tqdm  # progress bar\n",
+    "\n",
+    "# evaluation metrics\n",
+    "from sklearn.metrics import r2_score\n",
+    "from sklearn.metrics import jaccard_score as jsc\n",
+    "\n",
+    "# local imports (files provided by this repo)\n",
+    "import transforms as T\n",
+    "\n",
+    "# various helper functions, metrics that can be evaluated on the GPU\n",
+    "from task_3_utils import evaluate, evaluate_loss, eval_binary_iou, pretty_image, img_to_nchw_tensor\n",
+    "\n",
+    "# Custom dataloader for rapidly loading images from a single LMDB file\n",
+    "from folder2lmdb import VOCSegmentationLMDB"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\"\"\"Confim that this cell prints \"Found GPU, cuda\". If not, select \"GPU\" as \n",
+    "\"Hardware Accelerator\" under the \"Runtime\" tab of the main menu.\n",
+    "\"\"\"\n",
+    "if torch.cuda.is_available():\n",
+    "    device = torch.device('cuda')\n",
+    "    print('Found GPU,', device)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "colab_type": "text",
+    "id": "n4P0mldogNyQ"
+   },
+   "source": [
+    "## 1. Load a pre-trained model checkpoint\n",
+    "\n",
+    "The architecture is fully-convolutional network (FCN) 8s."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from fcn import FCN8s\n",
+    "net = FCN8s(n_class=1).to(device)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from apex import amp\n",
+    "net = amp.initialize(net, opt_level='O3')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 71
+    },
+    "colab_type": "code",
+    "id": "n89QOGLxgNyS",
+    "outputId": "904c901b-f3e2-4a84-afd8-27eaad8aadf7"
+   },
+   "outputs": [],
+   "source": [
+    "if IN_COLAB:\n",
+    "    root = osp.join(DATA_PATH, 'Checkpoints/fcn8slim_lr1e-03_wd5e-04_bs32_ep50_seed1')\n",
+    "else:\n",
+    "    #root = '/scratch/gallowaa/cciw/logs/v1.0.1-debug/fcn8s/lr1e-03/wd5e-04/bs25/ep80/seed4/checkpoint' # b\n",
+    "    #root = '/scratch/gallowaa/cciw/logs/v111/trainval/fcn8s/lr1e-03/wd5e-04/bs40/ep80/seed2/checkpoint/' # d\n",
+    "    root = osp.join(\n",
+    "        #os.environ['DATA_PATH'], 'cciw/logs/cmp-dataset/train_v120/fcn8slim/lr5e-03/wd5e-04/bs40/ep80/seed1/checkpoint')\n",
+    "        os.environ['DATA_PATH'], 'cciw/logs/cmp-dataset/train_v120/deeplabv3_resnet50/lr1e-01/wd5e-04/bs40/ep80/seed1/checkpoint')\n",
+    "\n",
+    "#ckpt_file = 'fcn8s_lr1e-03_wd5e-04_bs25_ep80_seed4_epoch70.ckpt' # b\n",
+    "#ckpt_file = 'fcn8s_lr1e-03_wd5e-04_bs40_ep80_seed2amp_epoch79.pt' # d\n",
+    "ckpt_file = 'deeplabv3_resnet50_lr1e-01_wd5e-04_bs40_ep80_seed1_epoch79.ckpt'\n",
+    "#ckpt_file = 'fcn8slim_lr5e-03_wd5e-04_bs40_ep80_seed1_epoch79.ckpt'\n",
+    "\n",
+    "\"\"\"Feel free to try these other checkpoints later after running epoch40 to get a \n",
+    "feel for how the evaluation metrics change when model isn't trained as long.\"\"\"\n",
+    "\n",
+    "checkpoint = torch.load(osp.join(root, ckpt_file))\n",
+    "train_loss = checkpoint['trn_loss']\n",
+    "val_loss = checkpoint['val_loss']\n",
+    "print('==> Resuming from checkpoint..')\n",
+    "\n",
+    "net = checkpoint['net']\n",
+    "# AMP\n",
+    "#net.load_state_dict(checkpoint['net'])\n",
+    "#amp.load_state_dict(checkpoint['amp'])\n",
+    "\n",
+    "last_epoch = checkpoint['epoch'] + 1\n",
+    "torch.set_rng_state(checkpoint['rng_state'])\n",
+    "\n",
+    "# later appended to figure filenames\n",
+    "model_stem = ckpt_file.split('.')[0]\n",
+    "\n",
+    "print('Loaded model %s trained to epoch ' % model_stem, last_epoch)\n",
+    "print('Cross-entropy loss {:.4f} for train set, {:.4f} for validation set'.format(train_loss, val_loss))\n",
+    "\n",
+    "net.eval()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#net = amp.initialize(net, opt_level='O3')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "colab": {},
+    "colab_type": "code",
+    "id": "UnzXpijsgNzC"
+   },
+   "outputs": [],
+   "source": [
+    "sig = nn.Sigmoid()  # initializes a sigmoid function"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "colab_type": "text",
+    "id": "ne_OPnTPgNzh"
+   },
+   "source": [
+    "## 7. i) Visualize Predictions on Whole Images\n",
+    "\n",
+    "Here we manually load and preprocess the original images and png masks using OpenCV.\n",
+    "\n",
+    "`root_path` -- will also be used in "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 53
+    },
+    "colab_type": "code",
+    "id": "rouYvCy3gNzj",
+    "outputId": "0cd6d473-73c3-4f2e-97ca-df03fbb55f7a"
+   },
+   "outputs": [],
+   "source": [
+    "if IN_COLAB:\n",
+    "    root_path = osp.join(DATA_PATH, 'ADIG_Labelled_Dataset/Test/Lab/')\n",
+    "else:\n",
+    "    root_path = '/scratch/ssd/gallowaa/cciw/dataset_raw/Test/Tripod/1352/'\n",
+    "\n",
+    "jpeg_files = glob.glob(root_path + '*.jpg')\n",
+    "png_files = glob.glob(root_path + '*_final.png')\n",
+    "\n",
+    "jpeg_files.sort()\n",
+    "png_files.sort()\n",
+    "\n",
+    "# Note: there is only one segmentation mask (PNG file) per Tripod site\n",
+    "print(len(jpeg_files)) \n",
+    "print(len(png_files))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\"\"\"Set to True to save the model predictions in PNG format, \n",
+    "otherwise proceed to predict biomass without saving images\"\"\"\n",
+    "SAVE_PREDICTIONS = False\n",
+    "\n",
+    "if SAVE_PREDICTIONS:\n",
+    "    prediction_path = ''\n",
+    "    for t in root.split('/')[:-1]:\n",
+    "        prediction_path += t + '/'\n",
+    "\n",
+    "    prediction_path = osp.join(prediction_path, 'predictions')\n",
+    "\n",
+    "    if not osp.exists(prediction_path):\n",
+    "        os.mkdir(prediction_path)\n",
+    "        \n",
+    "    print(prediction_path)\n",
+    "\n",
+    "    # src is the training dataset, tgt is the testing dataset\n",
+    "    src = 'train_v120'\n",
+    "    tgt = 'Tripod'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fontsize = 16\n",
+    "\n",
+    "left = 0.02  # the left side of the subplots of the figure\n",
+    "right = 0.98   # the right side of the subplots of the figure\n",
+    "bottom = 0.05  # the bottom of the subplots of the figure\n",
+    "top = 0.95     # the top of the subplots of the figure\n",
+    "wspace = 0.15  # the amount of width reserved for space between subplots,\n",
+    "# expressed as a fraction of the average axis width\n",
+    "hspace = 0.1  # the amount of height reserved for space between subplots,\n",
+    "# expressed as a fraction of the average axis height"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "colab": {
+     "base_uri": "https://localhost:8080/",
+     "height": 35
+    },
+    "colab_type": "code",
+    "id": "cxaxZTfigNzs",
+    "outputId": "394b6282-16e5-4596-dd56-4272301189a4",
+    "scrolled": false
+   },
+   "outputs": [],
+   "source": [
+    "bgr_lab = cv2.imread(osp.join(root_path, png_files[0]))\n",
+    "\n",
+    "iou_list = []\n",
+    "\n",
+    "for i in range(len(jpeg_files)):\n",
+    "    image_stem = jpeg_files[i].split('/')[-1].split('.')[0]\n",
+    "    bgr_img = cv2.imread(osp.join(root_path, jpeg_files[i]))\n",
+    "    labc = cv2.cvtColor(bgr_lab, cv2.COLOR_BGR2RGB)\n",
+    "    imgc = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)\n",
+    "    img = imgc.copy()\n",
+    "\n",
+    "    nchw_tensor = img_to_nchw_tensor(imgc, device)\n",
+    "\n",
+    "    with torch.no_grad():\n",
+    "        pred = sig(net(nchw_tensor)['out'])\n",
+    "\n",
+    "    pred_np = pred.detach().cpu().numpy()\n",
+    "\n",
+    "    # OpenCV loads the PNG mask as indexed color RGB, \n",
+    "    # we need to convert it to a binary mask. \n",
+    "    # The `0' in labc[:, :, 0] is the R channel.\n",
+    "    mask = np.zeros((labc.shape[0], labc.shape[1]), dtype='float32')\n",
+    "    mask[labc[:, :, 0] == 128] = 1\n",
+    "\n",
+    "    pred_np = pred_np.squeeze()\n",
+    "\n",
+    "    # https://scikit-learn.org/stable/modules/generated/sklearn.metrics.jaccard_score.html\n",
+    "    #jaccard_fcn = jsc(pred_np.round().reshape(-1, 1), mask.reshape(-1, 1))\n",
+    "    #print('Image %d of %d, IoU %.4f' % (i, len(val_mask), jaccard_fcn))\n",
+    "\n",
+    "    targets = torch.LongTensor(mask)\n",
+    "    targets = targets.to(device)\n",
+    "    print(targets.shape)\n",
+    "    iou = eval_binary_iou(pred, targets).item()\n",
+    "    print(iou)\n",
+    "    iou_list.append(iou)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "np.save('npy/Tripod_' + image_stem[4:] + '_biofouling_' + model_stem + '.npy', np.asarray(iou_list))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.close('all')\n",
+    "fig, axes = plt.subplots(1, 1, figsize=(20, 15))\n",
+    "p = (pred_np * 255).astype('uint8')\n",
+    "src2 = np.zeros((p.shape[0], p.shape[1], 3), np.uint8)\n",
+    "src2[:, :, 2] = p\n",
+    "dst = cv2.addWeighted(img, 0.5, src2, 0.5, 0)\n",
+    "axes.imshow(dst)\n",
+    "#axes.imshow(img)\n",
+    "axes.axis('off')\n",
+    "\n",
+    "plt.tight_layout()\n",
+    "if SAVE_PREDICTIONS:\n",
+    "    filename = src + '-' + tgt + '__' + image_stem + '__' + model_stem + '_iou_%.4f' % iou\n",
+    "    out_file = osp.join(prediction_path, filename)\n",
+    "    fig.savefig(out_file + '.jpg', format='jpeg')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Split up image into smaller chunks"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#i = 1\n",
+    "\n",
+    "iou_zoom_list = []\n",
+    "\n",
+    "w_y = 1500\n",
+    "w_x = 2000\n",
+    "scale_percent = 150\n",
+    "\n",
+    "bgr_lab = cv2.imread(osp.join(root_path, png_files[0]))\n",
+    "labc = cv2.cvtColor(bgr_lab, cv2.COLOR_BGR2RGB)\n",
+    "\n",
+    "for i in range(len(jpeg_files)):\n",
+    "\n",
+    "    image_stem = jpeg_files[i].split('/')[-1].split('.')[0]\n",
+    "    bgr_img = cv2.imread(osp.join(root_path, jpeg_files[i]))\n",
+    "    imgc = cv2.cvtColor(bgr_img, cv2.COLOR_BGR2RGB)\n",
+    "    composite_image = np.zeros((bgr_lab.shape[0], bgr_lab.shape[1]))\n",
+    "\n",
+    "    for row in range(bgr_img.shape[0] // w_y):    \n",
+    "        for col in range(bgr_img.shape[1] // w_x):\n",
+    "\n",
+    "            top = w_y * row\n",
+    "            bot = w_y * (row + 1)\n",
+    "            left  = w_x * col\n",
+    "            right = w_x * (col + 1)\n",
+    "\n",
+    "            img = imgc[top:bot, left:right, :]\n",
+    "            lab = labc[top:bot, left:right]\n",
+    "\n",
+    "            width = int(img.shape[0] * scale_percent / 100)\n",
+    "            height = int(img.shape[1] * scale_percent / 100)\n",
+    "            img = cv2.resize(img, (width, height)) # resize image\n",
+    "            lab = cv2.resize(lab, (width, height)) # resize image\n",
+    "\n",
+    "            nchw_tensor = img_to_nchw_tensor(img, device)\n",
+    "\n",
+    "            with torch.no_grad():\n",
+    "                pred = sig(net(nchw_tensor)['out'])\n",
+    "            pred_np = pred.detach().cpu().numpy()\n",
+    "\n",
+    "            # OpenCV loads the PNG mask as indexed color RGB, \n",
+    "            # we need to convert it to a binary mask. \n",
+    "            # The `0' in labc[:, :, 0] is the R channel.\n",
+    "            mask = np.zeros((lab.shape[0], lab.shape[1]), dtype='float32')\n",
+    "            mask[lab[:, :, 0] == 128] = 1\n",
+    "\n",
+    "            pred_np = pred_np.squeeze()        \n",
+    "            width = int(img.shape[0] * 100 / scale_percent)\n",
+    "            height = int(img.shape[1] * 100 / scale_percent)\n",
+    "            pred_np_native = cv2.resize(pred_np, (width, height)) # resize image\n",
+    "            composite_image[top:bot, left:right] = pred_np_native * 255\n",
+    "\n",
+    "    pred = torch.FloatTensor((composite_image / 255)).to(device)\n",
+    "    mask = np.zeros((labc.shape[0], labc.shape[1]), dtype='float32')\n",
+    "    mask[labc[:, :, 0] == 128] = 1\n",
+    "\n",
+    "    targets = torch.LongTensor(mask)\n",
+    "    targets = targets.to(device)\n",
+    "\n",
+    "    outputs = pred.squeeze(1).round().long()\n",
+    "    intersection = (outputs & targets).float().sum((0, 1))\n",
+    "    union = (outputs | targets).float().sum((0, 1))\n",
+    "    iou = intersection / union\n",
+    "    print(iou.item())\n",
+    "    iou_zoom_list.append(iou)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "np.save('npy/Tripod_zoom' + str(scale_percent) + '_' + image_stem[4:] + '_biofouling_' + model_stem + '.npy', np.asarray(iou_zoom_list))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#plt.figure(figsize=(20, 15))\n",
+    "#plt.imshow(composite_image)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.close('all')\n",
+    "fig, axes = plt.subplots(1, 1, figsize=(20, 15))\n",
+    "#p = (pred_np * 255).astype('uint8')\n",
+    "p = composite_image.astype('uint8')\n",
+    "src2 = np.zeros((p.shape[0], p.shape[1], 3), np.uint8)\n",
+    "src2[:, :, 2] = p\n",
+    "dst = cv2.addWeighted(imgc, 0.5, src2, 0.5, 0)\n",
+    "axes.imshow(dst)\n",
+    "axes.axis('off')\n",
+    "plt.tight_layout()\n",
+    "\n",
+    "if SAVE_PREDICTIONS:\n",
+    "    filename = src + '-' + tgt + '__composite' + image_stem + '__' + model_stem + '_iou_%.4f' % iou\n",
+    "    out_file = osp.join(prediction_path, filename)\n",
+    "    fig.savefig(out_file + '.jpg', format='jpeg')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pred = torch.FloatTensor((composite_image / 255)).to(device)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mask = np.zeros((labc.shape[0], labc.shape[1]), dtype='float32')\n",
+    "mask[labc[:, :, 0] == 128] = 1\n",
+    "\n",
+    "targets = torch.LongTensor(mask)\n",
+    "targets = targets.to(device)\n",
+    "\n",
+    "outputs = pred.squeeze(1).round().long()\n",
+    "intersection = (outputs & targets).float().sum((0, 1))\n",
+    "union = (outputs | targets).float().sum((0, 1))\n",
+    "iou = intersection / union\n",
+    "print(iou.item())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#plt.imshow(img)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "accelerator": "GPU",
+  "colab": {
+   "collapsed_sections": [],
+   "name": "task_3_evaluate_checkpoint_in_colab.ipynb",
+   "provenance": []
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}

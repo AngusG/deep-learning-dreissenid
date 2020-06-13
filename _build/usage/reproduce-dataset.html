@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Reproduce Datasets &mdash; Mussel-Image-Analysis v1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Dataset Preparation" href="labelme.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Mussel-Image-Analysis
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quadrat.html">Quadrat Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="predict.html">Predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="labelme.html">Dataset Preparation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Reproduce Datasets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">1 Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-folder-structure">2 Create Folder Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extract-patches">3 Extract Patches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-lmdbs">4 Create LMDBs</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Mussel-Image-Analysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Reproduce Datasets</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/usage/reproduce-dataset.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="reproduce-datasets">
+<h1>Reproduce Datasets<a class="headerlink" href="#reproduce-datasets" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial describes how to create a dataset suitable for use with deep
+learning models in <a class="reference external" href="https://colab.research.google.com">Google Colab</a>, or other
+environments where solid state drives (SSD) are unavailable to efficiently read
+images into the models.</p>
+<p>I recommended running these instructions on a local machine as the intermediate
+steps involve manipulating thousands of small files, which is prohibitively slow
+in the Google Drive file system. None of the steps described here
+require significant computational resources, a laptop should work just fine.</p>
+<p>We will write data to a flat LMDB database format, so that thousands of files
+are stored into a single <code class="docutils literal notranslate"><span class="pre">*.lmdb</span></code> file. More information about LMDB
+can be found at the Wikipedia page <a class="reference external" href="https://en.wikipedia.org/wiki/Lightning_Memory-Mapped_Database">Lightning Memory-Mapped Database</a>. Once the data are in LMDB format, you should
+not expect to see additional significant performance benefits (in terms of speed)
+while training models by reading data from a SSD versus a traditional HDD.</p>
+<div class="section" id="prerequisites">
+<h2>1 Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>This tutorial assumes that data have already been annotated with pixelwise, i.e.,
+semantic segmentation labels. As an example, you may use the data available at
+the Team Mussels Google Drive folder <code class="docutils literal notranslate"><span class="pre">My</span> <span class="pre">Drive</span> <span class="pre">&gt;</span> <span class="pre">Data</span> <span class="pre">&gt;</span> <span class="pre">ADIG_Labelled_Dataset</span> <span class="pre">&gt;</span> <span class="pre">train_v120</span></code>
+to proceed with the tutorial. Right click on the folder <code class="docutils literal notranslate"><span class="pre">train_v120</span></code> and select
+download, and the folder will be automatically zipped and downloaded.</p>
+<p><strong>Note:</strong> Ensure you have ~1GB free disk space. The tutorial assumes the dataset
+is downloaded to the folder <code class="docutils literal notranslate"><span class="pre">/tmp/VOCDevkit/</span></code>.</p>
+<p>Data can be annotated in any of the following ways</p>
+<ol class="simple">
+<li><p>LabelMe (manually label with desktop tool written in Python)</p></li>
+<li><p>Figure Eight (setup crowdworker environment)</p></li>
+<li><p>Scale AI (using their API, <em>this is recommended method for future projects</em>)</p></li>
+<li><p>GNU Image Manipulation Program (GIMP, recommended for editing PNG-format labels)</p></li>
+</ol>
+<p>Refer to the final report for more detailed usage instructions regarding each of
+these. The rest of the document will use the <code class="docutils literal notranslate"><span class="pre">train_v120</span></code> data as an example.
+If you have not yet done so, download and unpack the data so that you have a
+folder structure like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">VOCDevkit</span><span class="o">/</span><span class="n">train_v120</span>
+<span class="o">-</span> <span class="n">JPEGImages</span>
+<span class="o">-</span> <span class="n">SegmentationClass</span>
+</pre></div>
+</div>
+<p>Software</p>
+<p>To install the software dependencies, I recommend using
+<a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda</a> to create a new Python
+environment by following these steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new environment using Python version 3.6, with name &#39;torch14-py36&#39;</span>
+<span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">torch14</span><span class="o">-</span><span class="n">py36</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.6</span>
+
+<span class="c1"># Activate the environment.</span>
+<span class="c1"># Note: depending on the anaconda version, may need to replace &#39;source&#39; with &#39;conda&#39; here</span>
+<span class="n">source</span> <span class="n">activate</span> <span class="n">torch14</span><span class="o">-</span><span class="n">py36</span>  
+
+<span class="c1"># install required packages</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="n">pytorch</span> <span class="n">torchvision</span> <span class="n">cpuonly</span> <span class="o">-</span><span class="n">c</span> <span class="n">pytorch</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">jupyterlab</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">lmdb</span> <span class="n">pyarrow</span>
+<span class="c1"># At the time of writing, lmdb==0.98, pyarrow==0.16.0</span>
+<span class="c1"># but this should work with future versions 0.xx.x.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-folder-structure">
+<h2>2 Create Folder Structure<a class="headerlink" href="#create-folder-structure" title="Permalink to this headline">¶</a></h2>
+<p>The PyTorch data loaders <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">VOCSegmentationLMDB(VisionDataset)</span></code> require a
+folder structure like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">VOCdevkit</span><span class="o">/</span><span class="n">VOC2012</span><span class="o">/</span>
+<span class="o">-</span> <span class="n">ImageSets</span><span class="o">/</span><span class="n">Segmentation</span><span class="o">/</span>
+<span class="o">-</span> <span class="o">-</span> <span class="n">train</span><span class="o">.</span><span class="n">txt</span>
+<span class="o">-</span> <span class="o">-</span> <span class="n">trainval</span><span class="o">.</span><span class="n">txt</span> <span class="p">(</span><span class="n">optional</span><span class="p">)</span>
+<span class="o">-</span> <span class="o">-</span> <span class="n">val</span><span class="o">.</span><span class="n">txt</span>
+<span class="o">-</span> <span class="n">JPEGImages</span>
+<span class="o">-</span> <span class="n">SegmentationClass</span>
+<span class="o">-</span> <span class="n">class_names</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p><strong>Note:</strong> This structure is created automatically by running the script <code class="docutils literal notranslate"><span class="pre">labelme2voc.py</span></code>:</p>
+<p><code class="docutils literal notranslate"><span class="pre">./labelme2voc.py</span> <span class="pre">/path/to/json/labels/created/in/labelme</span> <span class="pre">/output/path</span> <span class="pre">--labels</span> <span class="pre">labels.txt</span></code></p>
+<p>if using manual labels from LabelMe, but this tutorial skips this step and
+assumes we already have labels in PNG format from an arbitrary source.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">*.txt</span></code> files under <code class="docutils literal notranslate"><span class="pre">ImageSets/Segmentation/</span></code>, e.g., <code class="docutils literal notranslate"><span class="pre">train.txt</span></code>, list all of
+the file names associated with a particular dataset (i.e. train, val, or trainval).
+If you have just downloaded <code class="docutils literal notranslate"><span class="pre">train_v120</span></code>, you will be missing these files.
+This is intentional, as I have only uploaded the high resolution originals rather
+than thousands of small patches. We will now create the patches from the originals
+on the local machine. Before doing so I suggest to copy the folder <code class="docutils literal notranslate"><span class="pre">train_v120</span></code>
+(and its contents) and rename as <code class="docutils literal notranslate"><span class="pre">train_v120_originals</span></code>, then rename <code class="docutils literal notranslate"><span class="pre">train_v120</span></code>
+as <code class="docutils literal notranslate"><span class="pre">train_v120_patches</span></code> so that you have:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">-</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">VOCDevkit</span><span class="o">/</span><span class="n">train_v120_patches</span>
+<span class="o">-</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">VOCDevkit</span><span class="o">/</span><span class="n">train_v120_originals</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="extract-patches">
+<h2>3 Extract Patches<a class="headerlink" href="#extract-patches" title="Permalink to this headline">¶</a></h2>
+<p>Run the Jupyter Notebook <code class="docutils literal notranslate"><span class="pre">voc-images-and-masks-to-patch.ipynb</span></code>, setting the path
+variable in Cell 2 to <code class="docutils literal notranslate"><span class="pre">path</span> <span class="pre">=</span> <span class="pre">‘/tmp/VOCDevkit/train_v120_patches</span></code>. The assertion
+in Cell 3 should pass, indicating that there are 152 original images. Leave all
+other settings (e.g. patch width) per their defaults. The notebook will then
+extract 81 patches per source image for the PNG masks, and then do the same for
+the JPEG images. There will now be 12,464 files in each subfolder.</p>
+<p>The last cell before the optional visualization (requires <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code>) writes
+file names corresponding to patches to <code class="docutils literal notranslate"><span class="pre">ImageSets/Segmentation/train.txt</span></code>, while
+ignoring the “original” high-resolution images.</p>
+</div>
+<div class="section" id="create-lmdbs">
+<h2>4 Create LMDBs<a class="headerlink" href="#create-lmdbs" title="Permalink to this headline">¶</a></h2>
+<p>Finally, we’re ready to create the LMDB file by running the following commands:</p>
+<ul class="simple">
+<li><p>Rename train_v120_patches to VOC2012</p></li>
+<li><p>Run the script <code class="docutils literal notranslate"><span class="pre">folder2lmdb.py</span></code> by doing:
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">folder2lmdb.py</span> <span class="pre">/tmp/</span> <span class="pre">--split</span> <span class="pre">train</span></code>
+Where the first argument <code class="docutils literal notranslate"><span class="pre">/tmp/</span></code> is a mandatory path to <code class="docutils literal notranslate"><span class="pre">VOCDevkit/VOC2012</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--split</span></code> is the dataset type to create (<code class="docutils literal notranslate"><span class="pre">train</span></code>, <code class="docutils literal notranslate"><span class="pre">val</span></code> or <code class="docutils literal notranslate"><span class="pre">trainval</span></code>).</p></li>
+</ul>
+<p>You should see the following output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Loading</span> <span class="n">dataset</span> <span class="kn">from</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span>
+<span class="n">Generate</span> <span class="n">LMDB</span> <span class="n">to</span> <span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">train</span><span class="o">.</span><span class="n">lmdb</span>
+<span class="p">[</span><span class="mi">0</span><span class="o">/</span><span class="mi">12312</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">5000</span><span class="o">/</span><span class="mi">12312</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">10000</span><span class="o">/</span><span class="mi">12312</span><span class="p">]</span>
+<span class="n">Flushing</span> <span class="n">database</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>This should take under one minute to complete. I suggest renaming the <code class="docutils literal notranslate"><span class="pre">*.lmdb</span></code>
+files with the dataset version so you remember this in the future. The training
+code accepts a version argument and expects lmdb file names to be versioned like
+<code class="docutils literal notranslate"><span class="pre">train_v120.lmdb</span></code>.</p>
+<p>Validation Set</p>
+<p>To create the validation set, you will need to download
+<code class="docutils literal notranslate"><span class="pre">ADIG_Labelled_Dataset</span> <span class="pre">&gt;</span> <span class="pre">val_v101</span> <span class="pre">&gt;</span> <span class="pre">GLNI</span></code> and restart the above procedure starting
+at Section 2. Remember to change <code class="docutils literal notranslate"><span class="pre">ImageSets/Segmentation/train.txt</span></code> to
+<code class="docutils literal notranslate"><span class="pre">ImageSets/Segmentation/val.txt</span></code> in the <code class="docutils literal notranslate"><span class="pre">voc-images-and-masks-to-patch.ipynb</span></code>
+notebook, then run: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">folder2lmdb.py</span> <span class="pre">/tmp/</span> <span class="pre">--split</span> <span class="pre">val</span></code></p>
+<p>Trainval Set</p>
+<p>Copy the 55 files from each subfolder of <code class="docutils literal notranslate"><span class="pre">val_v101</span></code> (<code class="docutils literal notranslate"><span class="pre">JPEGImages</span></code> and <code class="docutils literal notranslate"><span class="pre">SegmentationClass</span></code>)
+to their respective locations in <code class="docutils literal notranslate"><span class="pre">VOCDevkit/VOC2012</span></code>, and re-run the steps
+described in Section 3. You should have 16,767 total files in <code class="docutils literal notranslate"><span class="pre">JPEGImages</span></code> and
+<code class="docutils literal notranslate"><span class="pre">SegmentationClass</span></code> before running:</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">folder2lmdb.py</span> <span class="pre">/tmp/</span> <span class="pre">--split</span> <span class="pre">trainval</span></code></p>
+<p>If you will train models in Google Colab, you can now upload the
+final <code class="docutils literal notranslate"><span class="pre">*.lmdb</span></code> files to Google Drive under
+<code class="docutils literal notranslate"><span class="pre">My</span> <span class="pre">Drive</span> <span class="pre">&gt;</span> <span class="pre">Data</span> <span class="pre">&gt;</span> <span class="pre">ADIG_Labelled_Dataset</span> <span class="pre">&gt;</span> <span class="pre">LMDB</span></code>, or
+whichever path is input to <code class="docutils literal notranslate"><span class="pre">VOCSegmentationLMDB</span></code>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="labelme.html" class="btn btn-neutral float-left" title="Dataset Preparation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Angus Galloway
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

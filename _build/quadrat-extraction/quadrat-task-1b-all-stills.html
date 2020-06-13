@@ -1,0 +1,3006 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Extract the quadrat from all still images in dataset &mdash; Mussel-Image-Analysis v1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Mussel-Image-Analysis
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quadrat.html">Quadrat Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/predict.html">Predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/labelme.html">Dataset Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproduce-dataset.html">Reproduce Datasets</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Mussel-Image-Analysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Extract the quadrat from all still images in dataset</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/quadrat-extraction/quadrat-task-1b-all-stills.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Extract-the-quadrat-from-all-still-images-in-dataset">
+<h1>Extract the quadrat from all still images in dataset<a class="headerlink" href="#Extract-the-quadrat-from-all-still-images-in-dataset" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p>Develop Python scripts to organize and pre-process underwater mussel image data for ingestion by computer vision model, including: &gt; b. Cropping of stills within quadrats</p>
+</div></blockquote>
+<div class="section" id="To-successfully-extract-a-quadrat-the-algorithm-assumes:">
+<h2>To successfully extract a quadrat the algorithm assumes:<a class="headerlink" href="#To-successfully-extract-a-quadrat-the-algorithm-assumes:" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>All four corners of the quadrat are contained in the image, i.e.~the side lengths or corners are not cropped from the scene.</p></li>
+<li><p>The quadrat side lengths are not occluded, e.g., by diver equipment, mesh bags, or vegetation.</p></li>
+<li><p>The image is sufficiently clear, i.e.~not turbulent or cloudy from disrupted sediment.</p></li>
+<li><p>The camera angle is within <span class="math notranslate nohighlight">\(65-90^{\circ}\)</span> with respect to the top surface of the quadrat. Note that this is separate from quadrat rotation in the camera plane, which can be arbitrary.</p></li>
+<li><p>The camera is not too far from the quadrat such that the side lengths are less than 400 pixels for <span class="math notranslate nohighlight">\(1080 \times 1440\)</span> resolution, 500 pixels for <span class="math notranslate nohighlight">\(1080 \times 1920\)</span> HD resolution, or 400 for portrait mode in HD res.</p></li>
+</ul>
+<p>The algorithm still works reasonably well in some cases even when the assumptions are violated, e.g., input 7 with the mesh bag covering one of the corners, as missing corner coordinates can sometimes be inferred if enough complementary lines are detected. Conversely, even when the assumptions are satisfied, a best effort is made to extract the <em>interior</em> of the quadrat, but this occaisionally won’t be possible due to missing or misleading lines and part of the quadrat may be included in the
+output.</p>
+<p>Prior to running this notebook you must set:</p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">DRAW</span></code> variable annotates intermediate results on the image and is nice for visualizing results. It should be set to False for saving the final output.</p></li>
+<li><p>The default values for all other parameters can be left as they are.</p></li>
+</ol>
+<p>When <code class="docutils literal notranslate"><span class="pre">DRAW=True</span></code>, you will see annotations in the <strong>Post-Processing</strong> pane. - Large green circles are corner centroids found by K-means - Medium blue circles are all line intersection points after the final stage of processing - Small white circles are proposed crop locations (the quadrat interior corner points) - The X lines corresponding to ‘Using X of Y lines’ after rejecting outliers and merging similar lines are shown in blue</p>
+<p>On completion you should have 26 cropped images in the folder <code class="docutils literal notranslate"><span class="pre">My</span> <span class="pre">Drive/Data/Quadrat_Extraction_from_Stills</span></code></p>
+<p>Dependencies: - <code class="docutils literal notranslate"><span class="pre">opencv.__version__==4.2.0</span></code> - <code class="docutils literal notranslate"><span class="pre">skimage.__version__==0.16.2</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">DRAW</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">IN_COLAB</span> <span class="o">=</span> <span class="s1">&#39;google.colab&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span>
+
+<span class="k">if</span> <span class="n">IN_COLAB</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">google.colab</span> <span class="kn">import</span> <span class="n">drive</span>
+    <span class="n">drive</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">&#39;/content/drive&#39;</span><span class="p">)</span>
+    <span class="n">DATA_PATH</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;/content/drive/My Drive/Data&#39;</span>
+    <span class="n">SAVE_PATH</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;Quadrat_Extraction_from_Stills&#39;</span><span class="p">)</span>
+
+    <span class="c1"># cd into current directory so local imports work</span>
+    <span class="o">%</span><span class="k">cd</span> &#39;/content/drive/My Drive/cciw-zebra-mussel/quadrat-extraction/&#39;
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">DATA_PATH</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATA_PATH&#39;</span><span class="p">],</span> <span class="s1">&#39;cciw/Data&#39;</span><span class="p">)</span>
+    <span class="n">SAVE_PATH</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATA_PATH&#39;</span><span class="p">],</span> <span class="s1">&#39;cciw/dataset_raw/quadrat-extraction/stills-v3-1&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">SAVE_PATH</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">SAVE_PATH</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reading data from&#39;</span><span class="p">,</span> <span class="n">DATA_PATH</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving cropped images to&#39;</span><span class="p">,</span> <span class="n">SAVE_PATH</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Reading data from /media/angus/cciw/Data
+Saving cropped images to /media/angus/cciw/dataset_raw/quadrat-extraction/stills-v3-1
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">cv2</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loaded OpenCV version&#39;</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+
+<span class="c1"># local import</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">crop_still_image</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">compute_pairwise_distances</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">centroid_and_crop_kmeans</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Loaded OpenCV version 4.2.0
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Search for all still files in the datset</span>
+<span class="n">stills</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span><span class="s1">&#39;Videos_and_stills/GLNI/*/*/*/Stills/Quad*/*.jpg&#39;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Found </span><span class="si">%d</span><span class="s1"> still images&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">stills</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Found 67 still images
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># indices of data in x and y position respectively</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stills</span><span class="p">)):</span>
+
+    <span class="c1"># load the input image</span>
+    <span class="n">bgr</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">stills</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="n">out_file</span> <span class="o">=</span> <span class="n">stills</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_crop.jpg&#39;</span>
+
+    <span class="c1"># set parameters according to input resolution</span>
+    <span class="k">if</span> <span class="n">bgr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1440</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;x_trim and y_trim are used to remove black padding</span>
+<span class="sd">        for 1080x1440 video which triggers spurious edges&quot;&quot;&quot;</span>
+        <span class="n">x_trim</span><span class="p">,</span> <span class="n">y_trim</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">145</span>
+        <span class="n">bgr</span> <span class="o">=</span> <span class="n">bgr</span><span class="p">[</span><span class="n">y_trim</span><span class="p">:</span><span class="o">-</span><span class="n">y_trim</span><span class="p">,</span> <span class="n">x_trim</span><span class="p">:</span><span class="o">-</span><span class="n">x_trim</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">crop_frame_border</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="sd">&quot;&quot;&quot;@param canny_thresh initial hysteresis values for Canny edge</span>
+<span class="sd">        detector, input to HoughLines&quot;&quot;&quot;</span>
+        <span class="n">canny_thresh1</span><span class="p">,</span> <span class="n">canny_thresh2</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">45</span>
+        <span class="sd">&quot;&quot;&quot;@param threshold Accumulator threshold, return</span>
+<span class="sd">        lines with more than threshold of votes. (intersection points)&quot;&quot;&quot;</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="mi">125</span>
+        <span class="sd">&quot;&quot;&quot;@param minLineLength Minimum line length.</span>
+<span class="sd">        Line segments shorter than that are rejected. (pixels)&quot;&quot;&quot;</span>
+        <span class="n">mLL</span> <span class="o">=</span> <span class="mi">400</span>
+        <span class="sd">&quot;&quot;&quot;@param maxLineGap Maximum allowed gap between points</span>
+<span class="sd">        on the same line to link them. (pixels)&quot;&quot;&quot;</span>
+        <span class="n">mLG</span> <span class="o">=</span> <span class="mi">150</span>
+
+    <span class="k">elif</span> <span class="n">bgr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1920</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;@param canny_thresh initial hysteresis values for Canny</span>
+<span class="sd">        edge detector, input to HoughLines&quot;&quot;&quot;</span>
+        <span class="n">canny_thresh1</span><span class="p">,</span> <span class="n">canny_thresh2</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">100</span>
+        <span class="sd">&quot;&quot;&quot;@param threshold Accumulator threshold, return</span>
+<span class="sd">        lines with more than threshold of votes. (intersection points)&quot;&quot;&quot;</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="mi">125</span>
+        <span class="sd">&quot;&quot;&quot;@param minLineLength Minimum line length.</span>
+<span class="sd">        Line segments shorter than that are rejected. (pixels)&quot;&quot;&quot;</span>
+        <span class="n">mLL</span> <span class="o">=</span> <span class="mi">500</span>
+        <span class="sd">&quot;&quot;&quot;@param maxLineGap Maximum allowed gap between points</span>
+<span class="sd">        on the same line to link them. (pixels)&quot;&quot;&quot;</span>
+        <span class="n">mLG</span> <span class="o">=</span> <span class="mi">150</span>
+
+        <span class="c1"># this checks to see if images contain zero padding</span>
+        <span class="k">for</span> <span class="n">pad_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bgr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">bgr</span><span class="p">[:,</span> <span class="n">pad_idx</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="sd">&quot;&quot;&quot;if pad_idx &gt; 500 it means the HD image is in</span>
+<span class="sd">        portrait mode and the side lengths are smaller.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pad_idx</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+            <span class="n">mLL</span> <span class="o">=</span> <span class="mi">400</span>
+
+        <span class="n">h_pad</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">bgr</span> <span class="o">=</span> <span class="n">bgr</span><span class="p">[:,</span> <span class="n">pad_idx</span> <span class="o">+</span> <span class="n">h_pad</span><span class="p">:</span><span class="o">-</span><span class="p">(</span><span class="n">h_pad</span> <span class="o">+</span> <span class="n">pad_idx</span><span class="p">),</span> <span class="p">:]</span>
+
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">bgr</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rgb</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Input </span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">bgr</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">crop</span> <span class="o">=</span> <span class="n">crop_still_image</span><span class="p">(</span>
+        <span class="n">bgr</span><span class="p">,</span> <span class="n">mll</span><span class="o">=</span><span class="n">mLL</span><span class="p">,</span> <span class="n">mlg</span><span class="o">=</span><span class="n">mLG</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">canny_1</span><span class="o">=</span><span class="n">canny_thresh1</span><span class="p">,</span> <span class="n">canny_2</span><span class="o">=</span><span class="n">canny_thresh2</span><span class="p">,</span> <span class="n">do_draw</span><span class="o">=</span><span class="n">DRAW</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Processing took </span><span class="si">%.2f</span><span class="s1"> sec&#39;</span> <span class="o">%</span> <span class="nb">float</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">bgr</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Post-Processing&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">x_start</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">x_end</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">y_start</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">Y</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">y_end</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">Y</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">compute_pairwise_distances</span><span class="p">(</span><span class="n">crop</span><span class="p">)[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">mLL</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Corners do not form a square, attempting to crop based on one side length&#39;</span><span class="p">)</span>
+
+            <span class="n">centroid</span><span class="p">,</span> <span class="n">crop</span><span class="p">,</span> <span class="n">cluster_centers</span> <span class="o">=</span> <span class="n">centroid_and_crop_kmeans</span><span class="p">(</span><span class="n">crop</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">crop</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="n">X</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">crop</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="n">Y</span><span class="p">]:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Found horizontal line&#39;</span><span class="p">)</span>
+                <span class="n">y_ref</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">crop</span><span class="p">[:,</span> <span class="n">Y</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+                <span class="n">x_start</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="n">x_end</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+                <span class="c1"># call this y_ref because we don&#39;t know if it&#39;s top or bottom</span>
+                <span class="n">delta</span> <span class="o">=</span> <span class="n">x_end</span> <span class="o">-</span> <span class="n">x_start</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">y_ref</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">bgr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">y_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">y_ref</span> <span class="o">-</span> <span class="n">delta</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">y_end</span> <span class="o">=</span> <span class="n">y_ref</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">y_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">y_ref</span> <span class="o">+</span> <span class="n">delta</span><span class="p">,</span> <span class="n">bgr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">y_start</span> <span class="o">=</span> <span class="n">y_ref</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Found vertical line&#39;</span><span class="p">)</span>
+                <span class="c1"># call this x_ref because we don&#39;t know if it&#39;s left or right</span>
+                <span class="n">x_ref</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">crop</span><span class="p">[:,</span> <span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+                <span class="n">y_start</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">Y</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="n">y_end</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">Y</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="n">delta</span> <span class="o">=</span> <span class="n">y_end</span> <span class="o">-</span> <span class="n">y_start</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">x_ref</span> <span class="o">+</span> <span class="n">delta</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">bgr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">x_start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">x_ref</span> <span class="o">-</span> <span class="n">delta</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">x_end</span> <span class="o">=</span> <span class="n">x_ref</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">x_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">x_ref</span> <span class="o">+</span> <span class="n">delta</span><span class="p">,</span> <span class="n">bgr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">x_start</span> <span class="o">=</span> <span class="n">x_ref</span>
+
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">y_end</span> <span class="o">-</span> <span class="n">y_start</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">x_end</span> <span class="o">-</span> <span class="n">x_start</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dy</span> <span class="o">-</span> <span class="n">dx</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dy</span> <span class="o">&gt;</span> <span class="n">mLL</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">bgr</span><span class="p">[</span><span class="n">y_start</span><span class="p">:</span><span class="n">y_end</span><span class="p">,</span> <span class="n">x_start</span><span class="p">:</span><span class="n">x_end</span><span class="p">,</span> <span class="p">:])</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SAVE_PATH</span><span class="p">,</span> <span class="n">out_file</span><span class="p">),</span>
+                                <span class="n">bgr</span><span class="p">[</span><span class="n">y_start</span><span class="p">:</span><span class="n">y_end</span><span class="p">,</span> <span class="n">x_start</span><span class="p">:</span><span class="n">x_end</span><span class="p">,</span> <span class="p">:])</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Successfully cropped image &#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Problem saving &#39;</span><span class="p">,</span> <span class="n">out_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exit: side length too small.&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exit: side lengths are not equal&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exit: insufficient number of corner points found&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_0.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 13 lines
+Processing took 0.91 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_2.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_2.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  0
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_4.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_4.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 13 lines
+Processing took 1.06 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_6.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_6.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  1
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_8.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_8.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 7 of 12 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.65 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_10.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_10.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Successfully cropped image  2
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_12.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_12.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 2 of 13 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.47 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_14.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_14.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_16.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_16.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 14 lines
+Processing took 1.87 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_18.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_18.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  4
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_20.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_20.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 14 lines
+Processing took 1.87 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_22.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_22.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_24.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_24.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 7 of 12 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 1.56 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_26.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_26.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_28.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_28.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 2 of 14 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.96 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_30.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_30.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_32.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_32.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 14 lines
+Processing took 1.72 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_34.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_34.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_36.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_36.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 13 lines
+Processing took 1.57 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_38.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_38.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_40.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_40.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 13 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 1.36 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_42.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_42.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_44.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_44.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 11 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 2.16 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_46.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_46.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Exit: side length too small.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_48.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_48.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 2 of 5 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.03 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_50.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_50.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_52.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_52.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 9 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.17 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_54.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_54.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_56.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_56.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 3 of 14 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.06 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_58.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_58.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_60.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_60.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 14 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.24 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_62.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_62.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_64.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_64.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 1 of 10 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.05 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_66.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_66.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_68.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_68.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 4 of 14 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.18 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_70.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_70.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_72.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_72.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 2 of 11 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.04 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_74.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_74.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_76.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_76.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 14 lines
+Processing took 0.35 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_78.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_78.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_80.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_80.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 11 of 14 lines
+Processing took 0.43 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_82.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_82.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_84.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_84.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 14 lines
+Processing took 0.42 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_86.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_86.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found vertical line
+Exit: side length too small.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_88.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_88.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 14 lines
+Processing took 0.56 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_90.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_90.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found vertical line
+Successfully cropped image  22
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_92.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_92.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 6 of 10 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.18 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_94.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_94.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Exit: side length too small.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_96.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_96.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 6 of 9 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.20 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_98.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_98.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found vertical line
+Exit: side length too small.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_100.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_100.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 2 of 3 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.01 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_102.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_102.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_104.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_104.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 7 of 12 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.18 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_106.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_106.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Successfully cropped image  26
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_108.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_108.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 14 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.17 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_110.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_110.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_112.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_112.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 2 of 8 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.02 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_114.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_114.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_116.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_116.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 9 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.21 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_118.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_118.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found vertical line
+Successfully cropped image  29
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_120.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_120.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 14 lines
+Processing took 0.44 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_122.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_122.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  30
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_124.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_124.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 6 of 13 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.29 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_126.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_126.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  31
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_128.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_128.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 7 of 11 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.27 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_130.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_130.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  32
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_132.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_132.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 10 of 14 lines
+Processing took 0.21 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_134.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_134.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  33
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_136.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_136.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 11 lines
+Processing took 0.20 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_138.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_138.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  34
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_140.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_140.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 4 of 9 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.15 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_142.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_142.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_144.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_144.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 6 of 11 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.18 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_146.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_146.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_148.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_148.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 4 of 8 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.20 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_150.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_150.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_152.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_152.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 13 lines
+Processing took 0.20 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_154.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_154.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_156.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_156.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 12 lines
+Processing took 0.19 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_158.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_158.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  39
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_160.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_160.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 6 of 10 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.18 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_162.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_162.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Successfully cropped image  40
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_164.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_164.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 10 of 14 lines
+Processing took 0.78 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_166.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_166.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  41
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_168.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_168.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 11 of 14 lines
+Processing took 0.92 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_170.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_170.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Successfully cropped image  42
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_172.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_172.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 10 of 13 lines
+Processing took 0.93 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_174.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_174.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  43
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_176.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_176.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 10 of 12 lines
+Processing took 0.71 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_178.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_178.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_180.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_180.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 10 of 14 lines
+Processing took 0.62 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_182.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_182.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  45
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_184.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_184.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 8 of 9 lines
+Processing took 0.72 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_186.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_186.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Successfully cropped image  46
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_188.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_188.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 10 of 13 lines
+Processing took 0.98 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_190.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_190.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found vertical line
+Exit: side length too small.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_192.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_192.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 12 of 13 lines
+Processing took 0.69 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_194.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_194.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_196.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_196.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 2 of 13 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 3.55 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_198.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_198.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_200.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_200.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 14 lines
+Processing took 4.11 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_202.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_202.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  50
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_204.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_204.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 10 of 14 lines
+Processing took 4.80 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_206.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_206.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  51
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_208.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_208.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 13 lines
+Processing took 3.61 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_210.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_210.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  52
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_212.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_212.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 14 lines
+Processing took 1.07 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_214.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_214.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  53
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_216.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_216.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 7 of 13 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 1.97 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_218.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_218.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_220.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_220.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 7 of 13 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 1.17 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_222.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_222.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found vertical line
+Successfully cropped image  55
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_224.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_224.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 8 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 2.03 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_226.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_226.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found horizontal line
+Successfully cropped image  56
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_228.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_228.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 7 of 12 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 1.53 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_230.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_230.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found vertical line
+Successfully cropped image  57
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_232.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_232.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 13 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 2.17 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_234.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_234.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: side lengths are not equal
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_236.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_236.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 7 of 14 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.80 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_238.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_238.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Corners do not form a square, attempting to crop based on one side length
+Found vertical line
+Successfully cropped image  59
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_240.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_240.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 14 lines
+Processing took 1.36 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_242.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_242.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  60
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_244.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_244.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 9 of 13 lines
+Processing took 1.90 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_246.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_246.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  61
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_248.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_248.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 6 of 14 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 3.77 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_250.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_250.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  62
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_252.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_252.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 11 of 13 lines
+Processing took 4.88 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_254.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_254.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Successfully cropped image  63
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_256.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_256.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 1 of 2 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.04 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_258.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_258.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_260.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_260.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Processing took 0.01 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_262.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_262.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_264.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_264.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using 5 of 5 lines
+It is likely that:
+ i)  all four quadtrat corners are not visible
+ ii) image is blurry, or partly occluded
+Processing took 0.23 sec
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_266.png" src="../_images/quadrat-extraction_quadrat-task-1b-all-stills_6_266.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exit: insufficient number of corner points found
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="End-demo">
+<h1>End demo<a class="headerlink" href="#End-demo" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># to plot all still images</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">stills</span><span class="p">)):</span>
+    <span class="n">bgr</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">stills</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">bgr</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">bgr</span><span class="p">[::</span><span class="mi">2</span><span class="p">,</span> <span class="p">::</span><span class="mi">2</span><span class="p">,</span> <span class="p">:])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">#fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))</span>
+<span class="sd">fig, ax1 = plt.subplots(1, 1, figsize=(8, 5))</span>
+<span class="sd">#bgr = cv2.imread(stills[i])</span>
+<span class="sd">#rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)</span>
+<span class="sd">ax1.imshow(img)</span>
+<span class="sd">#ax1.imshow(edges)</span>
+<span class="sd">#ax1.set_title(&#39;Canny edges&#39;, fontsize=16)</span>
+<span class="sd">#ax2.imshow(bgr)</span>
+<span class="sd">#ax2.set_title(&#39;Still image with corner points&#39;, fontsize=16)</span>
+<span class="sd">ax1.axis(&#39;off&#39;)</span>
+<span class="sd">#ax2.axis(&#39;off&#39;)</span>
+<span class="sd">plt.tight_layout()</span>
+<span class="sd">plt.show()</span>
+<span class="sd">#fig.savefig(&#39;quatract-extraction-still-%d-step-4.pdf&#39; % i)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Angus Galloway
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

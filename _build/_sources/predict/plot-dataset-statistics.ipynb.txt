@@ -1,0 +1,700 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# For plotting statistics from the lab analysis only\n",
+    "\n",
+    "This notebook should be self contained, you may need to change the `DATA_PATH` if running locally so it can find the data tables."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SAVE = False"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import csv\n",
+    "import sys\n",
+    "\n",
+    "import os\n",
+    "import os.path as osp\n",
+    "\n",
+    "import glob\n",
+    "\n",
+    "import numpy as np\n",
+    "\n",
+    "# for comparing predictions to lab analysis data frames\n",
+    "import pandas as pd\n",
+    "\n",
+    "# for plotting\n",
+    "import matplotlib\n",
+    "# enable LaTeX style fonts\n",
+    "matplotlib.rc('text', usetex=True)\n",
+    "import matplotlib.pyplot as plt\n",
+    "plt.rc('text', usetex=True)\n",
+    "plt.rc('font', family='serif')\n",
+    "\n",
+    "# evaluation metrics\n",
+    "from sklearn.metrics import r2_score\n",
+    "\n",
+    "from plot_utils import *\n",
+    "\n",
+    "IN_COLAB = 'google.colab' in sys.modules"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "'''\n",
+    "root_path = '/scratch/ssd/gallowaa/cciw/dataset_raw/Test/Lab/done/'\n",
+    "jpeg_files = glob.glob(root_path + '*.jpg')\n",
+    "jpeg_files.sort()\n",
+    "# Should equal 40\n",
+    "print(len(jpeg_files)) \n",
+    "\n",
+    "csvfile = 'lab-v100-originals-files.csv'\n",
+    "\n",
+    "with open(csvfile, 'w') as f:\n",
+    "    csvwriter = csv.writer(f, delimiter=',')#, #escapechar='', quoting=csv.QUOTE_NONE)\n",
+    "    for i in range(len(jpeg_files)):\n",
+    "        csvwriter.writerow([jpeg_files[i].split('/')[-1]])\n",
+    "'''"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The list of files is now stored in a csv file in this repo for portability"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "jpeg_files = []\n",
+    "\n",
+    "csvfile = 'lab-v100-originals-files.csv'\n",
+    "with open(csvfile, 'r') as f:\n",
+    "    spamreader = csv.reader(f, delimiter=',', quotechar='|')\n",
+    "    for row in spamreader:\n",
+    "        jpeg_files.append(row[0])\n",
+    "print(len(jpeg_files))        "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "if IN_COLAB:\n",
+    "    from google.colab import drive\n",
+    "    drive.mount('/content/drive')\n",
+    "    DATA_PATH = r'/content/drive/My Drive/Data'\n",
+    "else:\n",
+    "    DATA_PATH = osp.join(os.environ['DATA_PATH'], 'cciw/Data')\n",
+    "\n",
+    "imagetable_path = os.path.join(DATA_PATH, 'Tables', 'ImageTable.csv')\n",
+    "image_df = pd.read_csv(imagetable_path, index_col=0)\n",
+    "analysis_path = os.path.join(DATA_PATH, 'Tables', 'Analysis.csv')\n",
+    "dive_path = os.path.join(DATA_PATH, 'Tables', 'Dives.csv')\n",
+    "analysis_df = pd.read_csv(analysis_path, index_col=0, dtype={'Count':float})\n",
+    "dive_df = pd.read_csv(dive_path, index_col=0, parse_dates=['Date'])\n",
+    "data_df = pd.merge(analysis_df, dive_df, on='Dive Index', how='outer')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Y = data_df[['Live Coverage', 'Empty Coverage', 'Biomass', 'Count', '16mm', '14mm', '12.5mm', '10mm', '8mm', '6.3mm', '4mm', '2mm']]\n",
+    "Y"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fontsize = 16\n",
+    "\n",
+    "left = 0.02  # the left side of the subplots of the figure\n",
+    "right = 0.98   # the right side of the subplots of the figure\n",
+    "bottom = 0.05  # the bottom of the subplots of the figure\n",
+    "top = 0.95     # the top of the subplots of the figure\n",
+    "wspace = 0.15  # the amount of width reserved for space between subplots,\n",
+    "# expressed as a fraction of the average axis width\n",
+    "hspace = 0.1  # the amount of height reserved for space between subplots,\n",
+    "# expressed as a fraction of the average axis height\n",
+    "\n",
+    "BIOMASS_IDX = 0\n",
+    "COUNT_IDX = 1\n",
+    "PRED_COUNT_IDX = 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "lab_targets = np.zeros((len(jpeg_files), 3)) # 0 = biomass, 1 = count\n",
+    "\n",
+    "names = ['16mm', '14mm', '12.5mm', '10mm', '8mm', '6.3mm', '4mm', '2mm']\n",
+    "sieves = np.array([16, 14, 12.5, 10, 8, 6.3, 4, 2])\n",
+    "\n",
+    "for i in range(len(jpeg_files)):\n",
+    "    \n",
+    "    root_fname = jpeg_files[i].split('/')[-1].split('.')[0].split('_image')[0].split('Lab_')[1]\n",
+    "    guid = image_df[image_df['Name'].str.contains(root_fname)]['Analysis Index'].astype('int64')\n",
+    "    row = data_df[data_df['Analysis Index'].values == np.unique(guid.values)]\n",
+    "    \n",
+    "    lab_targets[i, BIOMASS_IDX] = row['Biomass'].values\n",
+    "    lab_targets[i, COUNT_IDX] = row['Count'].values\n",
+    "    \n",
+    "    size_dist = np.zeros(len(names))\n",
+    "    for j in range(len(names)):\n",
+    "        size_dist[j] = row[names[j]].values\n",
+    "        \n",
+    "    lab_targets[i, PRED_COUNT_IDX] = (lab_targets[i, BIOMASS_IDX] * size_dist * 2 / sieves).sum()\n",
+    "\n",
+    "lab_targets[np.isnan(lab_targets)] = 0\n",
+    "\n",
+    "biomass = lab_targets[:, BIOMASS_IDX] / lab_targets[:, BIOMASS_IDX].max()\n",
+    "a_count = lab_targets[:, COUNT_IDX] / lab_targets[:, COUNT_IDX].max()\n",
+    "p_count = lab_targets[:, PRED_COUNT_IDX] / lab_targets[:, PRED_COUNT_IDX].max()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=True)\n",
+    "\n",
+    "ax[0].scatter(biomass, a_count, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[0].set_ylabel('Count', fontsize=fontsize)\n",
+    "ax[0].set_xlabel('Biomass (g)', fontsize=fontsize)\n",
+    "\n",
+    "ax[1].scatter(p_count, a_count, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[1].set_xlabel('Biomass (g) \\n corrected by sieve', fontsize=fontsize)\n",
+    "\n",
+    "draw_lines(ax[0], biomass, a_count)\n",
+    "draw_lines(ax[1], p_count, a_count)\n",
+    "\n",
+    "draw_rsquared(ax[0], a_count, biomass, fontsize)\n",
+    "draw_rsquared(ax[1], a_count, p_count, fontsize)\n",
+    "\n",
+    "draw_sublabel(ax[0], r'\\textbf{a)}', fontsize, (0.85, 0.05))\n",
+    "draw_sublabel(ax[1], r'\\textbf{b)}', fontsize, (0.85, 0.05))\n",
+    "\n",
+    "pretty_axis(ax[0], fontsize)\n",
+    "pretty_axis(ax[1], fontsize)\n",
+    "\n",
+    "plt.tight_layout()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#fname = 'lab_count_from_biomass'\n",
+    "#fig.savefig(fname + '.png')\n",
+    "#fig.savefig(fname + '.eps', format='eps')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Plot biomass from live coverage"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "root_path = '/media/angus/cciw/VOCdevkit/Train-v120-originals/'\n",
+    "#root_path = '/media/angus/cciw/VOCdevkit/Train-v111-originals/JPEGImages/'\n",
+    "#root_path = '/scratch/ssd/gallowaa/cciw/VOCdevkit/Validation-v101-originals/JPEGImages/'\n",
+    "\n",
+    "jpeg_files = glob.glob(root_path + 'JPEGImages/*.jpg')\n",
+    "jpeg_files.sort()\n",
+    "\n",
+    "# Should equal 121\n",
+    "print(len(jpeg_files))    \n",
+    "\n",
+    "label_path = os.path.join(root_path, 'SegmentationClass')\n",
+    "all_images = glob.glob(osp.join(label_path, '*.png'))\n",
+    "all_images.sort()\n",
+    "print(len(all_images))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "'''\n",
+    "jpeg_files = []\n",
+    "\n",
+    "csvfile = 'train-v111-originals-files.csv'\n",
+    "with open(csvfile, 'r') as f:\n",
+    "    spamreader = csv.reader(f, delimiter=',', quotechar='|')\n",
+    "    for row in spamreader:\n",
+    "        jpeg_files.append(row[0])\n",
+    "print(len(jpeg_files))        \n",
+    "'''"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "lab_targets = np.zeros((len(jpeg_files), 3)) # 0 = biomass, 1 = count, 2 = live coverage\n",
+    "\n",
+    "LIVE_COVERAGE = 2\n",
+    "\n",
+    "for i in range(len(jpeg_files)):\n",
+    "    \n",
+    "    root_fname = jpeg_files[i].split('/')[-1].split('.')[0].split('_image')[0].split('GLNI_')[1]\n",
+    "    guid = image_df[image_df['Name'].str.contains(root_fname)]['Analysis Index'].astype('int64')\n",
+    "    row = data_df[data_df['Analysis Index'].values == np.unique(guid.values)]\n",
+    "    \n",
+    "    lab_targets[i, BIOMASS_IDX] = row['Biomass'].values\n",
+    "    lab_targets[i, COUNT_IDX] = row['Count'].values\n",
+    "    lab_targets[i, LIVE_COVERAGE] = row['Live Coverage'].values\n",
+    "\n",
+    "valid_mask = np.invert(np.isnan(lab_targets[:, 0]))\n",
+    "valid_mask = valid_mask & np.invert(np.isnan(lab_targets[:, 1]))\n",
+    "valid_mask = valid_mask & np.invert(np.isnan(lab_targets[:, 2]))\n",
+    "\n",
+    "biomass = lab_targets[:, BIOMASS_IDX][valid_mask]\n",
+    "count = lab_targets[:, COUNT_IDX][valid_mask]\n",
+    "live_coverage = lab_targets[:, LIVE_COVERAGE][valid_mask]\n",
+    "\n",
+    "biomass = biomass / biomass.max()\n",
+    "count = count / count.max()\n",
+    "live_coverage = live_coverage / live_coverage.max()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "valid_mask.sum()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def draw_lines(ax, x, y, xlim):\n",
+    "\n",
+    "    x_ = np.linspace(0, xlim)\n",
+    "\n",
+    "    A = np.vstack([x, np.ones(len(x))]).T\n",
+    "    (m, c), res, r, s = np.linalg.lstsq(A, y, rcond=-1)\n",
+    "    std = np.sqrt(res[0] / len(y))\n",
+    "\n",
+    "    ax.plot(x_, m * x_ + c, 'k', linestyle='-')\n",
+    "    ax.plot(x_, m * x_ + c + 1.96 * std, '--', color='gray')\n",
+    "    ax.plot(x_, m * x_ + c - 1.96 * std, '--', color='gray')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=False)\n",
+    "ax[0].scatter(live_coverage * 100, biomass, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[0].set_xlabel('Live Coverage (\\%)', fontsize=fontsize)\n",
+    "ax[0].set_ylabel('Biomass (g)', fontsize=fontsize)\n",
+    "ax[1].scatter(live_coverage * 100, count, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[1].set_ylabel('Count', fontsize=fontsize)\n",
+    "ax[1].set_xlabel('Live Coverage (\\%)', fontsize=fontsize)\n",
+    "#ax[0].plot(x * 100, y_hat, 'r', linestyle='-')\n",
+    "draw_lines(ax[0], live_coverage*100, biomass, 100)\n",
+    "draw_lines(ax[1], live_coverage*100, count, 100)\n",
+    "ax[0].set_title(r'$\\mathbf{R^2}$ = %.3f' % r2_score(biomass, linear_regression(live_coverage, biomass)), fontsize=fontsize + 1)\n",
+    "ax[1].set_title(r'$\\mathbf{R^2}$ = %.3f' % r2_score(count, linear_regression(live_coverage, count)), fontsize=fontsize + 1)\n",
+    "\n",
+    "draw_sublabel(ax[0], r'\\textbf{a)}', fontsize, (.1, .85))\n",
+    "draw_sublabel(ax[1], r'\\textbf{b)}', fontsize, (.1, .85))\n",
+    "\n",
+    "#pretty_axis(ax[0], fontsize, 105, 1.05)\n",
+    "#pretty_axis(ax[1], fontsize, 105, 1.05)\n",
+    "\n",
+    "plt.tight_layout()\n",
+    "\n",
+    "fname = 'train_v120_predict_biomass_and_count_from_live_coverage_ab'\n",
+    "#fig.savefig(fname + '.eps', format='eps')\n",
+    "#fig.savefig(fname + '.png', format='png')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x = count #live_coverage\n",
+    "y = live_coverage\n",
+    "A = np.vstack([x, np.ones(len(x))]).T\n",
+    "(m, c), res, r, s = np.linalg.lstsq(A, y, rcond=-1)\n",
+    "std = np.sqrt(res[0] / len(y))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#np.sqrt(res) / len(y)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "std"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#np.linalg.lstsq?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#res"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "residuals = biomass - (live_coverage * m + c)\n",
+    "#residuals.mean()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.scatter(live_coverage, residuals)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#fig, ax = plt.subplots(1, 1)\n",
+    "#power_law_prediction_ax(ax, live_coverage, biomass, 0, 2, fontsize)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#fig, ax = plt.subplots(1, 1)\n",
+    "#power_law_prediction_ax(ax, live_coverage, count, 0, 2, fontsize)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from power_law import *"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def pretty_axis(ax, fontsize, xlim, ylim):\n",
+    "    ax.set_ylim(0, ylim)\n",
+    "    ax.set_xlim(0, xlim)\n",
+    "    ax.grid()\n",
+    "    ax.set_aspect('equal')\n",
+    "    ax.tick_params(labelsize=fontsize - 2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Live Coverage, Biomass, Count from Segmentation Masks"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import cv2\n",
+    "from tqdm import tqdm"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pix_ct = []\n",
+    "for i in tqdm(range(len(all_images))):\n",
+    "    im   = cv2.imread(all_images[i])\n",
+    "    _, cts = np.unique(im, return_counts=True) \n",
+    "    try:\n",
+    "        pix_ct.append(cts[1] / cts.sum())\n",
+    "    except:\n",
+    "        pix_ct.append(0)\n",
+    "pix_ct_np = np.asarray(pix_ct)\n",
+    "pix_ct_np = pix_ct_np / pix_ct_np.max()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "x = pix_ct_np[valid_mask]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# v111\n",
+    "'''\n",
+    "mask_y = live_coverage > 0.4\n",
+    "mask_x = x < 0.2\n",
+    "upper_left = mask_x & mask_y\n",
+    "mask_y = live_coverage > 0.38\n",
+    "mask_x = x < 0.1\n",
+    "upper_left |= (mask_x & mask_y)\n",
+    "mask_y = live_coverage < 0.6\n",
+    "mask_x = x > 0.6\n",
+    "bottom_right = mask_x & mask_y\n",
+    "outliers = upper_left | bottom_right\n",
+    "inliers = np.invert(outliers)\n",
+    "'''\n",
+    "# v120\n",
+    "mask_y = live_coverage >= 0.8\n",
+    "mask_x = x < 0.21\n",
+    "upper_left = mask_x & mask_y\n",
+    "\n",
+    "mask_y = live_coverage < 0.25\n",
+    "mask_x = x > 0.25\n",
+    "bottom_right = mask_x & mask_y\n",
+    "outliers = upper_left | bottom_right\n",
+    "inliers = np.invert(outliers)\n",
+    "\n",
+    "xin = x[inliers]\n",
+    "livein = live_coverage[inliers]\n",
+    "countin = count[inliers]\n",
+    "biomassin = biomass[inliers]\n",
+    "\n",
+    "print('Live Coverage R^2 value on %d inliers = %.4f' % (len(xin), r2_score(livein, linear_regression(xin, livein))))\n",
+    "print('Live Coverage R^2 value on %d inliers = %.4f' % (len(x), r2_score(live_coverage, linear_regression(x, live_coverage))))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "xin = xin / xin.max()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "xin.max()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#143 - 126"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots(1, 3, figsize=(12, 4.5), sharex=True, sharey=False)\n",
+    "\n",
+    "ax[0].scatter(xin, livein, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[0].scatter(x[outliers], live_coverage[outliers], marker='o', s=40, facecolors='none', edgecolors='r')\n",
+    "ax[0].set_ylabel('Live Coverage', fontsize=fontsize)\n",
+    "ax[0].set_title(r'$\\mathbf{R^2}$ = %.3f in, %.3f all' % (r2_score(livein, linear_regression(xin, livein)), r2_score(live_coverage, linear_regression(x, live_coverage))), fontsize=fontsize + 1)\n",
+    "draw_lines(ax[0], xin, livein, 1)\n",
+    "\n",
+    "ax[1].scatter(xin, biomassin, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[1].scatter(x[outliers], biomass[outliers], marker='o', s=40, facecolors='none', edgecolors='r')\n",
+    "ax[1].set_ylabel('Biomass (g)', fontsize=fontsize)\n",
+    "ax[1].set_xlabel('Fraction of Mussel Pixels \\n in Segmentation Mask', fontsize=fontsize)\n",
+    "ax[1].set_title(r'$\\mathbf{R^2}$ = %.3f in, %.3f all' % (r2_score(xin, linear_regression(xin, biomassin)), r2_score(x, linear_regression(x, biomass))),  fontsize=fontsize + 1)\n",
+    "draw_lines(ax[1], xin, biomassin, 1)\n",
+    "\n",
+    "ax[2].scatter(xin, countin, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[2].scatter(x[outliers], count[outliers], marker='o', s=40, facecolors='none', edgecolors='r')\n",
+    "ax[2].set_ylabel('Count', fontsize=fontsize)\n",
+    "ax[2].set_title(r'$\\mathbf{R^2}$ = %.3f in, %.3f all' % (r2_score(xin, linear_regression(xin, countin)), r2_score(x, linear_regression(x, count))),  fontsize=fontsize + 1)\n",
+    "draw_lines(ax[2], xin, countin, 1)\n",
+    "\n",
+    "draw_sublabel(ax[0], r'\\textbf{a)}', fontsize, (0.85, 0.05))\n",
+    "draw_sublabel(ax[1], r'\\textbf{b)}', fontsize, (0.85, 0.05))\n",
+    "draw_sublabel(ax[2], r'\\textbf{c)}', fontsize, (0.85, 0.05))\n",
+    "\n",
+    "pretty_axis(ax[0], fontsize, 1.05, 1.05)\n",
+    "pretty_axis(ax[1], fontsize, 1.05, 1.05)\n",
+    "pretty_axis(ax[2], fontsize, 1.05, 1.05)\n",
+    "\n",
+    "plt.tight_layout()\n",
+    "\n",
+    "if SAVE:\n",
+    "    fname = 'train_v120_livecov_biomass_and_count_from_masks_abc'\n",
+    "    fig.savefig(fname + '.png')\n",
+    "    fig.savefig(fname + '.eps', format='eps')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig, ax = plt.subplots(1, 2, figsize=(8, 4), sharex=True, sharey=False)\n",
+    "\n",
+    "ax[0].scatter(xin, 100*livein, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[0].scatter(x[outliers], 100*live_coverage[outliers], marker='o', s=40, facecolors='none', edgecolors='r')\n",
+    "ax[0].set_ylabel('Live Coverage (\\%)', fontsize=fontsize)\n",
+    "ax[0].set_xlabel('Fraction of Mussel Pixels \\n in Segmentation Mask', fontsize=fontsize)\n",
+    "ax[0].set_title(r'$\\mathbf{R^2}$ = %.3f' % r2_score(livein, linear_regression(xin, livein)), fontsize=fontsize + 1)\n",
+    "draw_lines(ax[0], xin, 100*livein, 1)\n",
+    "\n",
+    "ax[1].scatter(xin, countin, marker='o', s=40, facecolors='none', edgecolors='k')\n",
+    "ax[1].scatter(x[outliers], count[outliers], marker='o', s=40, facecolors='none', edgecolors='r')\n",
+    "ax[1].set_ylabel('Biomass (g)', fontsize=fontsize)\n",
+    "#ax[1].set_xlabel('Fraction of Mussel Pixels \\n (Mask)', fontsize=fontsize)\n",
+    "ax[1].set_xlabel('Fraction of Mussel Pixels \\n in Segmentation Mask', fontsize=fontsize)\n",
+    "ax[1].set_title(r'$\\mathbf{R^2}$ = %.3f' % r2_score(xin, linear_regression(xin, countin)),  fontsize=fontsize + 1)\n",
+    "draw_lines(ax[1], xin, countin, 1)\n",
+    "\n",
+    "draw_sublabel(ax[0], r'\\textbf{e)}', fontsize, (0.85, 0.05))\n",
+    "draw_sublabel(ax[1], r'\\textbf{f)}', fontsize, (0.85, 0.05))\n",
+    "\n",
+    "#pretty_axis(ax[0], fontsize)\n",
+    "pretty_axis(ax[0], fontsize, 1.05, 105)\n",
+    "pretty_axis(ax[1], fontsize, 1.05, 1.05)\n",
+    "#pretty_axis(ax[1], fontsize)\n",
+    "\n",
+    "plt.tight_layout()\n",
+    "fname = 'train_v120_live_coverage_and_biomass_from_masks_cd'\n",
+    "#fig.savefig(fname + '.png')\n",
+    "#fig.savefig(fname + '.eps', format='eps')"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

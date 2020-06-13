@@ -1,0 +1,296 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# voc-images-and-masks-to-patch\n",
+    "\n",
+    "This notebook converts a single 2250x2250 px image and its segmentation mask to 81 patches of width `w=242` for training and testing machine learning models. \n",
+    "\n",
+    "Its use differs slightly between the data labeled with LabeMe versus Scale."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#see load_label_png.py also.\n",
+    "import os\n",
+    "import os.path as osp\n",
+    "import glob\n",
+    "import numpy as np\n",
+    "import PIL.Image"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#path = '/scratch/ssd/gallowaa/cciw/VOCdevkit/Train-all/'\n",
+    "#path = '/scratch/ssd/gallowaa/cciw/VOCdevkit/Validation-v101-originals/'\n",
+    "path = '/media/angus/cciw/VOCdevkit/train_v120_patches/'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "label_path = os.path.join(path, 'SegmentationClass')\n",
+    "image_path = os.path.join(path, 'JPEGImages')\n",
+    "\n",
+    "list_of_labels = os.listdir(label_path)\n",
+    "list_of_images = os.listdir(image_path)\n",
+    "\n",
+    "print(len(list_of_labels))\n",
+    "print(len(list_of_images))\n",
+    "\n",
+    "assert len(list_of_labels) == len(list_of_images)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Set patch width `w`"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "w = 250 # in pixels. Results in 81 images for 2250x2250 (9x9)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Save cropped masks"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for i in range(len(list_of_labels)):\n",
+    "    \n",
+    "    lab_file = os.path.join(\n",
+    "        label_path, list_of_labels[i].split('.')[0])\n",
+    "    lab = PIL.Image.open(lab_file + '.png')\n",
+    "\n",
+    "    cnt = 0\n",
+    "    for row in range(lab.size[0] // w):\n",
+    "        for col in range(lab.size[0] // w):\n",
+    "            top = w * row\n",
+    "            bot = w * (row + 1)\n",
+    "            left  = w * col\n",
+    "            right = w * (col + 1)\n",
+    "            lab.crop(\n",
+    "                (left, top, right, bot)\n",
+    "            ).save(lab_file + '-' + str(cnt) + '.png')\n",
+    "            cnt += 1\n",
+    "    print(i, 'finished saving %d images' % cnt)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Save cropped images"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for i in range(len(list_of_images)):\n",
+    "    \n",
+    "    img_file = os.path.join(\n",
+    "        image_path, list_of_images[i].split('.')[0])\n",
+    "    img = PIL.Image.open(img_file + '.jpg')\n",
+    "\n",
+    "    cnt = 0\n",
+    "    for row in range(img.size[0] // w):\n",
+    "        for col in range(img.size[0] // w):\n",
+    "            top = w * row\n",
+    "            bot = w * (row + 1)\n",
+    "            left  = w * col\n",
+    "            right = w * (col + 1)\n",
+    "            img.crop(\n",
+    "                (left, top, right, bot)\n",
+    "            ).save(img_file + '-' + str(cnt) + '.jpg')\n",
+    "            cnt += 1\n",
+    "    print(i, 'finished saving %d images' % cnt)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Create Text Files for Data Split"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "originals_and_patches = os.listdir(osp.join(path, 'JPEGImages'))\n",
+    "originals_and_patches.sort()\n",
+    "print(len(originals_and_patches))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# the originals end with '*_crop.jpg', wheras patches end in ''*_crop-#.jpg'\n",
+    "patches = [item for item in originals_and_patches if 'crop.jpg' not in item]\n",
+    "\n",
+    "\"\"\"check there are no originals in list of patches, \n",
+    "this loop should display nothing\"\"\"\n",
+    "for i in range(len(patches)):\n",
+    "    if 'crop.jpg' in patches[i]:\n",
+    "        print(patches[i])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# create the necessary directory if not already exists\n",
+    "image_sets_dir = osp.join(path, 'ImageSets/Segmentation')\n",
+    "if not osp.exists(image_sets_dir):\n",
+    "    os.makedirs(image_sets_dir)\n",
+    "    \n",
+    "# write the text file using csv library    \n",
+    "with open(osp.join(image_sets_dir, 'train.txt'), 'w') as f:\n",
+    "    for i in range(len(patches)):\n",
+    "        csvwriter = csv.writer(f, delimiter=',')\n",
+    "        csvwriter.writerow([patches[i].split('.')[0]])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Visualization"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "%matplotlib inline"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "list_of_images.sort()\n",
+    "list_of_labels.sort()\n",
+    "\n",
+    "# uncomment to display the list of images\n",
+    "#list_of_images"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "i = 6\n",
+    "img_file = os.path.join(\n",
+    "        image_path, list_of_images[i].split('.')[0])\n",
+    "img = PIL.Image.open(img_file + '.jpg')\n",
+    "lab_file = os.path.join(\n",
+    "        label_path, list_of_labels[i].split('.')[0])\n",
+    "lab = PIL.Image.open(lab_file + '.png')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "left = 0.02  # the left side of the subplots of the figure\n",
+    "right = 0.98   # the right side of the subplots of the figure\n",
+    "bottom = 0.02  # the bottom of the subplots of the figure\n",
+    "top = 0.98     # the top of the subplots of the figure\n",
+    "wspace = 0.05  # the amount of width reserved for space between subplots,\n",
+    "# expressed as a fraction of the average axis width\n",
+    "hspace = 0.05  # the amount of height reserved for space between subplots,\n",
+    "# expressed as a fraction of the average axis height"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "wvz = 250 # 340, 283, 242, 212\n",
+    "lbl = np.asarray(img)\n",
+    "n_plot = lbl.shape[0] // wvz\n",
+    "fig, axes = plt.subplots(n_plot, n_plot, figsize=(12, 12))\n",
+    "\n",
+    "for row in range(lbl.shape[0] // wvz):\n",
+    "    for col in range(lbl.shape[0] // wvz):\n",
+    "        axes[row, col].imshow(lbl[row*wvz:(1+row)*wvz, col*wvz:(col+1)*wvz])\n",
+    "        axes[row, col].axis('off')\n",
+    "#plt.tight_layout()        \n",
+    "plt.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)\n",
+    "plt.show()\n",
+    "plt.savefig(img_file.split('/')[-1] + '_img_viz.jpg')\n",
+    "#plt.savefig(lab_file.split('/')[-1] + '_lab_viz.png')"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.10"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
