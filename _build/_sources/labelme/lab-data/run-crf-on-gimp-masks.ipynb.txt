@@ -1,0 +1,168 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import cv2\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "from glob import glob\n",
+    "from tqdm import tqdm\n",
+    "\n",
+    "import pydensecrf.densecrf as dcrf\n",
+    "import pydensecrf.utils as utils\n",
+    "\n",
+    "%matplotlib inline"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os.path as osp\n",
+    "\n",
+    "import numpy as np\n",
+    "import PIL.Image\n",
+    "\n",
+    "\n",
+    "def lblsave(filename, lbl):\n",
+    "    import imgviz\n",
+    "\n",
+    "    if osp.splitext(filename)[1] != '.png':\n",
+    "        filename += '.png'\n",
+    "    # Assume label ranges [-1, 254] for int32,\n",
+    "    # and [0, 255] for uint8 as VOC.\n",
+    "    if lbl.min() >= -1 and lbl.max() < 255:\n",
+    "        lbl_pil = PIL.Image.fromarray(lbl.astype(np.uint8), mode='P')\n",
+    "        colormap = imgviz.label_colormap()\n",
+    "        lbl_pil.putpalette(colormap.flatten())\n",
+    "        lbl_pil.save(filename)\n",
+    "    else:\n",
+    "        raise ValueError(\n",
+    "            '[%s] Cannot save the pixel-wise class label as PNG. '\n",
+    "            'Please consider using the .npy format.' % filename\n",
+    "        )"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#SAVE_PATH = '/scratch/ssd/gallowaa/cciw/dataset_raw/Test/Lab/done'\n",
+    "SAVE_PATH = '/scratch/ssd/gallowaa/cciw/dataset_raw/Test/GLNI/port/scale/'\n",
+    "gmp_images = glob(osp.join(SAVE_PATH, '*crop.png'))\n",
+    "print(len(gmp_images))\n",
+    "gmp_images"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "gmp_images[0].split('/')[-1].split('.')[0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Run conditional random field post processing to retrieve missing shell pieces\n",
+    "MAX_ITER = 10\n",
+    "RUN_CRF = False\n",
+    "\n",
+    "for i in tqdm(range(len(gmp_images))):\n",
+    "    \n",
+    "    crf_mask_file = os.path.join(SAVE_PATH, gmp_images[i].split('/')[-1].split('.')[0] + '.png')\n",
+    "    print(crf_mask_file)\n",
+    "    \n",
+    "    gimp = cv2.imread(gmp_images[i])\n",
+    "    gimp[gimp >= 128] = 255\n",
+    "    gimp[gimp < 128]  = 0\n",
+    "    \n",
+    "    if RUN_CRF:\n",
+    "        #img  = cv2.imread(osp.join(SAVE_PATH, gmp_images[i].split('/')[-1].split('_mask')[0] + '.jpg')) # GIMP\n",
+    "        img  = cv2.imread(osp.join(SAVE_PATH, gmp_images[i].split('/')[-1].split('_scale')[0] + '.jpg')) # scale\n",
+    "        rgb  = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)\n",
+    "        #rgb  = cv2.resize(rgb, (rgb.shape[1] // 4, rgb.shape[0] // 4))\n",
+    "        print(rgb.shape)\n",
+    "    \n",
+    "        '''\n",
+    "        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(16, 16))\n",
+    "        ax1.imshow(im)\n",
+    "        ax2.imshow(rgb)\n",
+    "        '''    \n",
+    "        rgb = np.ascontiguousarray(rgb)\n",
+    "        # note the 1 - stuff seems like it should be \"255 - stuff\", but it seems to work better this way\n",
+    "        labels = np.stack([gimp[:, :, 2], 1 - gimp[:, :, 2]])\n",
+    "        c, h, w = labels.shape[0], labels.shape[1], labels.shape[2]\n",
+    "        labels = labels.astype('float') / labels.max()\n",
+    "        U = utils.unary_from_softmax(labels)\n",
+    "        U = np.ascontiguousarray(U)\n",
+    "        d = dcrf.DenseCRF2D(w, h, c)\n",
+    "        d.setUnaryEnergy(U)\n",
+    "        \"\"\"\n",
+    "        @param compat=3, Potts model - it introduces a penalty for nearby similar \n",
+    "        pixels that are assigned different labels. \n",
+    "        \"\"\"\n",
+    "        # This adds the color-independent term, features are the locations only.\n",
+    "        d.addPairwiseGaussian(sxy=3, compat=3)\n",
+    "        # This adds the color-dependent term, i.e. features are (x,y,r,g,b).\n",
+    "        # im is an image-array, e.g. im.dtype == np.uint8\n",
+    "        d.addPairwiseBilateral(sxy=80, srgb=13, rgbim=rgb, compat=10)\n",
+    "        Q = d.inference(MAX_ITER)\n",
+    "        Q = np.array(Q).reshape((c, h, w))\n",
+    "        # binarize output\n",
+    "        Q[0][Q[0] >= 0.5] = 1\n",
+    "        Q[0][Q[0] < 0.5] = 0\n",
+    "        crf_mask = (Q[0] * 255).astype('uint8')\n",
+    "        crf_mask[crf_mask == 255] = 1\n",
+    "        lblsave(crf_mask_file, crf_mask) # save as indexed color RGB image\n",
+    "    else:\n",
+    "        gimp[gimp == 255] = 1\n",
+    "        lblsave(crf_mask_file, gimp[:, :, 2]) # save as indexed color RGB image"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

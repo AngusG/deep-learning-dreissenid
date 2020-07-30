@@ -1,0 +1,6571 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Setup &mdash; Mussel-Image-Analysis v1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Mussel-Image-Analysis
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quadrat.html">Quadrat Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/predict.html">Predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/labelme.html">Dataset Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproduce-dataset.html">Reproduce Datasets</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Mussel-Image-Analysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Setup</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/explore-dataset-colab/TableDataPreparation.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Setup">
+<h1>Setup<a class="headerlink" href="#Setup" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>import os
+import pandas as pd
+import numpy as np
+from datetime import datetime
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>from google.colab import drive
+drive.mount(&#39;/content/drive&#39;, force_remount=True)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Go to this URL in a browser: https://accounts.google.com/o/oauth2/auth?client_id=947318989803-6bn6qk8qdgf4n4g3pfee6491hc0brc4i.apps.googleusercontent.com&amp;redirect_uri=urn%3aietf%3awg%3aoauth%3a2.0%3aoob&amp;response_type=code&amp;scope=email%20https%3a%2f%2fwww.googleapis.com%2fauth%2fdocs.test%20https%3a%2f%2fwww.googleapis.com%2fauth%2fdrive%20https%3a%2f%2fwww.googleapis.com%2fauth%2fdrive.photos.readonly%20https%3a%2f%2fwww.googleapis.com%2fauth%2fpeopleapi.readonly
+
+Enter your authorization code:
+··········
+Mounted at /content/drive
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Import-tables">
+<h1>Import tables<a class="headerlink" href="#Import-tables" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>DATA_PATH = r&#39;/content/drive/My Drive/Data&#39;
+analysis_path = os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;Analysis.csv&#39;)
+dive_path = os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;Dives.csv&#39;)
+site_path = os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;Sites.csv&#39;)
+imagetable_path = os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;ImageTable.csv&#39;)
+quadratvideos_path = os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;QuadratVideos.csv&#39;)
+quadratstills_path = os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;QuadratStills.csv&#39;)
+fullvideos_path = os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;FullVideos.csv&#39;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>analysis_df = pd.read_csv(analysis_path, index_col=0,
+                          dtype={&#39;Count&#39;:float})
+dive_df = pd.read_csv(dive_path, index_col=0, parse_dates=[&#39;Date&#39;])
+site_df = pd.read_csv(site_path, index_col=0)
+image_df = pd.read_csv(imagetable_path, index_col=0)
+quadrat_df = pd.read_csv(quadratvideos_path, index_col=0)
+still_df = pd.read_csv(quadratstills_path, index_col=0)
+video_df = pd.read_csv(fullvideos_path, index_col=0)
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>site_df.rename(columns={&#39;Name&#39;:&#39;Site Name&#39;}, inplace=True)
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>analysis_df = analysis_df.set_index(&#39;Analysis Index&#39;)
+analysis_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+    </tr>
+    <tr>
+      <th>Analysis Index</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>45.17</td>
+      <td>132.0</td>
+      <td>0.007576</td>
+      <td>0.037879</td>
+      <td>0.250000</td>
+      <td>0.045455</td>
+      <td>0.030303</td>
+      <td>0.053030</td>
+      <td>0.234848</td>
+      <td>0.340909</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>1</td>
+      <td>98.0</td>
+      <td>0.0</td>
+      <td>345.11</td>
+      <td>833.0</td>
+      <td>0.000000</td>
+      <td>0.004802</td>
+      <td>0.075630</td>
+      <td>0.490996</td>
+      <td>0.181273</td>
+      <td>0.042017</td>
+      <td>0.088836</td>
+      <td>0.116447</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>2</td>
+      <td>99.0</td>
+      <td>0.0</td>
+      <td>319.84</td>
+      <td>647.0</td>
+      <td>0.000000</td>
+      <td>0.003091</td>
+      <td>0.091190</td>
+      <td>0.596600</td>
+      <td>0.202473</td>
+      <td>0.034003</td>
+      <td>0.035549</td>
+      <td>0.037094</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1603</th>
+      <td>534</td>
+      <td>2</td>
+      <td>50.0</td>
+      <td>2.0</td>
+      <td>176.19</td>
+      <td>376.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.061170</td>
+      <td>0.441489</td>
+      <td>0.148936</td>
+      <td>0.125000</td>
+      <td>0.170213</td>
+      <td>0.053191</td>
+    </tr>
+    <tr>
+      <th>1604</th>
+      <td>534</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>5.0</td>
+      <td>173.68</td>
+      <td>401.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.059850</td>
+      <td>0.403990</td>
+      <td>0.184539</td>
+      <td>0.152120</td>
+      <td>0.104738</td>
+      <td>0.094763</td>
+    </tr>
+    <tr>
+      <th>1605</th>
+      <td>535</td>
+      <td>1</td>
+      <td>90.0</td>
+      <td>1.0</td>
+      <td>263.57</td>
+      <td>986.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012170</td>
+      <td>0.250507</td>
+      <td>0.209939</td>
+      <td>0.118661</td>
+      <td>0.160243</td>
+      <td>0.248479</td>
+    </tr>
+    <tr>
+      <th>1606</th>
+      <td>535</td>
+      <td>2</td>
+      <td>70.0</td>
+      <td>1.0</td>
+      <td>198.31</td>
+      <td>745.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.010738</td>
+      <td>0.276510</td>
+      <td>0.194631</td>
+      <td>0.071141</td>
+      <td>0.095302</td>
+      <td>0.351678</td>
+    </tr>
+    <tr>
+      <th>1607</th>
+      <td>535</td>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>47.81</td>
+      <td>161.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012422</td>
+      <td>0.248447</td>
+      <td>0.341615</td>
+      <td>0.267081</td>
+      <td>0.086957</td>
+      <td>0.043478</td>
+    </tr>
+  </tbody>
+</table>
+<p>1608 rows × 14 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>dive_df.loc[dive_df[&#39;Shale (%)&#39;].isnull(), &#39;Shale (%)&#39;] = 0
+dive_df.to_csv(dive_path)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Merge-analysis,-dive-and-site-tables-into-a-single-long-table">
+<h1>Merge analysis, dive and site tables into a single long table<a class="headerlink" href="#Merge-analysis,-dive-and-site-tables-into-a-single-long-table" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>data_df = pd.merge(analysis_df, dive_df, on=&#39;Dive Index&#39;, how=&#39;left&#39;)
+data_df.index.name = &#39;Analysis Index&#39;
+data_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+      <th>Cruise #</th>
+      <th>CSN</th>
+      <th>PSN</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Overall Coverage</th>
+      <th>Silt (%)</th>
+      <th>Clay (%)</th>
+      <th>Sand (%)</th>
+      <th>Gravel (%)</th>
+      <th>Cobble (%)</th>
+      <th>Rock (%)</th>
+      <th>Bedrock (%)</th>
+      <th>Boulders (%)</th>
+      <th>Shale (%)</th>
+      <th>Underlying Substrate Type</th>
+      <th>Underlying Substrate Depth (cm)</th>
+    </tr>
+    <tr>
+      <th>Analysis Index</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>45.17</td>
+      <td>132.0</td>
+      <td>0.007576</td>
+      <td>0.037879</td>
+      <td>0.250000</td>
+      <td>0.045455</td>
+      <td>0.030303</td>
+      <td>0.053030</td>
+      <td>0.234848</td>
+      <td>0.340909</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>1</td>
+      <td>98.0</td>
+      <td>0.0</td>
+      <td>345.11</td>
+      <td>833.0</td>
+      <td>0.000000</td>
+      <td>0.004802</td>
+      <td>0.075630</td>
+      <td>0.490996</td>
+      <td>0.181273</td>
+      <td>0.042017</td>
+      <td>0.088836</td>
+      <td>0.116447</td>
+      <td>201800901</td>
+      <td>2</td>
+      <td>3553</td>
+      <td>2018-06-19</td>
+      <td>12.1</td>
+      <td>85.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>10.0</td>
+      <td>80</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>2</td>
+      <td>99.0</td>
+      <td>0.0</td>
+      <td>319.84</td>
+      <td>647.0</td>
+      <td>0.000000</td>
+      <td>0.003091</td>
+      <td>0.091190</td>
+      <td>0.596600</td>
+      <td>0.202473</td>
+      <td>0.034003</td>
+      <td>0.035549</td>
+      <td>0.037094</td>
+      <td>201800901</td>
+      <td>2</td>
+      <td>3553</td>
+      <td>2018-06-19</td>
+      <td>12.1</td>
+      <td>85.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>10.0</td>
+      <td>80</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1603</th>
+      <td>534</td>
+      <td>2</td>
+      <td>50.0</td>
+      <td>2.0</td>
+      <td>176.19</td>
+      <td>376.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.061170</td>
+      <td>0.441489</td>
+      <td>0.148936</td>
+      <td>0.125000</td>
+      <td>0.170213</td>
+      <td>0.053191</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1604</th>
+      <td>534</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>5.0</td>
+      <td>173.68</td>
+      <td>401.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.059850</td>
+      <td>0.403990</td>
+      <td>0.184539</td>
+      <td>0.152120</td>
+      <td>0.104738</td>
+      <td>0.094763</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1605</th>
+      <td>535</td>
+      <td>1</td>
+      <td>90.0</td>
+      <td>1.0</td>
+      <td>263.57</td>
+      <td>986.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012170</td>
+      <td>0.250507</td>
+      <td>0.209939</td>
+      <td>0.118661</td>
+      <td>0.160243</td>
+      <td>0.248479</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1606</th>
+      <td>535</td>
+      <td>2</td>
+      <td>70.0</td>
+      <td>1.0</td>
+      <td>198.31</td>
+      <td>745.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.010738</td>
+      <td>0.276510</td>
+      <td>0.194631</td>
+      <td>0.071141</td>
+      <td>0.095302</td>
+      <td>0.351678</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1607</th>
+      <td>535</td>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>47.81</td>
+      <td>161.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012422</td>
+      <td>0.248447</td>
+      <td>0.341615</td>
+      <td>0.267081</td>
+      <td>0.086957</td>
+      <td>0.043478</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>1608 rows × 31 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>data_df = pd.merge(data_df, site_df, on=&#39;PSN&#39;, how=&#39;left&#39;)
+data_df.index.name = &#39;Analysis Index&#39;
+data_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+      <th>Cruise #</th>
+      <th>CSN</th>
+      <th>PSN</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Overall Coverage</th>
+      <th>Silt (%)</th>
+      <th>Clay (%)</th>
+      <th>Sand (%)</th>
+      <th>Gravel (%)</th>
+      <th>Cobble (%)</th>
+      <th>Rock (%)</th>
+      <th>Bedrock (%)</th>
+      <th>Boulders (%)</th>
+      <th>Shale (%)</th>
+      <th>Underlying Substrate Type</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Site Name</th>
+      <th>Lake</th>
+    </tr>
+    <tr>
+      <th>Analysis Index</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>3</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>45.17</td>
+      <td>132.0</td>
+      <td>0.007576</td>
+      <td>0.037879</td>
+      <td>0.250000</td>
+      <td>0.045455</td>
+      <td>0.030303</td>
+      <td>0.053030</td>
+      <td>0.234848</td>
+      <td>0.340909</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>1</td>
+      <td>98.0</td>
+      <td>0.0</td>
+      <td>345.11</td>
+      <td>833.0</td>
+      <td>0.000000</td>
+      <td>0.004802</td>
+      <td>0.075630</td>
+      <td>0.490996</td>
+      <td>0.181273</td>
+      <td>0.042017</td>
+      <td>0.088836</td>
+      <td>0.116447</td>
+      <td>201800901</td>
+      <td>2</td>
+      <td>3553</td>
+      <td>2018-06-19</td>
+      <td>12.1</td>
+      <td>85.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>10.0</td>
+      <td>80</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>43.95840</td>
+      <td>-78.03420</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>2</td>
+      <td>99.0</td>
+      <td>0.0</td>
+      <td>319.84</td>
+      <td>647.0</td>
+      <td>0.000000</td>
+      <td>0.003091</td>
+      <td>0.091190</td>
+      <td>0.596600</td>
+      <td>0.202473</td>
+      <td>0.034003</td>
+      <td>0.035549</td>
+      <td>0.037094</td>
+      <td>201800901</td>
+      <td>2</td>
+      <td>3553</td>
+      <td>2018-06-19</td>
+      <td>12.1</td>
+      <td>85.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>10.0</td>
+      <td>80</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>43.95840</td>
+      <td>-78.03420</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1603</th>
+      <td>534</td>
+      <td>2</td>
+      <td>50.0</td>
+      <td>2.0</td>
+      <td>176.19</td>
+      <td>376.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.061170</td>
+      <td>0.441489</td>
+      <td>0.148936</td>
+      <td>0.125000</td>
+      <td>0.170213</td>
+      <td>0.053191</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1604</th>
+      <td>534</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>5.0</td>
+      <td>173.68</td>
+      <td>401.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.059850</td>
+      <td>0.403990</td>
+      <td>0.184539</td>
+      <td>0.152120</td>
+      <td>0.104738</td>
+      <td>0.094763</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1605</th>
+      <td>535</td>
+      <td>1</td>
+      <td>90.0</td>
+      <td>1.0</td>
+      <td>263.57</td>
+      <td>986.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012170</td>
+      <td>0.250507</td>
+      <td>0.209939</td>
+      <td>0.118661</td>
+      <td>0.160243</td>
+      <td>0.248479</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1606</th>
+      <td>535</td>
+      <td>2</td>
+      <td>70.0</td>
+      <td>1.0</td>
+      <td>198.31</td>
+      <td>745.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.010738</td>
+      <td>0.276510</td>
+      <td>0.194631</td>
+      <td>0.071141</td>
+      <td>0.095302</td>
+      <td>0.351678</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1607</th>
+      <td>535</td>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>47.81</td>
+      <td>161.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012422</td>
+      <td>0.248447</td>
+      <td>0.341615</td>
+      <td>0.267081</td>
+      <td>0.086957</td>
+      <td>0.043478</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+  </tbody>
+</table>
+<p>1608 rows × 35 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>data_image_df = pd.merge(image_df, data_df, on=&#39;Analysis Index&#39;, how=&#39;left&#39;)
+data_image_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Analysis Index</th>
+      <th>Name</th>
+      <th>Raw Image Path</th>
+      <th>Timestamp</th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+      <th>Cruise #</th>
+      <th>CSN</th>
+      <th>PSN</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Overall Coverage</th>
+      <th>Silt (%)</th>
+      <th>Clay (%)</th>
+      <th>Sand (%)</th>
+      <th>Gravel (%)</th>
+      <th>Cobble (%)</th>
+      <th>Rock (%)</th>
+      <th>Bedrock (%)</th>
+      <th>Boulders (%)</th>
+      <th>Shale (%)</th>
+      <th>Underlying Substrate Type</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Site Name</th>
+      <th>Lake</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>GLNI_3554-1_2018-06-19_image-1.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 12:20:23</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>GLNI_3554-1_2018-06-19_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 12:20:31</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.0</td>
+      <td>GLNI_3554-2_2018-06-19_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 12:21:12</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0</td>
+      <td>GLNI_3554-2_2018-06-19_image-1.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 12:21:05</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2.0</td>
+      <td>GLNI_3554-3_2018-06-19_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 12:21:47</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>45.17</td>
+      <td>132.0</td>
+      <td>0.007576</td>
+      <td>0.037879</td>
+      <td>0.25</td>
+      <td>0.045455</td>
+      <td>0.030303</td>
+      <td>0.05303</td>
+      <td>0.234848</td>
+      <td>0.340909</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>916</th>
+      <td>1330.0</td>
+      <td>GLNI_1274-2_2016-07-20_image-4.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>7/20/2016 13:27</td>
+      <td>443</td>
+      <td>2</td>
+      <td>30.0</td>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>32</td>
+      <td>1274</td>
+      <td>2016-07-20</td>
+      <td>2.6</td>
+      <td>30.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>0</td>
+      <td>90</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83975</td>
+      <td>-79.55354</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>917</th>
+      <td>1331.0</td>
+      <td>GLNI_1274-3_2016-07-20_image-3.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>7/20/2016 13:27</td>
+      <td>443</td>
+      <td>3</td>
+      <td>2.0</td>
+      <td>10.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>32</td>
+      <td>1274</td>
+      <td>2016-07-20</td>
+      <td>2.6</td>
+      <td>30.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>0</td>
+      <td>90</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83975</td>
+      <td>-79.55354</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>918</th>
+      <td>1331.0</td>
+      <td>GLNI_1274-3_2016-07-20_image-4.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>7/20/2016 13:27</td>
+      <td>443</td>
+      <td>3</td>
+      <td>2.0</td>
+      <td>10.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>32</td>
+      <td>1274</td>
+      <td>2016-07-20</td>
+      <td>2.6</td>
+      <td>30.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>0</td>
+      <td>90</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83975</td>
+      <td>-79.55354</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>919</th>
+      <td>1329.0</td>
+      <td>GLNI_1274-1_2016-07-20_image-3.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>7/20/2016 13:28</td>
+      <td>443</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>32</td>
+      <td>1274</td>
+      <td>2016-07-20</td>
+      <td>2.6</td>
+      <td>30.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>0</td>
+      <td>90</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83975</td>
+      <td>-79.55354</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>920</th>
+      <td>1329.0</td>
+      <td>GLNI_1274-1_2016-07-20_image-4.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>7/20/2016 13:28</td>
+      <td>443</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>32</td>
+      <td>1274</td>
+      <td>2016-07-20</td>
+      <td>2.6</td>
+      <td>30.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>0</td>
+      <td>90</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83975</td>
+      <td>-79.55354</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+    </tr>
+  </tbody>
+</table>
+<p>921 rows × 39 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_image_df = data_image_df.loc[(data_image_df[&#39;Name&#39;].notnull())&amp;(data_image_df[&#39;Analysis Index&#39;].notnull())].sort_values(&#39;Timestamp&#39;).groupby(by=&#39;Analysis Index&#39;).last()
+simplified_image_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Name</th>
+      <th>Raw Image Path</th>
+      <th>Timestamp</th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+      <th>Cruise #</th>
+      <th>CSN</th>
+      <th>PSN</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Overall Coverage</th>
+      <th>Silt (%)</th>
+      <th>Clay (%)</th>
+      <th>Sand (%)</th>
+      <th>Gravel (%)</th>
+      <th>Cobble (%)</th>
+      <th>Rock (%)</th>
+      <th>Bedrock (%)</th>
+      <th>Boulders (%)</th>
+      <th>Shale (%)</th>
+      <th>Underlying Substrate Type</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Site Name</th>
+      <th>Lake</th>
+    </tr>
+    <tr>
+      <th>Analysis Index</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0.0</th>
+      <td>GLNI_3554-1_2018-06-19_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 12:20:31</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>1.0</th>
+      <td>GLNI_3554-2_2018-06-19_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 12:21:12</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>2.0</th>
+      <td>GLNI_3554-3_2018-06-19_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 12:21:47</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>45.17</td>
+      <td>132.0</td>
+      <td>0.007576</td>
+      <td>0.037879</td>
+      <td>0.250000</td>
+      <td>0.045455</td>
+      <td>0.030303</td>
+      <td>0.053030</td>
+      <td>0.234848</td>
+      <td>0.340909</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>3.0</th>
+      <td>GLNI_3553-1_2018-06-19_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 13:53:31</td>
+      <td>1</td>
+      <td>1</td>
+      <td>98.0</td>
+      <td>0.0</td>
+      <td>345.11</td>
+      <td>833.0</td>
+      <td>0.000000</td>
+      <td>0.004802</td>
+      <td>0.075630</td>
+      <td>0.490996</td>
+      <td>0.181273</td>
+      <td>0.042017</td>
+      <td>0.088836</td>
+      <td>0.116447</td>
+      <td>201800901</td>
+      <td>2</td>
+      <td>3553</td>
+      <td>2018-06-19</td>
+      <td>12.1</td>
+      <td>85.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>10.0</td>
+      <td>80</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>43.95840</td>
+      <td>-78.03420</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>4.0</th>
+      <td>GLNI_3553-2_2018-06-19_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2018-06-19 13:54:03</td>
+      <td>1</td>
+      <td>2</td>
+      <td>99.0</td>
+      <td>0.0</td>
+      <td>319.84</td>
+      <td>647.0</td>
+      <td>0.000000</td>
+      <td>0.003091</td>
+      <td>0.091190</td>
+      <td>0.596600</td>
+      <td>0.202473</td>
+      <td>0.034003</td>
+      <td>0.035549</td>
+      <td>0.037094</td>
+      <td>201800901</td>
+      <td>2</td>
+      <td>3553</td>
+      <td>2018-06-19</td>
+      <td>12.1</td>
+      <td>85.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>10.0</td>
+      <td>80</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>43.95840</td>
+      <td>-78.03420</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1603.0</th>
+      <td>GLNI_1346-2_2017-08-17_image-1.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2017-08-17 11:28:57</td>
+      <td>534</td>
+      <td>2</td>
+      <td>50.0</td>
+      <td>2.0</td>
+      <td>176.19</td>
+      <td>376.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.061170</td>
+      <td>0.441489</td>
+      <td>0.148936</td>
+      <td>0.125000</td>
+      <td>0.170213</td>
+      <td>0.053191</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1604.0</th>
+      <td>GLNI_1346-3_2017-08-17_image-1.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2017-08-17 11:29:21</td>
+      <td>534</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>5.0</td>
+      <td>173.68</td>
+      <td>401.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.059850</td>
+      <td>0.403990</td>
+      <td>0.184539</td>
+      <td>0.152120</td>
+      <td>0.104738</td>
+      <td>0.094763</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1605.0</th>
+      <td>GLNI_1345-1_2017-08-17_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2017-08-17 12:20:45</td>
+      <td>535</td>
+      <td>1</td>
+      <td>90.0</td>
+      <td>1.0</td>
+      <td>263.57</td>
+      <td>986.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012170</td>
+      <td>0.250507</td>
+      <td>0.209939</td>
+      <td>0.118661</td>
+      <td>0.160243</td>
+      <td>0.248479</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1606.0</th>
+      <td>GLNI_1345-2_2017-08-17_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2017-08-17 12:21:25</td>
+      <td>535</td>
+      <td>2</td>
+      <td>70.0</td>
+      <td>1.0</td>
+      <td>198.31</td>
+      <td>745.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.010738</td>
+      <td>0.276510</td>
+      <td>0.194631</td>
+      <td>0.071141</td>
+      <td>0.095302</td>
+      <td>0.351678</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1607.0</th>
+      <td>GLNI_1345-3_2017-08-17_image-2.nef</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>2017-08-17 12:21:53</td>
+      <td>535</td>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>47.81</td>
+      <td>161.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012422</td>
+      <td>0.248447</td>
+      <td>0.341615</td>
+      <td>0.267081</td>
+      <td>0.086957</td>
+      <td>0.043478</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+  </tbody>
+</table>
+<p>489 rows × 38 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>data_video_df = pd.merge(data_df, quadrat_df, on=[&#39;Analysis Index&#39;], how=&#39;right&#39;)
+data_video_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Analysis Index</th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+      <th>Cruise #</th>
+      <th>CSN</th>
+      <th>PSN</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Overall Coverage</th>
+      <th>Silt (%)</th>
+      <th>Clay (%)</th>
+      <th>Sand (%)</th>
+      <th>Gravel (%)</th>
+      <th>Cobble (%)</th>
+      <th>Rock (%)</th>
+      <th>Bedrock (%)</th>
+      <th>Boulders (%)</th>
+      <th>Shale (%)</th>
+      <th>Underlying Substrate Type</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Site Name</th>
+      <th>Lake</th>
+      <th>Source Video</th>
+      <th>Name</th>
+      <th>Quadrat Video Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>180</td>
+      <td>60</td>
+      <td>1</td>
+      <td>100.0</td>
+      <td>1.0</td>
+      <td>69.51</td>
+      <td>250.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.108000</td>
+      <td>0.484000</td>
+      <td>0.356000</td>
+      <td>0.052000</td>
+      <td>0.000000</td>
+      <td>2012-01-607</td>
+      <td>1</td>
+      <td>1345</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>GLNI_1345-1_2012-07-09_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>181</td>
+      <td>60</td>
+      <td>2</td>
+      <td>95.0</td>
+      <td>1.0</td>
+      <td>29.52</td>
+      <td>118.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.025424</td>
+      <td>0.228814</td>
+      <td>0.338983</td>
+      <td>0.271186</td>
+      <td>0.042373</td>
+      <td>0.093220</td>
+      <td>2012-01-607</td>
+      <td>1</td>
+      <td>1345</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>GLNI_1345-2_2012-07-09_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>182</td>
+      <td>60</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>1.0</td>
+      <td>73.00</td>
+      <td>240.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.008333</td>
+      <td>0.208333</td>
+      <td>0.512500</td>
+      <td>0.237500</td>
+      <td>0.033333</td>
+      <td>0.000000</td>
+      <td>2012-01-607</td>
+      <td>1</td>
+      <td>1345</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>GLNI_1345-3_2012-07-09_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>183</td>
+      <td>61</td>
+      <td>1</td>
+      <td>50.0</td>
+      <td>50.0</td>
+      <td>56.90</td>
+      <td>129.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.031008</td>
+      <td>0.410853</td>
+      <td>0.325581</td>
+      <td>0.170543</td>
+      <td>0.062016</td>
+      <td>0.000000</td>
+      <td>2012-01-607</td>
+      <td>2</td>
+      <td>1346</td>
+      <td>2012-07-10</td>
+      <td>6.0</td>
+      <td>50.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2</td>
+      <td>95</td>
+      <td>3</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2012-07-10.avi</td>
+      <td>GLNI_1346-1_2012-07-10_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>184</td>
+      <td>61</td>
+      <td>2</td>
+      <td>70.0</td>
+      <td>30.0</td>
+      <td>134.20</td>
+      <td>278.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.021583</td>
+      <td>0.449640</td>
+      <td>0.356115</td>
+      <td>0.129496</td>
+      <td>0.025180</td>
+      <td>0.017986</td>
+      <td>2012-01-607</td>
+      <td>2</td>
+      <td>1346</td>
+      <td>2012-07-10</td>
+      <td>6.0</td>
+      <td>50.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2</td>
+      <td>95</td>
+      <td>3</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2012-07-10.avi</td>
+      <td>GLNI_1346-2_2012-07-10_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>727</th>
+      <td>1598</td>
+      <td>532</td>
+      <td>3</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2017-01-903</td>
+      <td>9</td>
+      <td>1348</td>
+      <td>2017-08-17</td>
+      <td>18.8</td>
+      <td>60.0</td>
+      <td>15</td>
+      <td>10</td>
+      <td>0</td>
+      <td>25.0</td>
+      <td>25.0</td>
+      <td>25</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.81207</td>
+      <td>-79.48821</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1348_2017-08-17.mp4</td>
+      <td>GLNI_1348-3_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>728</th>
+      <td>1602</td>
+      <td>534</td>
+      <td>1</td>
+      <td>50.0</td>
+      <td>5.0</td>
+      <td>172.79</td>
+      <td>290.0</td>
+      <td>0.0</td>
+      <td>0.003448</td>
+      <td>0.062069</td>
+      <td>0.262069</td>
+      <td>0.324138</td>
+      <td>0.179310</td>
+      <td>0.117241</td>
+      <td>0.051724</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>GLNI_1346-1_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>729</th>
+      <td>1603</td>
+      <td>534</td>
+      <td>2</td>
+      <td>50.0</td>
+      <td>2.0</td>
+      <td>176.19</td>
+      <td>376.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.061170</td>
+      <td>0.441489</td>
+      <td>0.148936</td>
+      <td>0.125000</td>
+      <td>0.170213</td>
+      <td>0.053191</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>GLNI_1346-2_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>730</th>
+      <td>1604</td>
+      <td>534</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>5.0</td>
+      <td>173.68</td>
+      <td>401.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.059850</td>
+      <td>0.403990</td>
+      <td>0.184539</td>
+      <td>0.152120</td>
+      <td>0.104738</td>
+      <td>0.094763</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>GLNI_1346-3_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>731</th>
+      <td>1607</td>
+      <td>535</td>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>47.81</td>
+      <td>161.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.012422</td>
+      <td>0.248447</td>
+      <td>0.341615</td>
+      <td>0.267081</td>
+      <td>0.086957</td>
+      <td>0.043478</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1345_2017-08-17.mp4</td>
+      <td>GLNI_1345-3_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+  </tbody>
+</table>
+<p>732 rows × 39 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_video_df = data_video_df.loc[data_video_df[&#39;Name&#39;].notnull()\
+                                    &amp; data_video_df[&#39;Analysis Index&#39;].notnull()]\
+                                    .sort_values(&#39;Name&#39;).groupby(by=&#39;Analysis Index&#39;).last()
+simplified_video_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+      <th>Cruise #</th>
+      <th>CSN</th>
+      <th>PSN</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Overall Coverage</th>
+      <th>Silt (%)</th>
+      <th>Clay (%)</th>
+      <th>Sand (%)</th>
+      <th>Gravel (%)</th>
+      <th>Cobble (%)</th>
+      <th>Rock (%)</th>
+      <th>Bedrock (%)</th>
+      <th>Boulders (%)</th>
+      <th>Shale (%)</th>
+      <th>Underlying Substrate Type</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Site Name</th>
+      <th>Lake</th>
+      <th>Source Video</th>
+      <th>Name</th>
+      <th>Quadrat Video Path</th>
+    </tr>
+    <tr>
+      <th>Analysis Index</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>180</th>
+      <td>60</td>
+      <td>1</td>
+      <td>100.0</td>
+      <td>1.0</td>
+      <td>69.51</td>
+      <td>250.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.108000</td>
+      <td>0.484000</td>
+      <td>0.356000</td>
+      <td>0.052000</td>
+      <td>0.000000</td>
+      <td>2012-01-607</td>
+      <td>1</td>
+      <td>1345</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>GLNI_1345-1_2012-07-09_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>181</th>
+      <td>60</td>
+      <td>2</td>
+      <td>95.0</td>
+      <td>1.0</td>
+      <td>29.52</td>
+      <td>118.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.025424</td>
+      <td>0.228814</td>
+      <td>0.338983</td>
+      <td>0.271186</td>
+      <td>0.042373</td>
+      <td>0.093220</td>
+      <td>2012-01-607</td>
+      <td>1</td>
+      <td>1345</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>GLNI_1345-2_2012-07-09_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>182</th>
+      <td>60</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>1.0</td>
+      <td>73.00</td>
+      <td>240.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.008333</td>
+      <td>0.208333</td>
+      <td>0.512500</td>
+      <td>0.237500</td>
+      <td>0.033333</td>
+      <td>0.000000</td>
+      <td>2012-01-607</td>
+      <td>1</td>
+      <td>1345</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>GLNI_1345-3_2012-07-09_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>183</th>
+      <td>61</td>
+      <td>1</td>
+      <td>50.0</td>
+      <td>50.0</td>
+      <td>56.90</td>
+      <td>129.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.031008</td>
+      <td>0.410853</td>
+      <td>0.325581</td>
+      <td>0.170543</td>
+      <td>0.062016</td>
+      <td>0.000000</td>
+      <td>2012-01-607</td>
+      <td>2</td>
+      <td>1346</td>
+      <td>2012-07-10</td>
+      <td>6.0</td>
+      <td>50.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2</td>
+      <td>95</td>
+      <td>3</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2012-07-10.avi</td>
+      <td>GLNI_1346-1_2012-07-10_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>184</th>
+      <td>61</td>
+      <td>2</td>
+      <td>70.0</td>
+      <td>30.0</td>
+      <td>134.20</td>
+      <td>278.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.021583</td>
+      <td>0.449640</td>
+      <td>0.356115</td>
+      <td>0.129496</td>
+      <td>0.025180</td>
+      <td>0.017986</td>
+      <td>2012-01-607</td>
+      <td>2</td>
+      <td>1346</td>
+      <td>2012-07-10</td>
+      <td>6.0</td>
+      <td>50.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2</td>
+      <td>95</td>
+      <td>3</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2012-07-10.avi</td>
+      <td>GLNI_1346-2_2012-07-10_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1598</th>
+      <td>532</td>
+      <td>3</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2017-01-903</td>
+      <td>9</td>
+      <td>1348</td>
+      <td>2017-08-17</td>
+      <td>18.8</td>
+      <td>60.0</td>
+      <td>15</td>
+      <td>10</td>
+      <td>0</td>
+      <td>25.0</td>
+      <td>25.0</td>
+      <td>25</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.81207</td>
+      <td>-79.48821</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1348_2017-08-17.mp4</td>
+      <td>GLNI_1348-3_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>1602</th>
+      <td>534</td>
+      <td>1</td>
+      <td>50.0</td>
+      <td>5.0</td>
+      <td>172.79</td>
+      <td>290.0</td>
+      <td>0.0</td>
+      <td>0.003448</td>
+      <td>0.062069</td>
+      <td>0.262069</td>
+      <td>0.324138</td>
+      <td>0.179310</td>
+      <td>0.117241</td>
+      <td>0.051724</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>GLNI_1346-1_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>1603</th>
+      <td>534</td>
+      <td>2</td>
+      <td>50.0</td>
+      <td>2.0</td>
+      <td>176.19</td>
+      <td>376.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.061170</td>
+      <td>0.441489</td>
+      <td>0.148936</td>
+      <td>0.125000</td>
+      <td>0.170213</td>
+      <td>0.053191</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>GLNI_1346-2_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>1604</th>
+      <td>534</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>5.0</td>
+      <td>173.68</td>
+      <td>401.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.059850</td>
+      <td>0.403990</td>
+      <td>0.184539</td>
+      <td>0.152120</td>
+      <td>0.104738</td>
+      <td>0.094763</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>GLNI_1346-3_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>1607</th>
+      <td>535</td>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>47.81</td>
+      <td>161.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.012422</td>
+      <td>0.248447</td>
+      <td>0.341615</td>
+      <td>0.267081</td>
+      <td>0.086957</td>
+      <td>0.043478</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+      <td>1345_2017-08-17.mp4</td>
+      <td>GLNI_1345-3_2017-08-17_video-1.mp4</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+  </tbody>
+</table>
+<p>718 rows × 38 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>data_still_df = pd.merge(data_df, still_df, on=[&#39;Analysis Index&#39;], how=&#39;right&#39;)
+data_still_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Analysis Index</th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+      <th>Cruise #</th>
+      <th>CSN</th>
+      <th>PSN</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Overall Coverage</th>
+      <th>Silt (%)</th>
+      <th>Clay (%)</th>
+      <th>Sand (%)</th>
+      <th>Gravel (%)</th>
+      <th>Cobble (%)</th>
+      <th>Rock (%)</th>
+      <th>Bedrock (%)</th>
+      <th>Boulders (%)</th>
+      <th>Shale (%)</th>
+      <th>Underlying Substrate Type</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Site Name</th>
+      <th>Lake</th>
+      <th>Source Video</th>
+      <th>Name</th>
+      <th>Quadrat Still Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>798</td>
+      <td>266</td>
+      <td>1</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>3.68</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2014-01-602</td>
+      <td>2</td>
+      <td>12</td>
+      <td>2014-05-27</td>
+      <td>20.2</td>
+      <td>25.0</td>
+      <td>33</td>
+      <td>0</td>
+      <td>33</td>
+      <td>33.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2014-05-27.wmv</td>
+      <td>GLNI_12-1_2014-05-27_still-1.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>798</td>
+      <td>266</td>
+      <td>1</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>3.68</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2014-01-602</td>
+      <td>2</td>
+      <td>12</td>
+      <td>2014-05-27</td>
+      <td>20.2</td>
+      <td>25.0</td>
+      <td>33</td>
+      <td>0</td>
+      <td>33</td>
+      <td>33.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2014-05-27.wmv</td>
+      <td>GLNI_12-1_2014-05-27_still-2.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>798</td>
+      <td>266</td>
+      <td>1</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>3.68</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2014-01-602</td>
+      <td>2</td>
+      <td>12</td>
+      <td>2014-05-27</td>
+      <td>20.2</td>
+      <td>25.0</td>
+      <td>33</td>
+      <td>0</td>
+      <td>33</td>
+      <td>33.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2014-05-27.wmv</td>
+      <td>GLNI_12-1_2014-05-27_still-3.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>798</td>
+      <td>266</td>
+      <td>1</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>3.68</td>
+      <td>4.0</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2014-01-602</td>
+      <td>2</td>
+      <td>12</td>
+      <td>2014-05-27</td>
+      <td>20.2</td>
+      <td>25.0</td>
+      <td>33</td>
+      <td>0</td>
+      <td>33</td>
+      <td>33.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2014-05-27.wmv</td>
+      <td>GLNI_12-1_2014-05-27_still-4.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>799</td>
+      <td>266</td>
+      <td>2</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>19.36</td>
+      <td>22.0</td>
+      <td>0.0</td>
+      <td>0.272727</td>
+      <td>0.409091</td>
+      <td>0.318182</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2014-01-602</td>
+      <td>2</td>
+      <td>12</td>
+      <td>2014-05-27</td>
+      <td>20.2</td>
+      <td>25.0</td>
+      <td>33</td>
+      <td>0</td>
+      <td>33</td>
+      <td>33.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2014-05-27.wmv</td>
+      <td>GLNI_12-2_2014-05-27_still-1.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>1291</td>
+      <td>430</td>
+      <td>2</td>
+      <td>15.0</td>
+      <td>10.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>16</td>
+      <td>12</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>60.0</td>
+      <td>5</td>
+      <td>5</td>
+      <td>0</td>
+      <td>20.0</td>
+      <td>30.0</td>
+      <td>30</td>
+      <td>0</td>
+      <td>10</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>GLNI_12-2_2016-07-11_still-1.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>63</th>
+      <td>1291</td>
+      <td>430</td>
+      <td>2</td>
+      <td>15.0</td>
+      <td>10.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>16</td>
+      <td>12</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>60.0</td>
+      <td>5</td>
+      <td>5</td>
+      <td>0</td>
+      <td>20.0</td>
+      <td>30.0</td>
+      <td>30</td>
+      <td>0</td>
+      <td>10</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>GLNI_12-2_2016-07-11_still-2.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>1292</td>
+      <td>430</td>
+      <td>3</td>
+      <td>60.0</td>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>16</td>
+      <td>12</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>60.0</td>
+      <td>5</td>
+      <td>5</td>
+      <td>0</td>
+      <td>20.0</td>
+      <td>30.0</td>
+      <td>30</td>
+      <td>0</td>
+      <td>10</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>GLNI_12-3_2016-07-11_still-1.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>65</th>
+      <td>1292</td>
+      <td>430</td>
+      <td>3</td>
+      <td>60.0</td>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>16</td>
+      <td>12</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>60.0</td>
+      <td>5</td>
+      <td>5</td>
+      <td>0</td>
+      <td>20.0</td>
+      <td>30.0</td>
+      <td>30</td>
+      <td>0</td>
+      <td>10</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>GLNI_12-3_2016-07-11_still-2.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>1292</td>
+      <td>430</td>
+      <td>3</td>
+      <td>60.0</td>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>16</td>
+      <td>12</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>60.0</td>
+      <td>5</td>
+      <td>5</td>
+      <td>0</td>
+      <td>20.0</td>
+      <td>30.0</td>
+      <td>30</td>
+      <td>0</td>
+      <td>10</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.8073</td>
+      <td>-79.59634</td>
+      <td>Rock Point</td>
+      <td>Erie</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>GLNI_12-3_2016-07-11_still-3.jpg</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+    </tr>
+  </tbody>
+</table>
+<p>67 rows × 39 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_still_df = data_still_df.loc[data_still_df[&#39;Name&#39;].notnull()\
+                                    &amp; data_still_df[&#39;Analysis Index&#39;].notnull()]\
+                                    .sort_values(&#39;Name&#39;).groupby(by=&#39;Analysis Index&#39;).last()
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>len(simplified_still_df)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+27
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_merged_df = simplified_video_df.append(simplified_image_df).append(simplified_still_df)
+simplified_merged_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.6/dist-packages/pandas/core/frame.py:7138: FutureWarning: Sorting because non-concatenation axis is not aligned. A future version
+of pandas will change to not sort by default.
+
+To accept the future behavior, pass &#39;sort=False&#39;.
+
+To retain the current behavior and silence the warning, pass &#39;sort=True&#39;.
+
+  sort=sort,
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>10mm</th>
+      <th>12.5mm</th>
+      <th>14mm</th>
+      <th>16mm</th>
+      <th>2mm</th>
+      <th>4mm</th>
+      <th>6.3mm</th>
+      <th>8mm</th>
+      <th>Bedrock (%)</th>
+      <th>Biomass</th>
+      <th>Boulders (%)</th>
+      <th>CSN</th>
+      <th>Clay (%)</th>
+      <th>Cobble (%)</th>
+      <th>Count</th>
+      <th>Cruise #</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Dive Index</th>
+      <th>Empty Coverage</th>
+      <th>Gravel (%)</th>
+      <th>Lake</th>
+      <th>Latitude</th>
+      <th>Live Coverage</th>
+      <th>Longitude</th>
+      <th>Name</th>
+      <th>Overall Coverage</th>
+      <th>PSN</th>
+      <th>Quadrat</th>
+      <th>Quadrat Still Path</th>
+      <th>Quadrat Video Path</th>
+      <th>Raw Image Path</th>
+      <th>Rock (%)</th>
+      <th>Sand (%)</th>
+      <th>Shale (%)</th>
+      <th>Silt (%)</th>
+      <th>Site Name</th>
+      <th>Source Video</th>
+      <th>Timestamp</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Underlying Substrate Type</th>
+    </tr>
+    <tr>
+      <th>Analysis Index</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>180.0</th>
+      <td>0.108000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.052000</td>
+      <td>0.356000</td>
+      <td>0.484000</td>
+      <td>100</td>
+      <td>69.51</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>250.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>60</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83768</td>
+      <td>100.0</td>
+      <td>-79.48107</td>
+      <td>GLNI_1345-1_2012-07-09_video-1.mp4</td>
+      <td>NaN</td>
+      <td>1345</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>181.0</th>
+      <td>0.228814</td>
+      <td>0.025424</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.093220</td>
+      <td>0.042373</td>
+      <td>0.271186</td>
+      <td>0.338983</td>
+      <td>100</td>
+      <td>29.52</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>118.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>60</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83768</td>
+      <td>95.0</td>
+      <td>-79.48107</td>
+      <td>GLNI_1345-2_2012-07-09_video-1.mp4</td>
+      <td>NaN</td>
+      <td>1345</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>182.0</th>
+      <td>0.208333</td>
+      <td>0.008333</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.033333</td>
+      <td>0.237500</td>
+      <td>0.512500</td>
+      <td>100</td>
+      <td>73.00</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>240.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>60</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83768</td>
+      <td>40.0</td>
+      <td>-79.48107</td>
+      <td>GLNI_1345-3_2012-07-09_video-1.mp4</td>
+      <td>NaN</td>
+      <td>1345</td>
+      <td>3</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>183.0</th>
+      <td>0.410853</td>
+      <td>0.031008</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.062016</td>
+      <td>0.170543</td>
+      <td>0.325581</td>
+      <td>95</td>
+      <td>56.90</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>129.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-10</td>
+      <td>6.0</td>
+      <td>61</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83698</td>
+      <td>50.0</td>
+      <td>-79.48140</td>
+      <td>GLNI_1346-1_2012-07-10_video-1.mp4</td>
+      <td>50.0</td>
+      <td>1346</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1346_2012-07-10.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>184.0</th>
+      <td>0.449640</td>
+      <td>0.021583</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.017986</td>
+      <td>0.025180</td>
+      <td>0.129496</td>
+      <td>0.356115</td>
+      <td>95</td>
+      <td>134.20</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>278.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-10</td>
+      <td>6.0</td>
+      <td>61</td>
+      <td>30.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83698</td>
+      <td>70.0</td>
+      <td>-79.48140</td>
+      <td>GLNI_1346-2_2012-07-10_video-1.mp4</td>
+      <td>50.0</td>
+      <td>1346</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1346_2012-07-10.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1234.0</th>
+      <td>0.169538</td>
+      <td>0.059269</td>
+      <td>0.004135</td>
+      <td>0.0</td>
+      <td>0.303239</td>
+      <td>0.193660</td>
+      <td>0.150930</td>
+      <td>0.119228</td>
+      <td>95</td>
+      <td>339.62</td>
+      <td>0</td>
+      <td>13</td>
+      <td>0</td>
+      <td>2.5</td>
+      <td>1451.0</td>
+      <td>2015-01-602</td>
+      <td>2015-07-16</td>
+      <td>6.2</td>
+      <td>411</td>
+      <td>10.0</td>
+      <td>2.5</td>
+      <td>Erie</td>
+      <td>42.81666</td>
+      <td>75.0</td>
+      <td>-79.70433</td>
+      <td>GLNI_1354-2_2015-07-16_still-2.jpg</td>
+      <td>80.0</td>
+      <td>1354</td>
+      <td>2</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Tecumseh Shoal</td>
+      <td>1354_2015-07-16.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Bedrock</td>
+    </tr>
+    <tr>
+      <th>1235.0</th>
+      <td>0.183131</td>
+      <td>0.059271</td>
+      <td>0.006839</td>
+      <td>0.0</td>
+      <td>0.294073</td>
+      <td>0.197568</td>
+      <td>0.135258</td>
+      <td>0.123860</td>
+      <td>95</td>
+      <td>325.20</td>
+      <td>0</td>
+      <td>13</td>
+      <td>0</td>
+      <td>2.5</td>
+      <td>1316.0</td>
+      <td>2015-01-602</td>
+      <td>2015-07-16</td>
+      <td>6.2</td>
+      <td>411</td>
+      <td>10.0</td>
+      <td>2.5</td>
+      <td>Erie</td>
+      <td>42.81666</td>
+      <td>75.0</td>
+      <td>-79.70433</td>
+      <td>GLNI_1354-3_2015-07-16_still-3.jpg</td>
+      <td>80.0</td>
+      <td>1354</td>
+      <td>3</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Tecumseh Shoal</td>
+      <td>1354_2015-07-16.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Bedrock</td>
+    </tr>
+    <tr>
+      <th>1290.0</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>10</td>
+      <td>16</td>
+      <td>5</td>
+      <td>30.0</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>430</td>
+      <td>10.0</td>
+      <td>20.0</td>
+      <td>Erie</td>
+      <td>42.80730</td>
+      <td>30.0</td>
+      <td>-79.59634</td>
+      <td>GLNI_12-1_2016-07-11_still-3.jpg</td>
+      <td>60.0</td>
+      <td>12</td>
+      <td>1</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5</td>
+      <td>Rock Point</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Glacial Till</td>
+    </tr>
+    <tr>
+      <th>1291.0</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>10</td>
+      <td>16</td>
+      <td>5</td>
+      <td>30.0</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>430</td>
+      <td>10.0</td>
+      <td>20.0</td>
+      <td>Erie</td>
+      <td>42.80730</td>
+      <td>15.0</td>
+      <td>-79.59634</td>
+      <td>GLNI_12-2_2016-07-11_still-2.jpg</td>
+      <td>60.0</td>
+      <td>12</td>
+      <td>2</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5</td>
+      <td>Rock Point</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Glacial Till</td>
+    </tr>
+    <tr>
+      <th>1292.0</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>10</td>
+      <td>16</td>
+      <td>5</td>
+      <td>30.0</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>430</td>
+      <td>5.0</td>
+      <td>20.0</td>
+      <td>Erie</td>
+      <td>42.80730</td>
+      <td>60.0</td>
+      <td>-79.59634</td>
+      <td>GLNI_12-3_2016-07-11_still-3.jpg</td>
+      <td>60.0</td>
+      <td>12</td>
+      <td>3</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5</td>
+      <td>Rock Point</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Glacial Till</td>
+    </tr>
+  </tbody>
+</table>
+<p>1234 rows × 41 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_merged_df = simplified_merged_df.loc[simplified_merged_df[&#39;Raw Image Path&#39;].notnull()|\
+              (simplified_merged_df[&#39;Raw Image Path&#39;].isnull()&amp;simplified_merged_df[&#39;Quadrat Video Path&#39;].notnull())|\
+              (simplified_merged_df[&#39;Raw Image Path&#39;].isnull()&amp;simplified_merged_df[&#39;Quadrat Video Path&#39;].isnull())]
+simplified_merged_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>10mm</th>
+      <th>12.5mm</th>
+      <th>14mm</th>
+      <th>16mm</th>
+      <th>2mm</th>
+      <th>4mm</th>
+      <th>6.3mm</th>
+      <th>8mm</th>
+      <th>Bedrock (%)</th>
+      <th>Biomass</th>
+      <th>Boulders (%)</th>
+      <th>CSN</th>
+      <th>Clay (%)</th>
+      <th>Cobble (%)</th>
+      <th>Count</th>
+      <th>Cruise #</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Dive Index</th>
+      <th>Empty Coverage</th>
+      <th>Gravel (%)</th>
+      <th>Lake</th>
+      <th>Latitude</th>
+      <th>Live Coverage</th>
+      <th>Longitude</th>
+      <th>Name</th>
+      <th>Overall Coverage</th>
+      <th>PSN</th>
+      <th>Quadrat</th>
+      <th>Quadrat Still Path</th>
+      <th>Quadrat Video Path</th>
+      <th>Raw Image Path</th>
+      <th>Rock (%)</th>
+      <th>Sand (%)</th>
+      <th>Shale (%)</th>
+      <th>Silt (%)</th>
+      <th>Site Name</th>
+      <th>Source Video</th>
+      <th>Timestamp</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Underlying Substrate Type</th>
+    </tr>
+    <tr>
+      <th>Analysis Index</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>180.0</th>
+      <td>0.108000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.052000</td>
+      <td>0.356000</td>
+      <td>0.484000</td>
+      <td>100</td>
+      <td>69.51</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>250.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>60</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83768</td>
+      <td>100.0</td>
+      <td>-79.48107</td>
+      <td>GLNI_1345-1_2012-07-09_video-1.mp4</td>
+      <td>NaN</td>
+      <td>1345</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>181.0</th>
+      <td>0.228814</td>
+      <td>0.025424</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.093220</td>
+      <td>0.042373</td>
+      <td>0.271186</td>
+      <td>0.338983</td>
+      <td>100</td>
+      <td>29.52</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>118.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>60</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83768</td>
+      <td>95.0</td>
+      <td>-79.48107</td>
+      <td>GLNI_1345-2_2012-07-09_video-1.mp4</td>
+      <td>NaN</td>
+      <td>1345</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>182.0</th>
+      <td>0.208333</td>
+      <td>0.008333</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.033333</td>
+      <td>0.237500</td>
+      <td>0.512500</td>
+      <td>100</td>
+      <td>73.00</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>240.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-09</td>
+      <td>3.0</td>
+      <td>60</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83768</td>
+      <td>40.0</td>
+      <td>-79.48107</td>
+      <td>GLNI_1345-3_2012-07-09_video-1.mp4</td>
+      <td>NaN</td>
+      <td>1345</td>
+      <td>3</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1345_2012-07-09.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>183.0</th>
+      <td>0.410853</td>
+      <td>0.031008</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.062016</td>
+      <td>0.170543</td>
+      <td>0.325581</td>
+      <td>95</td>
+      <td>56.90</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>129.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-10</td>
+      <td>6.0</td>
+      <td>61</td>
+      <td>50.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83698</td>
+      <td>50.0</td>
+      <td>-79.48140</td>
+      <td>GLNI_1346-1_2012-07-10_video-1.mp4</td>
+      <td>50.0</td>
+      <td>1346</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1346_2012-07-10.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>184.0</th>
+      <td>0.449640</td>
+      <td>0.021583</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.017986</td>
+      <td>0.025180</td>
+      <td>0.129496</td>
+      <td>0.356115</td>
+      <td>95</td>
+      <td>134.20</td>
+      <td>3</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>278.0</td>
+      <td>2012-01-607</td>
+      <td>2012-07-10</td>
+      <td>6.0</td>
+      <td>61</td>
+      <td>30.0</td>
+      <td>0.0</td>
+      <td>Erie</td>
+      <td>42.83698</td>
+      <td>70.0</td>
+      <td>-79.48140</td>
+      <td>GLNI_1346-2_2012-07-10_video-1.mp4</td>
+      <td>50.0</td>
+      <td>1346</td>
+      <td>2</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Mohawk Point</td>
+      <td>1346_2012-07-10.avi</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1234.0</th>
+      <td>0.169538</td>
+      <td>0.059269</td>
+      <td>0.004135</td>
+      <td>0.0</td>
+      <td>0.303239</td>
+      <td>0.193660</td>
+      <td>0.150930</td>
+      <td>0.119228</td>
+      <td>95</td>
+      <td>339.62</td>
+      <td>0</td>
+      <td>13</td>
+      <td>0</td>
+      <td>2.5</td>
+      <td>1451.0</td>
+      <td>2015-01-602</td>
+      <td>2015-07-16</td>
+      <td>6.2</td>
+      <td>411</td>
+      <td>10.0</td>
+      <td>2.5</td>
+      <td>Erie</td>
+      <td>42.81666</td>
+      <td>75.0</td>
+      <td>-79.70433</td>
+      <td>GLNI_1354-2_2015-07-16_still-2.jpg</td>
+      <td>80.0</td>
+      <td>1354</td>
+      <td>2</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Tecumseh Shoal</td>
+      <td>1354_2015-07-16.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Bedrock</td>
+    </tr>
+    <tr>
+      <th>1235.0</th>
+      <td>0.183131</td>
+      <td>0.059271</td>
+      <td>0.006839</td>
+      <td>0.0</td>
+      <td>0.294073</td>
+      <td>0.197568</td>
+      <td>0.135258</td>
+      <td>0.123860</td>
+      <td>95</td>
+      <td>325.20</td>
+      <td>0</td>
+      <td>13</td>
+      <td>0</td>
+      <td>2.5</td>
+      <td>1316.0</td>
+      <td>2015-01-602</td>
+      <td>2015-07-16</td>
+      <td>6.2</td>
+      <td>411</td>
+      <td>10.0</td>
+      <td>2.5</td>
+      <td>Erie</td>
+      <td>42.81666</td>
+      <td>75.0</td>
+      <td>-79.70433</td>
+      <td>GLNI_1354-3_2015-07-16_still-3.jpg</td>
+      <td>80.0</td>
+      <td>1354</td>
+      <td>3</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>Tecumseh Shoal</td>
+      <td>1354_2015-07-16.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Bedrock</td>
+    </tr>
+    <tr>
+      <th>1290.0</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>10</td>
+      <td>16</td>
+      <td>5</td>
+      <td>30.0</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>430</td>
+      <td>10.0</td>
+      <td>20.0</td>
+      <td>Erie</td>
+      <td>42.80730</td>
+      <td>30.0</td>
+      <td>-79.59634</td>
+      <td>GLNI_12-1_2016-07-11_still-3.jpg</td>
+      <td>60.0</td>
+      <td>12</td>
+      <td>1</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5</td>
+      <td>Rock Point</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Glacial Till</td>
+    </tr>
+    <tr>
+      <th>1291.0</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>10</td>
+      <td>16</td>
+      <td>5</td>
+      <td>30.0</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>430</td>
+      <td>10.0</td>
+      <td>20.0</td>
+      <td>Erie</td>
+      <td>42.80730</td>
+      <td>15.0</td>
+      <td>-79.59634</td>
+      <td>GLNI_12-2_2016-07-11_still-2.jpg</td>
+      <td>60.0</td>
+      <td>12</td>
+      <td>2</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5</td>
+      <td>Rock Point</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Glacial Till</td>
+    </tr>
+    <tr>
+      <th>1292.0</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>10</td>
+      <td>16</td>
+      <td>5</td>
+      <td>30.0</td>
+      <td>NaN</td>
+      <td>2016186-004-012</td>
+      <td>2016-07-11</td>
+      <td>17.9</td>
+      <td>430</td>
+      <td>5.0</td>
+      <td>20.0</td>
+      <td>Erie</td>
+      <td>42.80730</td>
+      <td>60.0</td>
+      <td>-79.59634</td>
+      <td>GLNI_12-3_2016-07-11_still-3.jpg</td>
+      <td>60.0</td>
+      <td>12</td>
+      <td>3</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>30</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>5</td>
+      <td>Rock Point</td>
+      <td>12_2016-07-11.mp4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>Glacial Till</td>
+    </tr>
+  </tbody>
+</table>
+<p>1234 rows × 41 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_merged_df.columns
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Index([&#39;10mm&#39;, &#39;12.5mm&#39;, &#39;14mm&#39;, &#39;16mm&#39;, &#39;2mm&#39;, &#39;4mm&#39;, &#39;6.3mm&#39;, &#39;8mm&#39;,
+       &#39;Bedrock (%)&#39;, &#39;Biomass&#39;, &#39;Boulders (%)&#39;, &#39;CSN&#39;, &#39;Clay (%)&#39;,
+       &#39;Cobble (%)&#39;, &#39;Count&#39;, &#39;Cruise #&#39;, &#39;Date&#39;, &#39;Depth (m)&#39;, &#39;Dive Index&#39;,
+       &#39;Empty Coverage&#39;, &#39;Gravel (%)&#39;, &#39;Lake&#39;, &#39;Latitude&#39;, &#39;Live Coverage&#39;,
+       &#39;Longitude&#39;, &#39;Name&#39;, &#39;Overall Coverage&#39;, &#39;PSN&#39;, &#39;Quadrat&#39;,
+       &#39;Quadrat Still Path&#39;, &#39;Quadrat Video Path&#39;, &#39;Raw Image Path&#39;,
+       &#39;Rock (%)&#39;, &#39;Sand (%)&#39;, &#39;Shale (%)&#39;, &#39;Silt (%)&#39;, &#39;Site Name&#39;,
+       &#39;Source Video&#39;, &#39;Timestamp&#39;, &#39;Underlying Substrate Depth (cm)&#39;,
+       &#39;Underlying Substrate Type&#39;],
+      dtype=&#39;object&#39;)
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span># Data pre-processing: use overall coverage when live coverage is missing
+simplified_merged_df.loc[simplified_merged_df[&#39;Live Coverage&#39;].isnull(), &#39;Live Coverage&#39;] = \
+    simplified_merged_df.loc[simplified_merged_df[&#39;Live Coverage&#39;].isnull(), &#39;Overall Coverage&#39;].values
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span># Data pre-processing: transform percentage size distribution to total count for each category
+simplified_merged_df[&#39;Count&#39;] = simplified_merged_df[&#39;Count&#39;].astype(float)
+simplified_merged_df[&#39;Biomass&#39;] = simplified_merged_df[&#39;Biomass&#39;].astype(float)
+simplified_merged_df[&#39;16mm&#39;] = simplified_merged_df[&#39;16mm&#39;].astype(float).fillna(0.)*simplified_merged_df[&#39;Count&#39;]
+simplified_merged_df[&#39;14mm&#39;] = simplified_merged_df[&#39;14mm&#39;].astype(float).fillna(0.)*simplified_merged_df[&#39;Count&#39;]
+simplified_merged_df[&#39;12.5mm&#39;] = simplified_merged_df[&#39;12.5mm&#39;].astype(float).fillna(0.)*simplified_merged_df[&#39;Count&#39;]
+simplified_merged_df[&#39;10mm&#39;] = simplified_merged_df[&#39;10mm&#39;].astype(float).fillna(0.)*simplified_merged_df[&#39;Count&#39;]
+simplified_merged_df[&#39;8mm&#39;] = simplified_merged_df[&#39;8mm&#39;].astype(float).fillna(0.)*simplified_merged_df[&#39;Count&#39;]
+simplified_merged_df[&#39;6.3mm&#39;] = simplified_merged_df[&#39;6.3mm&#39;].astype(float).fillna(0.)*simplified_merged_df[&#39;Count&#39;]
+simplified_merged_df[&#39;4mm&#39;] = simplified_merged_df[&#39;4mm&#39;].astype(float).fillna(0.)*simplified_merged_df[&#39;Count&#39;]
+simplified_merged_df[&#39;2mm&#39;] = simplified_merged_df[&#39;2mm&#39;].astype(float).fillna(0.)*simplified_merged_df[&#39;Count&#39;]
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_merged_df = simplified_merged_df[[&#39;10mm&#39;, &#39;12.5mm&#39;, &#39;14mm&#39;, &#39;16mm&#39;, &#39;2mm&#39;, &#39;4mm&#39;, &#39;6.3mm&#39;, &#39;8mm&#39;,
+       &#39;Biomass&#39;, &#39;Count&#39;, &#39;Date&#39;, &#39;Dive Index&#39;,
+       &#39;Empty Coverage&#39;, &#39;Lake&#39;, &#39;Latitude&#39;, &#39;Live Coverage&#39;,
+       &#39;Longitude&#39;, &#39;Name&#39;, &#39;PSN&#39;, &#39;Quadrat&#39;]]
+simplified_merged_df[&#39;Analysis Index&#39;] = simplified_merged_df.index
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.6/dist-packages/ipykernel_launcher.py:5: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  &#34;&#34;&#34;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_merged_df.columns
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Index([&#39;10mm&#39;, &#39;12.5mm&#39;, &#39;14mm&#39;, &#39;16mm&#39;, &#39;2mm&#39;, &#39;4mm&#39;, &#39;6.3mm&#39;, &#39;8mm&#39;,
+       &#39;Biomass&#39;, &#39;Count&#39;, &#39;Date&#39;, &#39;Dive Index&#39;, &#39;Empty Coverage&#39;, &#39;Lake&#39;,
+       &#39;Latitude&#39;, &#39;Live Coverage&#39;, &#39;Longitude&#39;, &#39;Name&#39;, &#39;PSN&#39;, &#39;Quadrat&#39;,
+       &#39;Analysis Index&#39;],
+      dtype=&#39;object&#39;)
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>simplified_merged_df.to_csv(os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;SimplifiedImagingAnalysis.csv&#39;))
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>merged_df = pd.merge(image_df.append(still_df).append(quadrat_df), data_df, on=&#39;Analysis Index&#39;, how=&#39;left&#39;)
+merged_df
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.6/dist-packages/pandas/core/frame.py:7138: FutureWarning: Sorting because non-concatenation axis is not aligned. A future version
+of pandas will change to not sort by default.
+
+To accept the future behavior, pass &#39;sort=False&#39;.
+
+To retain the current behavior and silence the warning, pass &#39;sort=True&#39;.
+
+  sort=sort,
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Analysis Index</th>
+      <th>Name</th>
+      <th>Quadrat Still Path</th>
+      <th>Quadrat Video Path</th>
+      <th>Raw Image Path</th>
+      <th>Source Video</th>
+      <th>Timestamp</th>
+      <th>Dive Index</th>
+      <th>Quadrat</th>
+      <th>Live Coverage</th>
+      <th>Empty Coverage</th>
+      <th>Biomass</th>
+      <th>Count</th>
+      <th>16mm</th>
+      <th>14mm</th>
+      <th>12.5mm</th>
+      <th>10mm</th>
+      <th>8mm</th>
+      <th>6.3mm</th>
+      <th>4mm</th>
+      <th>2mm</th>
+      <th>Cruise #</th>
+      <th>CSN</th>
+      <th>PSN</th>
+      <th>Date</th>
+      <th>Depth (m)</th>
+      <th>Overall Coverage</th>
+      <th>Silt (%)</th>
+      <th>Clay (%)</th>
+      <th>Sand (%)</th>
+      <th>Gravel (%)</th>
+      <th>Cobble (%)</th>
+      <th>Rock (%)</th>
+      <th>Bedrock (%)</th>
+      <th>Boulders (%)</th>
+      <th>Shale (%)</th>
+      <th>Underlying Substrate Type</th>
+      <th>Underlying Substrate Depth (cm)</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Site Name</th>
+      <th>Lake</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>GLNI_3554-1_2018-06-19_image-1.nef</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>NaN</td>
+      <td>2018-06-19 12:20:23</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>GLNI_3554-1_2018-06-19_image-2.nef</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>NaN</td>
+      <td>2018-06-19 12:20:31</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.0</td>
+      <td>GLNI_3554-2_2018-06-19_image-2.nef</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>NaN</td>
+      <td>2018-06-19 12:21:12</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0</td>
+      <td>GLNI_3554-2_2018-06-19_image-1.nef</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>NaN</td>
+      <td>2018-06-19 12:21:05</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2.0</td>
+      <td>GLNI_3554-3_2018-06-19_image-2.nef</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>G:\Mussel images from Megan\GLNI 2012-2018\GLN...</td>
+      <td>NaN</td>
+      <td>2018-06-19 12:21:47</td>
+      <td>0</td>
+      <td>3</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>45.17</td>
+      <td>132.0</td>
+      <td>0.007576</td>
+      <td>0.037879</td>
+      <td>0.250000</td>
+      <td>0.045455</td>
+      <td>0.030303</td>
+      <td>0.053030</td>
+      <td>0.234848</td>
+      <td>0.340909</td>
+      <td>201800901</td>
+      <td>1</td>
+      <td>3554</td>
+      <td>2018-06-19</td>
+      <td>20.9</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.95011</td>
+      <td>-78.03080</td>
+      <td>Cobourg</td>
+      <td>Ontario</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1715</th>
+      <td>1598.0</td>
+      <td>GLNI_1348-3_2017-08-17_video-1.mp4</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>1348_2017-08-17.mp4</td>
+      <td>NaN</td>
+      <td>532</td>
+      <td>3</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.00</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>2017-01-903</td>
+      <td>9</td>
+      <td>1348</td>
+      <td>2017-08-17</td>
+      <td>18.8</td>
+      <td>60.0</td>
+      <td>15</td>
+      <td>10</td>
+      <td>0</td>
+      <td>25.0</td>
+      <td>25.0</td>
+      <td>25</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Glacial Till</td>
+      <td>NaN</td>
+      <td>42.81207</td>
+      <td>-79.48821</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1716</th>
+      <td>1602.0</td>
+      <td>GLNI_1346-1_2017-08-17_video-1.mp4</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>NaN</td>
+      <td>534</td>
+      <td>1</td>
+      <td>50.0</td>
+      <td>5.0</td>
+      <td>172.79</td>
+      <td>290.0</td>
+      <td>0.000000</td>
+      <td>0.003448</td>
+      <td>0.062069</td>
+      <td>0.262069</td>
+      <td>0.324138</td>
+      <td>0.179310</td>
+      <td>0.117241</td>
+      <td>0.051724</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1717</th>
+      <td>1603.0</td>
+      <td>GLNI_1346-2_2017-08-17_video-1.mp4</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>NaN</td>
+      <td>534</td>
+      <td>2</td>
+      <td>50.0</td>
+      <td>2.0</td>
+      <td>176.19</td>
+      <td>376.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.061170</td>
+      <td>0.441489</td>
+      <td>0.148936</td>
+      <td>0.125000</td>
+      <td>0.170213</td>
+      <td>0.053191</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1718</th>
+      <td>1604.0</td>
+      <td>GLNI_1346-3_2017-08-17_video-1.mp4</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>1346_2017-08-17.mp4</td>
+      <td>NaN</td>
+      <td>534</td>
+      <td>3</td>
+      <td>40.0</td>
+      <td>5.0</td>
+      <td>173.68</td>
+      <td>401.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.059850</td>
+      <td>0.403990</td>
+      <td>0.184539</td>
+      <td>0.152120</td>
+      <td>0.104738</td>
+      <td>0.094763</td>
+      <td>2017-01-903</td>
+      <td>11</td>
+      <td>1346</td>
+      <td>2017-08-17</td>
+      <td>6.0</td>
+      <td>60.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>10.0</td>
+      <td>10</td>
+      <td>75</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83698</td>
+      <td>-79.48140</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+    <tr>
+      <th>1719</th>
+      <td>1607.0</td>
+      <td>GLNI_1345-3_2017-08-17_video-1.mp4</td>
+      <td>NaN</td>
+      <td>G:\MusselsCurated\GLNI_2012-2018\GLNI_quadrats...</td>
+      <td>NaN</td>
+      <td>1345_2017-08-17.mp4</td>
+      <td>NaN</td>
+      <td>535</td>
+      <td>3</td>
+      <td>10.0</td>
+      <td>0.0</td>
+      <td>47.81</td>
+      <td>161.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012422</td>
+      <td>0.248447</td>
+      <td>0.341615</td>
+      <td>0.267081</td>
+      <td>0.086957</td>
+      <td>0.043478</td>
+      <td>2017-01-903</td>
+      <td>12</td>
+      <td>1345</td>
+      <td>2017-08-17</td>
+      <td>3.7</td>
+      <td>65.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5</td>
+      <td>85</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>Bedrock</td>
+      <td>NaN</td>
+      <td>42.83768</td>
+      <td>-79.48107</td>
+      <td>Mohawk Point</td>
+      <td>Erie</td>
+    </tr>
+  </tbody>
+</table>
+<p>1720 rows × 42 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-none notranslate"><div class="highlight"><pre>
+<span></span>merged_df.to_csv(os.path.join(DATA_PATH, &#39;Tables&#39;, &#39;MergedTable.csv&#39;))
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Angus Galloway
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

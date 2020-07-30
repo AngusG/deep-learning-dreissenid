@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Task 1 a) Process Quadrat in MP4 Video &mdash; Mussel-Image-Analysis v1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Mussel-Image-Analysis
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quadrat.html">Quadrat Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/predict.html">Predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/labelme.html">Dataset Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproduce-dataset.html">Reproduce Datasets</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Mussel-Image-Analysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Task 1 a) Process Quadrat in MP4 Video</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/quadrat-extraction/quadrat-task-1a-one-video-at-a-time.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Task-1-a)-Process-Quadrat-in-MP4-Video">
+<h1>Task 1 a) Process Quadrat in MP4 Video<a class="headerlink" href="#Task-1-a)-Process-Quadrat-in-MP4-Video" title="Permalink to this headline">¶</a></h1>
+<p>This notebook is configured to read a video specified by <code class="docutils literal notranslate"><span class="pre">file</span></code>, then extract the lines that compose the quadrat and estimate the appropriate corner points for cropping its contents. The output is a lower resolution MP4 video that is annotated with the found lines and corner points.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># Check if notebook is running in Colab or local workstation</span>
+<span class="n">IN_COLAB</span> <span class="o">=</span> <span class="s1">&#39;google.colab&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span>
+
+<span class="k">if</span> <span class="n">IN_COLAB</span><span class="p">:</span>
+    <span class="c1"># Search for all video files on Google Drive...</span>
+    <span class="kn">from</span> <span class="nn">google.colab</span> <span class="kn">import</span> <span class="n">drive</span>
+    <span class="n">drive</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">&#39;/content/drive&#39;</span><span class="p">)</span>
+    <span class="n">DATA_PATH</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;/content/drive/My Drive/Data&#39;</span>
+
+    <span class="c1"># cd into current directory so local imports work</span>
+    <span class="o">%</span><span class="k">cd</span> &#39;/content/drive/My Drive/cciw-zebra-mussel/quadrat-extraction/&#39;
+
+    <span class="c1"># clone repo, install packages</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">DATA_PATH</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATA_PATH&#39;</span><span class="p">],</span> <span class="s1">&#39;cciw/Data&#39;</span><span class="p">)</span>
+    <span class="n">SAVE_PATH</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;DATA_PATH&#39;</span><span class="p">],</span> <span class="s1">&#39;cciw/dataset_raw/quadrat-extraction/videos&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="c1">#from utils import draw_lines, draw_all_lines</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">crop_still_image</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">crop_still_image_no_rotate</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">compute_pairwise_distances</span>
+
+<span class="c1"># https://ipython.org/ipython-doc/3/config/extensions/autoreload.html</span>
+<span class="c1">#%load_ext autoreload</span>
+<span class="c1">#%autoreload 2</span>
+
+<span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">save_figures</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">file</span> <span class="o">=</span> <span class="s1">&#39;GLNI_12-1_2016-07-11_video-1.mp4&#39;</span>
+<span class="c1">#file = &#39;GLNI_456-3_2015-07-17_video-1.mp4&#39;</span>
+<span class="c1">#file = &#39;GLNI_1347-2_2013-09-13_video-1.mp4&#39;</span>
+
+<span class="c1">#file = &#39;GLNI_1347-1_2015-07-15_video-1.mp4&#39;</span>
+<span class="c1">#file = &#39;GLNI_1347-3_2015-07-15_video-1.mp4&#39;</span>
+<span class="c1">#file = &#39;GLNI_1347-3_2015-07-02_video-1.mp4&#39;</span>
+<span class="c1">#file = &#39;GLNI_1348-2_2015-07-16_video-1.mp4&#39;</span>
+
+<span class="c1">#file = &#39;GLNI_1347-3_2013-07-11_video-1.mp4&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">all_videos</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;Videos_and_stills/GLNI/*/*/*/Videos/Quad*/*.mp4&#39;</span><span class="p">))</span>
+<span class="n">videotable_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;Tables&#39;</span><span class="p">,</span> <span class="s1">&#39;QuadratVideos.csv&#39;</span><span class="p">)</span>
+<span class="n">video_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">videotable_path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">vpath</span> <span class="o">=</span> <span class="n">video_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">video_df</span><span class="p">[</span><span class="n">video_df</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">file</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">][</span><span class="s1">&#39;Quadrat Video Path&#39;</span><span class="p">]</span>
+<span class="n">tokens</span> <span class="o">=</span> <span class="n">video_df</span><span class="p">[</span><span class="n">video_df</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">file</span><span class="p">][</span><span class="s1">&#39;Quadrat Video Path&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">video_path</span> <span class="o">=</span> <span class="n">DATA_PATH</span> <span class="o">+</span> <span class="s1">&#39;/Videos_and_stills/GLNI&#39;</span>
+<span class="k">for</span> <span class="n">tok</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="n">video_path</span> <span class="o">+=</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="n">tok</span>
+<span class="n">video_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Found </span><span class="si">%d</span><span class="s1"> videos&#39;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_videos</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading video: &#39;</span><span class="p">,</span> <span class="n">video_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">output_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SAVE_PATH</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_folder</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Made output folder &#39;</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Output folder </span><span class="si">%s</span><span class="s1"> already exists&#39;</span> <span class="o">%</span> <span class="n">output_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;These are meta-parameters of the Probabilistic Hough Line Transform,</span>
+<span class="sd">note there are additional params in cell 6 which we set according to</span>
+<span class="sd">the input resolution.</span>
+
+<span class="sd">@param rho Distance resolution of the accumulator (pixels)&quot;&quot;&quot;</span>
+<span class="n">rho</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@param theta Angle resolution of the accumulator (radians)</span>
+
+<span class="sd">Suggest to use a value no less than np.pi/90 else too many</span>
+<span class="sd">spurious lines will be found. theta=np.pi/45 means lines</span>
+<span class="sd">must differ by 4 degrees to be considered distinct.&quot;&quot;&quot;</span>
+<span class="c1">#theta = np.pi / 45</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">video_path</span><span class="p">)</span>
+<span class="n">sz</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_WIDTH</span><span class="p">)),</span>
+      <span class="nb">int</span><span class="p">(</span><span class="n">cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_HEIGHT</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Raw input resolution&#39;</span><span class="p">,</span> <span class="n">sz</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">DRAW</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">SAVE_STILLS</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># save still images cropped from Quadrat interior when True</span>
+<span class="n">SAVE_VIDEO</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># save video with quadrat annotated on top when True.</span>
+
+<span class="c1"># indices of data in x and y position respectively</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># read first frame to adjust resolution of output stream</span>
+<span class="n">ret</span><span class="p">,</span> <span class="n">im</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="c1"># set additional meta-parameters according to input res</span>
+<span class="k">if</span> <span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1440</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;x_trim and y_trim are used to remove black padding</span>
+<span class="sd">    which triggers spurious edges&quot;&quot;&quot;</span>
+    <span class="n">x_trim</span><span class="p">,</span> <span class="n">y_trim</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">145</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="p">[</span><span class="n">y_trim</span><span class="p">:</span><span class="o">-</span><span class="n">y_trim</span><span class="p">,</span> <span class="n">x_trim</span><span class="p">:</span><span class="o">-</span><span class="n">x_trim</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">crop_frame_border</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="sd">&quot;&quot;&quot;@param canny_thresh# hysteresis values for Canny edge</span>
+<span class="sd">    detector, input to HoughLines&quot;&quot;&quot;</span>
+    <span class="c1">#canny_thresh1, canny_thresh2 = 60, 300 # v0</span>
+    <span class="n">canny_thresh1</span><span class="p">,</span> <span class="n">canny_thresh2</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">45</span>
+
+    <span class="sd">&quot;&quot;&quot;@param threshold Accumulator threshold, return</span>
+<span class="sd">    lines with more than threshold of votes. (intersection points)&quot;&quot;&quot;</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mi">125</span>
+
+    <span class="sd">&quot;&quot;&quot;@param minLineLength Minimum line length.</span>
+<span class="sd">    Line segments shorter than that are rejected. (pixels)&quot;&quot;&quot;</span>
+    <span class="n">mLL</span> <span class="o">=</span> <span class="mi">400</span>
+
+    <span class="sd">&quot;&quot;&quot;@param maxLineGap Maximum allowed gap between points</span>
+<span class="sd">    on the same line to link them. (pixels)&quot;&quot;&quot;</span>
+    <span class="n">mLG</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># params as described above</span>
+    <span class="c1">#canny_thresh1, canny_thresh2 = 30, 300 # v0</span>
+    <span class="n">canny_thresh1</span><span class="p">,</span> <span class="n">canny_thresh2</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">100</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mi">125</span>
+    <span class="c1">#mLG, mLL = 250, 600</span>
+    <span class="n">mLG</span><span class="p">,</span> <span class="n">mLL</span> <span class="o">=</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">500</span>
+    <span class="n">crop_frame_border</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="sd">&quot;&quot;&quot;this method may downsample, so set the video writer</span>
+<span class="sd">resolution to the processed image resolution&quot;&quot;&quot;</span>
+<span class="c1">#img, edges, c2 = draw_all_lines(im, rho=rho, theta=theta, mll=mLL, mlg=mLG, threshold=threshold, ds=1)</span>
+<span class="n">img</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">crop</span> <span class="o">=</span> <span class="n">crop_still_image_no_rotate</span><span class="p">(</span>
+        <span class="n">im</span><span class="p">,</span> <span class="n">mll</span><span class="o">=</span><span class="n">mLL</span><span class="p">,</span> <span class="n">mlg</span><span class="o">=</span><span class="n">mLG</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">canny_1</span><span class="o">=</span><span class="n">canny_thresh1</span><span class="p">,</span> <span class="n">canny_2</span><span class="o">=</span><span class="n">canny_thresh2</span><span class="p">,</span> <span class="n">do_draw</span><span class="o">=</span><span class="n">DRAW</span><span class="p">)</span>
+<span class="n">sz</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#for i in range(100):</span>
+<span class="c1">#    ret, im = cap.read()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="mi">200</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">out_file</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_for_presentation-5.jpg&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">out_file</span><span class="p">)</span>
+<span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">[:,</span> <span class="mi">350</span><span class="p">:</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">if</span> <span class="n">cap</span><span class="o">.</span><span class="n">isOpened</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">SAVE_VIDEO</span><span class="p">:</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="n">vout</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter</span><span class="p">()</span>
+        <span class="n">fourcc</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoWriter_fourcc</span><span class="p">(</span><span class="o">*</span><span class="s1">&#39;mp4v&#39;</span><span class="p">)</span>
+        <span class="n">vout</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-quadrat-demo.mp4&#39;</span><span class="p">,</span> <span class="n">fourcc</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving as video &#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;-quadrat-demo.mp4&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Opened stream for writing, output resolution is&#39;</span><span class="p">,</span> <span class="n">sz</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;cap is not open&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">skipFrames</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">currentFrame</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="sd">&quot;&quot;&quot;it can take 30s-1min to process entire video,</span>
+<span class="sd">can optionally process a small number of frames&quot;&quot;&quot;</span>
+
+<span class="c1"># to process whole video</span>
+<span class="k">while</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="c1"># Capture frame-by-frame</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">skipFrames</span><span class="p">):</span>
+        <span class="n">ret</span><span class="p">,</span> <span class="n">im</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span> <span class="k">break</span>
+
+    <span class="k">if</span> <span class="n">crop_frame_border</span><span class="p">:</span>
+        <span class="n">im</span> <span class="o">=</span> <span class="n">im</span><span class="p">[</span><span class="n">y_trim</span><span class="p">:</span><span class="o">-</span><span class="n">y_trim</span><span class="p">,</span> <span class="n">x_trim</span><span class="p">:</span><span class="o">-</span><span class="n">x_trim</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="c1"># Do processing</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    img, _ = draw_lines(im, rho=rho, theta=theta, mll=mLL,</span>
+<span class="sd">                        mlg=mLG, threshold=threshold, ds=1,</span>
+<span class="sd">                        canny_1=canny_thresh1, canny_2=canny_thresh2)</span>
+<span class="sd">    img, _, _ = draw_all_lines(im, rho=rho, theta=theta, mll=mLL,</span>
+<span class="sd">                           mlg=mLG, threshold=threshold, ds=1,</span>
+<span class="sd">                           canny_1=canny_thresh1, canny_2=canny_thresh2)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">SAVE_VIDEO</span><span class="p">:</span>
+        <span class="n">img</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">crop_still_image_no_rotate</span><span class="p">(</span>
+        <span class="n">im</span><span class="p">,</span> <span class="n">mll</span><span class="o">=</span><span class="n">mLL</span><span class="p">,</span> <span class="n">mlg</span><span class="o">=</span><span class="n">mLG</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">canny_1</span><span class="o">=</span><span class="n">canny_thresh1</span><span class="p">,</span> <span class="n">canny_2</span><span class="o">=</span><span class="n">canny_thresh2</span><span class="p">,</span> <span class="n">do_draw</span><span class="o">=</span><span class="n">DRAW</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">SAVE_STILLS</span><span class="p">:</span>
+        <span class="n">img</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">crop</span> <span class="o">=</span> <span class="n">crop_still_image</span><span class="p">(</span>
+            <span class="n">im</span><span class="p">,</span> <span class="n">mll</span><span class="o">=</span><span class="n">mLL</span><span class="p">,</span> <span class="n">mlg</span><span class="o">=</span><span class="n">mLG</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">,</span> <span class="n">canny_1</span><span class="o">=</span><span class="n">canny_thresh1</span><span class="p">,</span> <span class="n">canny_2</span><span class="o">=</span><span class="n">canny_thresh2</span><span class="p">,</span> <span class="n">do_draw</span><span class="o">=</span><span class="n">DRAW</span><span class="p">)</span>
+
+    <span class="c1"># save still image in jpeg format</span>
+    <span class="k">if</span> <span class="n">SAVE_STILLS</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x_start</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="n">x_end</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">X</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="n">y_start</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">Y</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+            <span class="n">y_end</span> <span class="o">=</span> <span class="n">crop</span><span class="p">[:,</span> <span class="n">Y</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">compute_pairwise_distances</span><span class="p">(</span><span class="n">crop</span><span class="p">)[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">mLL</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cannot crop: found corners do not form a square&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">out_file</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="n">output_folder</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;_crop_frame-</span><span class="si">%d</span><span class="s1">.jpg&#39;</span> <span class="o">%</span> <span class="n">currentFrame</span><span class="p">)</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="n">img</span><span class="p">[</span><span class="n">y_start</span><span class="p">:</span><span class="n">y_end</span><span class="p">,</span> <span class="n">x_start</span><span class="p">:</span><span class="n">x_end</span><span class="p">,</span> <span class="p">:])</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cannot write &#39;</span><span class="p">,</span> <span class="n">out_file</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Cannot crop: insufficient number of corner points found&#39;</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;For annotating video</span>
+<span class="sd">    @param org Bottom-left corner of the text string (default=50).</span>
+<span class="sd">    @param org Bottom-left corner of the text string in the image (default=50).</span>
+<span class="sd">    @param fontFace Font type, see #HersheyFonts (default=cv2.FONT_HERSHEY_PLAIN).</span>
+<span class="sd">    @param fontScale Font scale factor that is multiplied</span>
+<span class="sd">                     by the font-specific base size (default=2).</span>
+<span class="sd">    @param color Text color (default=(R=0, G=255, B=0)).</span>
+<span class="sd">    @param thickness Thickness of the lines used to draw a text (default=1).</span>
+<span class="sd">    @param lineType Line type. See #LineTypes (default=cv2.LINE_AA).&quot;&quot;&quot;</span>
+    <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span>                 <span class="c1"># x, y</span>
+        <span class="n">img</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">currentFrame</span><span class="p">),</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_PLAIN</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">SAVE_VIDEO</span><span class="p">:</span>
+        <span class="n">vout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+    <span class="c1"># increment frame counter</span>
+    <span class="n">currentFrame</span> <span class="o">+=</span> <span class="n">skipFrames</span>
+
+    <span class="k">if</span> <span class="n">currentFrame</span> <span class="o">&gt;</span> <span class="mi">600</span><span class="p">:</span>
+        <span class="k">break</span>
+
+<span class="sd">&quot;&quot;&quot;When everything done, release the</span>
+<span class="sd">capture to flush the video stream.</span>
+
+<span class="sd">Before re-running this cell, first do</span>
+<span class="sd">cells 5, 6, and 7 to re-open cap and</span>
+<span class="sd">vout, otherwise ret=False and this</span>
+<span class="sd">cell does nothing.&quot;&quot;&quot;</span>
+<span class="n">cap</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">SAVE_VIDEO</span><span class="p">:</span>
+    <span class="n">vout</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>You should see new mp4 files when listing current dir. You may not be able to view them directly in Google Drive, but these can be downloaded to your local machine.</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Angus Galloway
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

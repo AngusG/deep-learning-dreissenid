@@ -1,0 +1,1230 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Train a DL Semantic Segmentation Model from Scratch &mdash; Mussel-Image-Analysis v1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Mussel-Image-Analysis
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../usage/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/quadrat.html">Quadrat Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/predict.html">Predict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/labelme.html">Dataset Preparation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/reproduce-dataset.html">Reproduce Datasets</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Mussel-Image-Analysis</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Train a DL Semantic Segmentation Model from Scratch</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/predict/task_3_train_segmentation_model_in_colab.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container,
+div.nbinput.container div.prompt,
+div.nbinput.container div.input_area,
+div.nbinput.container div[class*=highlight],
+div.nbinput.container div[class*=highlight] pre,
+div.nboutput.container,
+div.nboutput.container div.prompt,
+div.nboutput.container div.output_area,
+div.nboutput.container div[class*=highlight],
+div.nboutput.container div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Train-a-DL-Semantic-Segmentation-Model-from-Scratch">
+<h1>Train a DL Semantic Segmentation Model from Scratch<a class="headerlink" href="#Train-a-DL-Semantic-Segmentation-Model-from-Scratch" title="Permalink to this headline">¶</a></h1>
+<p>Preliminaries:</p>
+<ol class="arabic simple">
+<li><p>This notebook requires a GPU. From the toolbar select “Runtime” → “Change runtime type” → “GPU” to enable a GPU accelerator.</p></li>
+<li><p>To maintain a high priority Colab user status such that sufficient GPU resources are available in the future, ensure to free the runtime when finished running this notebook. This can be done using ‘Runtime &gt; Manage Sessions’ and click ‘Terminate’.</p></li>
+<li><p>Ensure you have sufficient Google Drive storage available for checkpointing models. Saving the weights of a single DeepLab_v3 instance takes ~152MB, so allow 650 free MB for saving four checkpoints over 60 epochs of training.</p></li>
+<li><p>Training takes several hours with the top of the line Nvidia P100 GPU available in Colab (GPU RAM Free will be near 15079MB for a 16GB card). One pass over the validation set takes 1.5 minutes with the P100. You should begin to see first results plotted in TensorBoard in a matter of minutes.</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Check if this notebook is running in Colab or local workstation</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">IN_COLAB</span> <span class="o">=</span> <span class="s1">&#39;google.colab&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span>
+
+<span class="k">if</span> <span class="n">IN_COLAB</span><span class="p">:</span>
+    <span class="o">!</span>ln -sf /opt/bin/nvidia-smi /usr/bin/nvidia-smi
+    <span class="o">!</span>pip install gputil
+    <span class="o">!</span>pip install psutil
+    <span class="o">!</span>pip install humanize
+
+<span class="kn">import</span> <span class="nn">psutil</span>
+<span class="kn">import</span> <span class="nn">humanize</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">GPUtil</span> <span class="k">as</span> <span class="nn">GPU</span>
+<span class="n">GPUs</span> <span class="o">=</span> <span class="n">GPU</span><span class="o">.</span><span class="n">getGPUs</span><span class="p">()</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># XXX: only one GPU on Colab and isn’t guaranteed</span>
+    <span class="n">gpu</span> <span class="o">=</span> <span class="n">GPUs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">printm</span><span class="p">():</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gen RAM Free: &quot;</span> <span class="o">+</span> <span class="n">humanize</span><span class="o">.</span><span class="n">naturalsize</span><span class="p">(</span>
+            <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">available</span> <span class="p">),</span>
+            <span class="s2">&quot; | Proc size: &quot;</span> <span class="o">+</span> <span class="n">humanize</span><span class="o">.</span><span class="n">naturalsize</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">memory_info</span><span class="p">()</span><span class="o">.</span><span class="n">rss</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GPU RAM Free: </span><span class="si">{0:.0f}</span><span class="s2">MB | Used: </span><span class="si">{1:.0f}</span><span class="s2">MB | Util </span><span class="si">{2:3.0f}</span><span class="s2">% | Total </span><span class="si">{3:.0f}</span><span class="s2">MB&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">gpu</span><span class="o">.</span><span class="n">memoryFree</span><span class="p">,</span> <span class="n">gpu</span><span class="o">.</span><span class="n">memoryUsed</span><span class="p">,</span> <span class="n">gpu</span><span class="o">.</span><span class="n">memoryUtil</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">gpu</span><span class="o">.</span><span class="n">memoryTotal</span><span class="p">))</span>
+    <span class="n">printm</span><span class="p">()</span>
+
+    <span class="c1"># Check if GPU capacity is sufficient to proceed</span>
+    <span class="k">if</span> <span class="n">gpu</span><span class="o">.</span><span class="n">memoryFree</span> <span class="o">&lt;</span> <span class="mi">10000</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Insufficient memory! Some cells may fail. Please try restarting the runtime using &#39;Runtime → Restart Runtime...&#39; from the menu bar. If that doesn&#39;t work, terminate this session and try again later.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">GPU memory is sufficient to proceeed.&#39;</span><span class="p">)</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Select the Runtime → &quot;Change runtime type&quot; menu to enable a GPU accelerator, &#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;and then re-execute this cell.&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">if</span> <span class="n">IN_COLAB</span><span class="p">:</span>
+
+    <span class="kn">from</span> <span class="nn">google.colab</span> <span class="kn">import</span> <span class="n">drive</span>
+    <span class="n">drive</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s1">&#39;/content/drive&#39;</span><span class="p">)</span>
+    <span class="n">DATA_PATH</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;/content/drive/My Drive/Data&#39;</span>
+
+    <span class="c1"># cd into git repo so python can find utils</span>
+    <span class="o">%</span><span class="k">cd</span> &#39;/content/drive/My Drive/cciw-zebra-mussel/predict&#39;
+
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/content/drive/My Drive&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">glob</span>
+
+<span class="c1"># for manually reading high resolution images</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># for comparing predictions to lab analysis data frames</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># for plotting</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># pytorch core library</span>
+<span class="kn">import</span> <span class="nn">torch</span>  <span class="c1"># tested with torch.__version__==1.4.0</span>
+<span class="c1"># pytorch neural network functions</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+
+<span class="c1"># import pytorch computer vision utils</span>
+<span class="kn">import</span> <span class="nn">torchvision</span>
+
+<span class="c1"># for DeepLab_v3 segmentation model</span>
+<span class="kn">from</span> <span class="nn">torchvision.models</span> <span class="kn">import</span> <span class="n">segmentation</span> <span class="k">as</span> <span class="n">models</span>
+
+<span class="c1"># pytorch dataloader</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+
+<span class="c1"># using tqdm.notebook for friendly progress bar</span>
+<span class="kn">import</span> <span class="nn">tqdm</span>
+
+<span class="c1"># evaluation metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">r2_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">jaccard_score</span> <span class="k">as</span> <span class="n">jsc</span>
+
+<span class="c1"># load custom pre-processeing transforms for use with VOCSegmentation loader</span>
+<span class="kn">import</span> <span class="nn">transforms</span> <span class="k">as</span> <span class="nn">T</span>
+
+<span class="c1"># various helper functions, metrics that can be evaluated on the GPU</span>
+<span class="kn">from</span> <span class="nn">task_3_utils</span> <span class="kn">import</span> <span class="p">(</span><span class="n">save_checkpoint</span><span class="p">,</span>
+                          <span class="n">save_amp_checkpoint</span><span class="p">,</span>
+                          <span class="n">evaluate</span><span class="p">,</span>
+                          <span class="n">eval_binary_iou</span><span class="p">,</span>
+                          <span class="n">evaluate_loss_and_iou_torchvision</span><span class="p">,</span>
+                          <span class="n">adjust_learning_rate</span><span class="p">)</span>
+
+<span class="c1"># Custom dataloader for rapidly loading images from a single LMDB file</span>
+<span class="kn">from</span> <span class="nn">folder2lmdb</span> <span class="kn">import</span> <span class="n">VOCSegmentationLMDB</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Confim that this cell prints &quot;Found GPU, cuda&quot;. If not, select &quot;GPU&quot; as</span>
+<span class="sd">&quot;Hardware Accelerator&quot; under the &quot;Runtime&quot; tab of the main menu. &quot;&quot;&quot;</span>
+<span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Found GPU,&#39;</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="1.-Basic-setup-and-meta-parameters">
+<h1>1. Basic setup and meta-parameters<a class="headerlink" href="#1.-Basic-setup-and-meta-parameters" title="Permalink to this headline">¶</a></h1>
+<p>Preliminary setup including path to dataset, data version, split type, and logdir folder for saving intermediate results and trained model weights.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; type=str, path to dataset in LMDB format for efficiently</span>
+<span class="sd">loading data from Google Drive into Colab&quot;&quot;&quot;</span>
+<span class="n">dataroot</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;ADIG_Labelled_Dataset/LMDB&#39;</span><span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot; type=str, dataset version according to https://semver.org/ convention&#39;,</span>
+<span class="sd">choices=[&#39;v100&#39;, &#39;v101&#39;, &#39;v110&#39;, &#39;v111&#39;, &#39;v112&#39;, &#39;v120&#39;]&quot;&quot;&quot;</span>
+<span class="n">data_version</span> <span class="o">=</span> <span class="s1">&#39;v120&#39;</span>
+
+<span class="sd">&quot;&quot;&quot; type=str, training split, choices=[&#39;train&#39;, &#39;trainval&#39;]</span>
+<span class="sd">it is recommended to use train for validating generalization to 2019, and</span>
+<span class="sd">using trainval before final deployment&quot;&quot;&quot;</span>
+<span class="n">split</span> <span class="o">=</span> <span class="s1">&#39;train&#39;</span>
+
+<span class="c1"># top level directory to store checkpoints; if None, nothing will be saved&#39;</span>
+<span class="c1">#logdir = osp.join(DATA_PATH, &#39;Checkpoints/logs&#39;)</span>
+<span class="n">logdir</span> <span class="o">=</span> <span class="s1">&#39;logs&#39;</span> <span class="c1"># store logs locally due to prohibitive Google Drive latency</span>
+
+<span class="c1"># type=str, path to latest checkpoint (default: none)</span>
+<span class="n">resume</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># uncomment to load a checkpoint, for example:</span>
+<span class="c1">#resume = osp.join(</span>
+<span class="c1">#     DATA_PATH, &#39;Checkpoints/logs/train_v120/deeplabv3_resnet50_lr1e-01_wd5e-04_bs50_ep10_seed1/checkpoint/deeplabv3_resnet50_lr1e-01_wd5e-04_bs50_ep10_seed1_epoch5.ckpt&#39;)</span>
+
+<span class="c1"># type=bool, print training and validation statistics during training</span>
+<span class="n">do_print</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># type=int, random seed, makes training deterministic</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+    <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="vm">__dict__</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">islower</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)</span>
+    <span class="ow">and</span> <span class="n">callable</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+    <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Available model choices:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">model_names</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Select model architecture from <code class="docutils literal notranslate"><span class="pre">model_names</span></code> and meta-parameters: number of training epochs, batch size, learning rate schedule, etc.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># type=str, model architecture to use, choices=model_names</span>
+<span class="n">arch</span> <span class="o">=</span> <span class="s1">&#39;deeplabv3_resnet50&#39;</span>
+
+<span class="c1"># type=int, number of training epochs, i.e., number of passes over the full</span>
+<span class="c1"># dataset and number of times each sample is shown to the model.</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># type=int, epoch to drop the initial learning rate by a factor of ten</span>
+<span class="n">drop</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># type=int, mini-batch size for stochastic gradient descent (SGD) training</span>
+<span class="n">bs</span> <span class="o">=</span> <span class="mi">50</span> <span class="c1"># uncomment if more than 12GB GPU ram free</span>
+<span class="c1">#bs = 20 # if less than 12GB GPU ram free</span>
+
+<span class="c1"># type=float, the initial learning rate value for SGD</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-1</span>
+
+<span class="c1"># type=float, L2 weight decay regularization constant</span>
+<span class="n">wd</span> <span class="o">=</span> <span class="mf">5e-4</span>
+
+<span class="c1"># use apex to train with 16-bit float parameters (not currently enabled)</span>
+<span class="n">fp16</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">ckpt_name</span> <span class="o">=</span> <span class="n">arch</span> <span class="o">+</span> <span class="s1">&#39;_lr%.e_wd%.e_bs</span><span class="si">%d</span><span class="s1">_ep</span><span class="si">%d</span><span class="s1">_seed</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">wd</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">logdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">save_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logdir</span><span class="p">,</span> <span class="n">split</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">data_version</span><span class="p">,</span> <span class="n">ckpt_name</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving training statistics to&#39;</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+
+    <span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s1">&#39;Checkpoints/&#39;</span><span class="p">),</span> <span class="n">save_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving model weights to&#39;</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">)</span>
+
+    <span class="c1"># Logging stats</span>
+    <span class="n">result_folder</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="s1">&#39;results/&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">result_folder</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">result_folder</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created folder&quot;</span><span class="p">,</span> <span class="n">result_folder</span><span class="p">)</span>
+
+    <span class="n">logname</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result_folder</span><span class="p">,</span> <span class="n">ckpt_name</span> <span class="o">+</span> <span class="s1">&#39;.csv&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">logname</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logname</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">logfile</span><span class="p">:</span>
+            <span class="n">logwriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="n">logwriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s1">&#39;epoch&#39;</span><span class="p">,</span> <span class="s1">&#39;lr&#39;</span><span class="p">,</span> <span class="s1">&#39;train loss&#39;</span><span class="p">,</span> <span class="s1">&#39;val loss&#39;</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No checkpoints will be saved&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="2.-Define-Image-Pre-Processing-Transforms-and-Data-Augmentation">
+<h1>2. Define Image Pre-Processing Transforms and Data Augmentation<a class="headerlink" href="#2.-Define-Image-Pre-Processing-Transforms-and-Data-Augmentation" title="Permalink to this headline">¶</a></h1>
+<p>Here, we define transforms to be applied to input images (<code class="docutils literal notranslate"><span class="pre">inputs</span></code>) and segmentation masks (<code class="docutils literal notranslate"><span class="pre">targets</span></code>) on the fly as we draw mini-batches iteratively like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">dataloader</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>These transforms are documented here: <a class="reference external" href="https://pytorch.org/docs/stable/torchvision/transforms.html">https://pytorch.org/docs/stable/torchvision/transforms.html</a></p>
+<p>We may wish to experiment with additional ones in the future, e.g., <code class="docutils literal notranslate"><span class="pre">ColorJitter</span></code> to perturb the image colours, or <code class="docutils literal notranslate"><span class="pre">Grayscale</span></code> to convert the dataset to Greyscale and quantify the marginal impact of colour information on model performance.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">training_tforms</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Randomly crop images to square 224x224</span>
+<span class="n">training_tforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">RandomCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">))</span>
+
+<span class="c1"># With probability 0.5, flip the images and masks horizontally.</span>
+<span class="c1"># This increases the effective size of our training set, as</span>
+<span class="c1"># mussels are rotation invariant.</span>
+<span class="n">training_tforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+
+<span class="c1"># Similarly, flip the images and masks vertically with probability 0.5.</span>
+<span class="n">training_tforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">RandomVerticalFlip</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+
+<span class="c1"># Convert images from Python Imaging Library (PIL aka Pillow) format to PyTorch Tensor.</span>
+<span class="n">training_tforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">())</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">T.Normalize performs: image = (image - mean) / std</span>
+
+<span class="sd">The first argument (a triple) to T.Normalize are the global</span>
+<span class="sd">RGB pixel mean values, and the second argument is their standard deviation.</span>
+
+<span class="sd">For a mini-batch &#39;inputs&#39; comprised of N samples,</span>
+<span class="sd">C channels, e.g. 3 for RGB images, height H, width W, and</span>
+<span class="sd">inputs.shape = torch.Size([N, C, H, W]), this can be obtained using:</span>
+
+<span class="sd">inputs.mean(dim=(0, 2, 3)), which will output a tensor, e.g.,</span>
+<span class="sd">tensor([0.2613, 0.2528, 0.2255]).</span>
+
+<span class="sd">The standard deviation can be obtained similarly with:</span>
+<span class="sd">inputs.std(dim=(0, 2, 3))</span>
+
+<span class="sd">The global values can simply be obtained by averaging over all</span>
+<span class="sd">mini-batches in the dataset.</span>
+
+<span class="sd">For the natural mussel dataset (i.e. not the Lab images),</span>
+<span class="sd">these global pixel values are somewhat meaningless to due</span>
+<span class="sd">significant changes in lighting and hue, so we simply</span>
+<span class="sd">pass the triple (0.5, 0.5, 0.5) for both mean and std to</span>
+<span class="sd">normalize the input image pixels from [0, 1] to [-1, 1].</span>
+<span class="sd">This centers the images and resulting feedforward activations</span>
+<span class="sd">around zero and allows training to proceed more smoothly.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="n">training_tforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="n">T</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)))</span>
+
+<span class="c1"># Finally, Compose several transforms together.</span>
+<span class="n">training_tforms</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Compose</span><span class="p">(</span><span class="n">training_tforms</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>For validation and testing, we often want these transforms to be deterministic to be sure the model is making progress with respect to the natural image distribution. We will evaluate on fixed 250x250 patches rather than randomly cropping.</p>
+<p>For evaluating robustness, we could add <code class="docutils literal notranslate"><span class="pre">ColorJitter</span></code> and do scaling or shearing with various Affine transforms here…</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">test_tform</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">T</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">),</span>
+    <span class="n">T</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">T</span><span class="o">.</span><span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="3.-Create-Efficient-Data-Loaders">
+<h1>3. Create Efficient Data Loaders<a class="headerlink" href="#3.-Create-Efficient-Data-Loaders" title="Permalink to this headline">¶</a></h1>
+<p>Specify the mini-batch size (<code class="docutils literal notranslate"><span class="pre">batch_size</span></code>) for validation, and path to serialized LMDB dataset <code class="docutils literal notranslate"><span class="pre">dataset_root</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> is arbitrary at test time since we aren’t using <code class="docutils literal notranslate"><span class="pre">nn.BatchNorm()</span></code>, the main consideration here is to use the largest <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> the GPU memory allows to maximize throughput. The default setting should be fine.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">VOCSegmentationLMDB</span></code> class was adapted from <a class="reference external" href="https://pytorch.org/docs/stable/torchvision/datasets.html#torchvision.datasets.VOCSegmentation">https://pytorch.org/docs/stable/torchvision/datasets.html#torchvision.datasets.VOCSegmentation</a> to enable reading data from a single <code class="docutils literal notranslate"><span class="pre">*.lmdb</span></code> database which is much more efficient on conventional hard drives than randomly reading images.</p>
+<p>Note that transforms provided to the <code class="docutils literal notranslate"><span class="pre">transforms</span></code> argument apply to both input images and masks. The label values will be rotated accordingly as the input images, but the labels are unaffected by the normalization due to being limited to values 0/1.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">training_set</span> <span class="o">=</span> <span class="n">VOCSegmentationLMDB</span><span class="p">(</span>
+    <span class="n">root</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataroot</span><span class="p">,</span> <span class="n">split</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">data_version</span> <span class="o">+</span> <span class="s1">&#39;.lmdb&#39;</span><span class="p">),</span>
+    <span class="n">transforms</span><span class="o">=</span><span class="n">test_tform</span><span class="p">)</span>
+
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">training_set</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">bs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">valset</span> <span class="o">=</span> <span class="n">VOCSegmentationLMDB</span><span class="p">(</span>
+        <span class="n">root</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dataroot</span><span class="p">,</span> <span class="s1">&#39;val_v101.lmdb&#39;</span><span class="p">),</span> <span class="n">transforms</span><span class="o">=</span><span class="n">test_tform</span><span class="p">)</span>
+<span class="n">val_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">valset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">bs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">if</span> <span class="n">logdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">torch.utils.tensorboard</span> <span class="kn">import</span> <span class="n">SummaryWriter</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">SummaryWriter</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">flush_secs</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>You may skip the next cell if loading a model from pre-trained checkpoint.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Prepare model NB even though there are two classes</span>
+<span class="sd">(i.e. mussel and background),</span>
+<span class="sd">num_classes=1 is used such that nn.Sigmoid(pred) = 0 is bkg, and 1 is mussel.</span>
+
+<span class="sd">Could instead use num_classes=2 and nn.CrossEntropyLoss() such that the</span>
+<span class="sd">*channel* rather than the *value* encodes the class, but this would</span>
+<span class="sd">require a one-hot label format.</span>
+
+<span class="sd">n_channels=3 for RGB images</span>
+<span class="sd">n_classes is the number of probabilities you want to get per pixel</span>
+<span class="sd">  - For 1 class and background, use n_classes=1</span>
+<span class="sd">  - For 2 classes, use n_classes=1</span>
+<span class="sd">  - For N &gt; 2 classes, use n_classes=N</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&gt; creating model &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arch</span><span class="p">))</span>
+<span class="n">net</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">arch</span><span class="p">](</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Prepare training procedure</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="n">wd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To compute the <code class="docutils literal notranslate"><span class="pre">pos_weight</span></code> from the dataset, uncomment the following cell.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Note: this cell is optional !</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">total_mussel = 0.</span>
+<span class="sd">total_pixels = 0.</span>
+<span class="sd">for idx, data in enumerate(valloader):</span>
+<span class="sd">    total_mussel += (data[1] == 1).sum().float().item()</span>
+<span class="sd">    total_pixels += (data[1] == 0).sum().float().item()</span>
+<span class="sd">    print(&#39;Batch %d of %d, pos_weight=%.4f&#39; % (idx, len(valloader), total_mussel / total_pixels))</span>
+<span class="sd">print(&#39;pos_weight={:.4f}&#39;.format(total_pixels / total_mussel))</span>
+<span class="sd">&#39;&#39;&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># pos_weight by inverse frequency of `mussel` pixels</span>
+<span class="k">if</span> <span class="n">data_version</span> <span class="o">==</span> <span class="s1">&#39;v101&#39;</span><span class="p">:</span>
+    <span class="n">pos_weight</span> <span class="o">=</span> <span class="mf">3.6891</span>
+
+<span class="k">elif</span> <span class="n">data_version</span> <span class="o">==</span> <span class="s1">&#39;v111&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">split</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+        <span class="n">pos_weight</span> <span class="o">=</span> <span class="mf">3.4270</span> <span class="c1"># train</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pos_weight</span> <span class="o">=</span> <span class="mf">3.6633</span> <span class="c1"># trainval</span>
+
+<span class="k">elif</span> <span class="n">data_version</span> <span class="o">==</span> <span class="s1">&#39;v112&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">split</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+        <span class="n">pos_weight</span> <span class="o">=</span>  <span class="mf">3.6021</span> <span class="c1"># train</span>
+
+<span class="k">elif</span> <span class="n">data_version</span> <span class="o">==</span> <span class="s1">&#39;v120&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">split</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+        <span class="n">pos_weight</span> <span class="o">=</span> <span class="mf">3.1849</span>  <span class="c1"># train</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pos_weight</span> <span class="o">=</span> <span class="mf">3.4297</span> <span class="c1"># trainval</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Will weight the loss by inverse mussel class frequency&#39;</span><span class="p">,</span> <span class="n">pos_weight</span><span class="p">)</span>
+<span class="n">train_pos_weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">([</span><span class="n">pos_weight</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">pos_weight</span><span class="o">=</span><span class="n">train_pos_weight</span><span class="p">)</span>
+
+<span class="c1"># 4.2838 for val_v101</span>
+<span class="n">val_pos_weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">([</span><span class="mf">4.2838</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">val_loss_fn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">(</span><span class="n">pos_weight</span><span class="o">=</span><span class="n">val_pos_weight</span><span class="p">)</span>
+
+<span class="n">sig</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">()</span>  <span class="c1"># initializes a sigmoid function</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">evaluate_loss</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">data_loader</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates the cross entropy loss of DL model given by `net` on data from</span>
+<span class="sd">    `data_loader`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">running_loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">data_loader</span><span class="p">:</span>
+        <span class="k">break</span>
+
+    <span class="n">net</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="o">.</span><span class="n">notebook</span><span class="o">.</span><span class="n">tqdm</span><span class="p">(</span><span class="n">data_loader</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39; batches&#39;</span><span class="p">):</span>
+            <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">targets</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="s1">&#39;out&#39;</span><span class="p">]</span>
+            <span class="c1"># dataloader outputs targets with shape NHW, but we need NCHW</span>
+            <span class="n">batch_loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">targets</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">())</span>
+            <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">batch_loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">running_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_loader</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="4.-Optionally-load-a-pre-trained-checkpoint,">
+<h1>4. Optionally load a pre-trained checkpoint,<a class="headerlink" href="#4.-Optionally-load-a-pre-trained-checkpoint," title="Permalink to this headline">¶</a></h1>
+<p>Can be used to resume training if it was previously interrupted.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">if</span> <span class="n">resume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Load checkpoint.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;==&gt; Resuming from checkpoint..&#39;</span><span class="p">)</span>
+    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">resume</span><span class="p">)</span>
+    <span class="n">net</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;net&#39;</span><span class="p">]</span>
+    <span class="c1"># only if using 16-bit floating point with apex amp</span>
+    <span class="c1">#net.load_state_dict(checkpoint[&#39;net&#39;])</span>
+    <span class="c1">#optimizer.load_state_dict(checkpoint[&#39;optimizer&#39;])</span>
+    <span class="c1">#amp.load_state_dict(checkpoint[&#39;amp&#39;])</span>
+    <span class="n">start_epoch</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;epoch&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">train_loss</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;trn_loss&#39;</span><span class="p">]</span>
+    <span class="n">val_loss</span> <span class="o">=</span> <span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;val_loss&#39;</span><span class="p">]</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">set_rng_state</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">[</span><span class="s1">&#39;rng_state&#39;</span><span class="p">])</span>
+    <span class="n">ckpt_bs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resume</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">4</span><span class="p">][</span><span class="mi">2</span><span class="p">:])</span>
+    <span class="n">global_step</span> <span class="o">=</span> <span class="n">start_epoch</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">training_set</span><span class="p">)</span> <span class="o">//</span> <span class="n">ckpt_bs</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;Compute training and validation cross-entropy losses to ensure model</span>
+<span class="sd">    was loaded correctly and that the data were pre-processed in consistent</span>
+<span class="sd">    manner w.r.t. the training script.&quot;&quot;&quot;</span>
+
+    <span class="c1"># evaluate validation loss</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="n">calculate_validation_loss</span> <span class="o">=</span> <span class="n">evaluate_loss</span><span class="p">(</span>
+        <span class="n">net</span><span class="p">,</span> <span class="n">val_loader</span><span class="p">,</span> <span class="n">val_loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+    <span class="c1"># allow a small tolerance as validation data loader is deterministic</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">calculate_validation_loss</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Validation loss of </span><span class="si">{:.4f}</span><span class="s1"> matches checkpoint&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">calculate_validation_loss</span><span class="p">))</span>
+
+    <span class="c1"># evaluate training loss</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="n">calculate_trn_loss</span> <span class="o">=</span> <span class="n">evaluate_loss</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+
+    <span class="sd">&#39;&#39;&#39;allow a larger numerical tolerance of 5e-2 due to stochastic data</span>
+<span class="sd">    augmentation, i.e., random rotation and cropping&#39;&#39;&#39;</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">calculate_trn_loss</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">5e-2</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> Train loss of </span><span class="si">{:.4f}</span><span class="s1"> matches checkpoint&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">calculate_trn_loss</span><span class="p">))</span>
+
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">start_epoch</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">global_step</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting training from epoch&#39;</span><span class="p">,</span> <span class="n">start_epoch</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Define a function for efficiently evaluating the cross entropy loss and IoU</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">def</span> <span class="nf">evaluate_loss_and_iou_torchvision</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">data_loader</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates the cross entropy loss and IoU of DL model given by `net` on</span>
+<span class="sd">    data from `data_loader`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">()</span>
+    <span class="n">batch</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">running_iou</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">running_loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">data_loader</span><span class="p">:</span>
+        <span class="k">break</span>
+
+    <span class="c1"># put model into evaluation mode</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;Note that the unit here is batches, so multiply by the batch size to</span>
+<span class="sd">        get the number of images processed per second.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="o">.</span><span class="n">notebook</span><span class="o">.</span><span class="n">tqdm</span><span class="p">(</span><span class="n">data_loader</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39; batches&#39;</span><span class="p">):</span>
+            <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">targets</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="sd">&quot;&quot;&quot;Does a feedforward pass through the model. Remove the [&#39;out&#39;]</span>
+<span class="sd">            part if using a model not provided through the torchvision repo,</span>
+<span class="sd">            e.g., FCN8slim or U-Net.&quot;&quot;&quot;</span>
+            <span class="n">pred</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="s1">&#39;out&#39;</span><span class="p">]</span>
+            <span class="c1"># dataloader outputs targets with shape NHW, but we need NCHW</span>
+            <span class="n">batch_loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">targets</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">())</span>
+
+            <span class="c1"># efficiently computes</span>
+            <span class="n">bin_iou</span> <span class="o">=</span> <span class="n">eval_binary_iou</span><span class="p">(</span><span class="n">sig</span><span class="p">(</span><span class="n">pred</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(),</span> <span class="n">targets</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">bin_iou</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">iou</span> <span class="o">=</span> <span class="n">bin_iou</span><span class="p">[</span><span class="n">bin_iou</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                <span class="n">running_iou</span> <span class="o">+=</span> <span class="n">iou</span>
+                <span class="n">batch</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">running_loss</span> <span class="o">+=</span> <span class="n">batch_loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">running_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_loader</span><span class="p">),</span> <span class="n">running_iou</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">batch</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Load the TensorBoard notebook extension</span>
+<span class="o">%</span><span class="k">load_ext</span> tensorboard
+</pre></div>
+</div>
+</div>
+<p>After launching tensorboard using the next cell, you will initially see the message: - <strong>No dashboards are active for the current data set</strong>.</p>
+<p>This dashboard will be populated automatically once training is launched.</p>
+<p>Once the model starts training, you will see two (2) tabs in TensorBoard: “SCALARS” and “IMAGES”.</p>
+<ol class="arabic simple">
+<li><p>In the <strong>SCALARS</strong> pane, you will see three drop down menus:</p></li>
+</ol>
+<ul class="simple">
+<li><p>The <strong>IoU</strong> menu tracks the mean intersection-over-union for the validation set over time, which should generally increase.</p></li>
+<li><p>The <strong>L2norm</strong> menu tracks the L2 norm of various parameters, and serves as a basic sanity check that the parameters are changing from their initial values during learning. The L2 norm can go up or down, but will generally go down in proportion to the magnitude of the weight decay <code class="docutils literal notranslate"><span class="pre">wd</span></code> regularization term.</p></li>
+<li><p>The <strong>Loss</strong> menu tracks the loss for each training mini-batch and for the validation set. The validation loss should generally go down but it’s possible for IoU to continue to increase while the validation loss increases as the model confidence increases but the number of pixelwise errors decreases.</p></li>
+</ul>
+<ol class="arabic simple" start="2">
+<li><p>In the <strong>IMAGES</strong> pane, there are three drop down menus:</p></li>
+</ol>
+<ul class="simple">
+<li><p><em>images</em> show 224 pixel input images (training set)</p></li>
+<li><p><em>labels</em> show the corresponding ground truth</p></li>
+<li><p><em>predictions</em> show the model output as a greyscale image</p></li>
+</ul>
+<p>The statistics plotted here will only be available for the duration of the Colab session due to the prohibitive latency of frequently writing data into Google Drive. Data for each of the scalars panes can be downloaded as a <code class="docutils literal notranslate"><span class="pre">csv</span></code> file, however, by checking the box <strong>Show data download links</strong>, then hovering over the grey text <strong>run to download</strong> in the bottom right hand corner of any pane, select a run, then click the <strong>CSV</strong> button to trigger the download.</p>
+<p>On the other hand the model checkpoints are saved into the <code class="docutils literal notranslate"><span class="pre">ckpt_path</span></code> which is persistent on Google Drive. Once checkpoints are saved there this notebook can be halted and training resumed at any time using the <code class="docutils literal notranslate"><span class="pre">resume</span></code> argument in Section 1.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">tensorboard</span> --logdir logs
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="5.-Train-the-model">
+<h1>5. Train the model<a class="headerlink" href="#5.-Train-the-model" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_epoch</span><span class="p">,</span> <span class="n">epochs</span><span class="p">):</span>
+
+    <span class="n">eval_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="sd">&quot;&quot;&quot;Put the model into evaluation mode. This is relevant when using layers</span>
+<span class="sd">    like dropout or batch normalization that have different behaviour at</span>
+<span class="sd">    training and test time. Batch normalization normalizes the activations of a</span>
+<span class="sd">    layer using mini-batch statistics at training time, versus acculumated</span>
+<span class="sd">    population statistics at test time.&quot;&quot;&quot;</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="c1"># validate the model starting from first initialization</span>
+    <span class="n">val_loss</span><span class="p">,</span> <span class="n">val_iou</span> <span class="o">=</span> <span class="n">evaluate_loss_and_iou_torchvision</span><span class="p">(</span>
+        <span class="n">net</span><span class="p">,</span> <span class="n">val_loader</span><span class="p">,</span> <span class="n">val_loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">do_print</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Epoch [</span><span class="si">%d</span><span class="s1">/</span><span class="si">%d</span><span class="s1">], val IoU </span><span class="si">%.4f</span><span class="s1">, val loss </span><span class="si">%.4f</span><span class="s1">, took </span><span class="si">%.2f</span><span class="s1"> sec, &#39;</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">val_iou</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">eval_start_time</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">logdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s1">&#39;Loss/val&#39;</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s1">&#39;IoU/val&#39;</span><span class="p">,</span> <span class="n">val_iou</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+
+    <span class="n">epoch_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+    <span class="n">train_loss</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">net</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">batch</span><span class="p">,</span> <span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_loader</span><span class="p">):</span>
+
+        <span class="c1"># implements the learning rate schedule, drops lr if necessary</span>
+        <span class="n">lr</span> <span class="o">=</span> <span class="n">adjust_learning_rate</span><span class="p">(</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">drop</span><span class="p">,</span> <span class="n">lr</span><span class="p">)</span>
+
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span> <span class="c1"># reset gradients to zero</span>
+
+        <span class="sd">&quot;&quot;&quot;inputs are in NCHW format: N=nb. samples, C=channels, H=height,</span>
+<span class="sd">        W=width. Do inputs.permute(0, 2, 3, 1) to viz in RGB format.&quot;&quot;&quot;</span>
+        <span class="n">inputs</span><span class="p">,</span> <span class="n">targets</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">targets</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">pred</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">inputs</span><span class="p">)[</span><span class="s1">&#39;out&#39;</span><span class="p">]</span> <span class="c1"># fprop for torchvision.models.segmentation</span>
+
+        <span class="c1"># dataloader outputs targets with shape NHW, but we need NCHW</span>
+        <span class="n">batch_loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">targets</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">())</span>
+        <span class="n">train_loss</span> <span class="o">+=</span> <span class="n">batch_loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">fp16</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">amp</span><span class="o">.</span><span class="n">scale_loss</span><span class="p">(</span><span class="n">batch_loss</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span> <span class="k">as</span> <span class="n">scaled_loss</span><span class="p">:</span>
+                <span class="n">scaled_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">batch_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span> <span class="c1"># bprop</span>
+
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span> <span class="c1"># update parameters</span>
+
+        <span class="k">if</span> <span class="n">batch</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Batch [</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">], train loss: </span><span class="si">{:.4f}</span><span class="s1">&#39;</span>
+                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="p">),</span> <span class="n">batch_loss</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>  <span class="c1">#, train IoU: {:.4f}&#39;</span>
+
+            <span class="k">if</span> <span class="n">logdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s1">&#39;Loss/train mini-batch&#39;</span><span class="p">,</span> <span class="n">batch_loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">global_step</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">net</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="s1">&#39;weight&#39;</span> <span class="ow">in</span> <span class="n">n</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+                            <span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s1">&#39;L2norm/&#39;</span> <span class="o">+</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">global_step</span><span class="p">)</span>
+        <span class="n">global_step</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">epoch_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">epoch_start_time</span>
+    <span class="n">train_loss</span> <span class="o">/=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">logdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s1">&#39;Loss/train&#39;</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">img_grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span><span class="n">inputs</span><span class="p">[:</span><span class="mi">16</span><span class="p">])</span>
+        <span class="n">sig_grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span><span class="n">sig</span><span class="p">(</span><span class="n">pred</span><span class="p">[:</span><span class="mi">16</span><span class="p">]))</span>
+        <span class="n">lab_grid</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">make_grid</span><span class="p">(</span>
+            <span class="n">targets</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">())</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="s1">&#39;images&#39;</span><span class="p">,</span> <span class="n">img_grid</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="n">sig_grid</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">,</span> <span class="n">lab_grid</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;Saves a checkpoint every 20 epochs by default. Can alternatively</span>
+<span class="sd">    save a checkpoint iff it reduces the validation loss&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="mi">5</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Saving checkpoint &#39;</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+        <span class="c1"># recompute validation loss so it&#39;s up to date</span>
+        <span class="n">val_loss</span><span class="p">,</span> <span class="n">val_iou</span> <span class="o">=</span> <span class="n">evaluate_loss_and_iou_torchvision</span><span class="p">(</span>
+            <span class="n">net</span><span class="p">,</span> <span class="n">val_loader</span><span class="p">,</span> <span class="n">val_loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+
+        <span class="c1">#if val_loss &lt; best_val_loss:</span>
+        <span class="c1">#    best_val_loss = val_loss</span>
+        <span class="k">if</span> <span class="n">fp16</span><span class="p">:</span>
+            <span class="n">save_amp_checkpoint</span><span class="p">(</span>
+                <span class="n">net</span><span class="p">,</span> <span class="n">amp</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">,</span>
+                <span class="n">ckpt_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">save_checkpoint</span><span class="p">(</span>
+                <span class="n">net</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">,</span> <span class="n">ckpt_name</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Epoch [</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">], train loss: </span><span class="si">{:.4f}</span><span class="s1">, val loss: </span><span class="si">{:.4f}</span><span class="s1">, took </span><span class="si">{:.2f}</span><span class="s1"> s&#39;</span>
+          <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">epochs</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">epoch_time</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">logdir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">logname</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">logfile</span><span class="p">:</span>
+            <span class="n">logwriter</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+            <span class="n">logwriter</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">epoch</span><span class="p">,</span> <span class="n">lr</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">train_loss</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">val_loss</span><span class="p">,</span> <span class="mi">4</span><span class="p">)])</span>
+
+<span class="c1"># recompute validation loss so it&#39;s up to date</span>
+<span class="n">val_loss</span><span class="p">,</span> <span class="n">val_iou</span> <span class="o">=</span> <span class="n">evaluate_loss_and_iou_torchvision</span><span class="p">(</span>
+    <span class="n">net</span><span class="p">,</span> <span class="n">val_loader</span><span class="p">,</span> <span class="n">val_loss_fn</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">fp16</span><span class="p">:</span>
+    <span class="n">save_amp_checkpoint</span><span class="p">(</span>
+        <span class="n">net</span><span class="p">,</span> <span class="n">amp</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">,</span> <span class="n">ckpt_name</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">save_checkpoint</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">val_loss</span><span class="p">,</span> <span class="n">train_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="p">,</span> <span class="n">ckpt_name</span><span class="p">)</span>
+
+<span class="n">writer</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<script type="application/vnd.jupyter.widget-state+json">
+{"31b871eb7a904682b6797da34f34c2af": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "4fa1c07ad0174342a5eaa70dfa345905": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "5334e014083a46a783ae040e3ab1d767": {"model_module": "@jupyter-widgets/controls", "model_name": "DescriptionStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "DescriptionStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "description_width": ""}}, "5469131166ed4a98af1ab8dc626dcbf8": {"model_module": "@jupyter-widgets/controls", "model_name": "ProgressStyleModel", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "ProgressStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "StyleView", "bar_color": null, "description_width": "initial"}}, "7604e5a1fe7e4f93b0fa56e02c8aeccd": {"model_module": "@jupyter-widgets/base", "model_name": "LayoutModel", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "1.2.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "1.2.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": null, "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "overflow_x": null, "overflow_y": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "7fc94daadbab4e42b713cd2879dd822d": {"model_module": "@jupyter-widgets/controls", "model_name": "HTMLModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HTMLView", "description": "", "description_tooltip": null, "layout": "IPY_MODEL_7604e5a1fe7e4f93b0fa56e02c8aeccd", "placeholder": "\u200b", "style": "IPY_MODEL_5334e014083a46a783ae040e3ab1d767", "value": " 29/90 [00:19&lt;00:41,  1.48 batches/s]"}}, "ad8e372ba8674fb0893cfbae5d47ef1b": {"model_module": "@jupyter-widgets/controls", "model_name": "HBoxModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "HBoxModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "HBoxView", "box_style": "", "children": ["IPY_MODEL_f50a3197fed042518133b1be4078912b", "IPY_MODEL_7fc94daadbab4e42b713cd2879dd822d"], "layout": "IPY_MODEL_31b871eb7a904682b6797da34f34c2af"}}, "f50a3197fed042518133b1be4078912b": {"model_module": "@jupyter-widgets/controls", "model_name": "IntProgressModel", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "1.5.0", "_model_name": "IntProgressModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "1.5.0", "_view_name": "ProgressView", "bar_style": "", "description": " 32%", "description_tooltip": null, "layout": "IPY_MODEL_4fa1c07ad0174342a5eaa70dfa345905", "max": 90, "min": 0, "orientation": "horizontal", "style": "IPY_MODEL_5469131166ed4a98af1ab8dc626dcbf8", "value": 29}}}
+</script></div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, Angus Galloway
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
