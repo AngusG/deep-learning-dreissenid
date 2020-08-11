@@ -150,11 +150,13 @@ if __name__ == '__main__':
     """
     RGB_MEAN = (0.5, 0.5, 0.5)
     RGB_STD  = (0.5, 0.5, 0.5)
+    c = np.array(RGB_MEAN)
 
     train_tform = T.Compose([
         T.RandomCrop(224),
         T.RandomHorizontalFlip(0.5), # rotate image about y-axis with 50% prob
         T.RandomVerticalFlip(0.5),
+        T.RandomRotation([0, 90, 180, 270, 360]) # randomly rotate image in 90 deg intervals
         T.ToTensor(),
         T.Normalize(RGB_MEAN, RGB_STD)
     ])
@@ -325,7 +327,11 @@ if __name__ == '__main__':
         #val_loss = evaluate_loss(net, valloader, val_loss_fn, device)
         #val_iou = evaluate_binary_iou(net, valloader, val_loss_fn, device)
         writer.add_scalar('Loss/train', train_loss, epoch + 1)
-        img_grid = torchvision.utils.make_grid(inputs[:16])
+        
+        
+        images = inputs[:16].permute(0, 2, 3, 1) * c + c
+        
+        img_grid = torchvision.utils.make_grid(images)
         sig_grid = torchvision.utils.make_grid(sig(pred[:16]))
         lab_grid = torchvision.utils.make_grid(targets[:16].unsqueeze(dim=1).float())
         writer.add_image('images', img_grid, epoch)

@@ -40,6 +40,19 @@ class RandomResize(object):
         target = F.resize(target, size, interpolation=Image.NEAREST)
         return image, target
 
+    
+class RandomRotation(object):
+    def __init__(self, degrees):
+        self.degrees = degrees
+
+    def __call__(self, image, target):
+        #if random.random() < self.flip_prob:
+        angle = self.degrees[random.randint(0, len(self.degrees)-1)]
+        if angle != 0:
+            image = F.rotate(image, angle)
+            target = F.rotate(target, angle)
+        return image, target    
+    
 
 class RandomHorizontalFlip(object):
     def __init__(self, flip_prob):
