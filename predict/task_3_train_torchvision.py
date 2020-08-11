@@ -312,6 +312,9 @@ if __name__ == '__main__':
                     for n, p in net.named_parameters():
                         if 'weight' in n.split('.'):
                             writer.add_scalar('L2norm/' + n, p.norm(2), global_step)
+                        elif 'scale' in n.split('.'):
+                            writer.add_scalar('scale/' + n, p.item(), global_step)
+                            
                         # add scale here
             global_step += 1
 
