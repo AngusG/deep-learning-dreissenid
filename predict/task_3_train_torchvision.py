@@ -150,13 +150,14 @@ if __name__ == '__main__':
     """
     RGB_MEAN = (0.5, 0.5, 0.5)
     RGB_STD  = (0.5, 0.5, 0.5)
-    c = np.array(RGB_MEAN)
+    #c = np.array(RGB_MEAN)
+    c = torch.FloatTensor(RGB).to(device)
 
     train_tform = T.Compose([
         T.RandomCrop(224),
         T.RandomHorizontalFlip(0.5), # rotate image about y-axis with 50% prob
         T.RandomVerticalFlip(0.5),
-        T.RandomRotation([0, 90, 180, 270, 360]) # randomly rotate image in 90 deg intervals
+        T.RandomRotation([0, 90, 180, 270, 360]), # randomly rotate image in 90 deg intervals
         T.ToTensor(),
         T.Normalize(RGB_MEAN, RGB_STD)
     ])
