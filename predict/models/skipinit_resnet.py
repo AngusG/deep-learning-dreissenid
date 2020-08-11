@@ -8,7 +8,7 @@ import numpy as np
 #           'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
 #           'wide_resnet50_2', 'wide_resnet101_2']
 
-__all__ = ['FixupResNet', 'fixup_resnet18', 'fixup_resnet50']
+__all__ = ['SkipInitResNet', 'skipinit_resnet50']
 
 
 model_urls = {
@@ -35,12 +35,12 @@ def conv1x1(in_planes, out_planes, stride=1):
     return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
 
 
-class FixupBasicBlock(nn.Module):
+class SkipBasicBlock(nn.Module):
     expansion = 1
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
                  base_width=64, dilation=1, norm_layer=None):
-        super(FixupBasicBlock, self).__init__()
+        super(SkipBasicBlock, self).__init__()
 
         #if norm_layer is None:
         #    norm_layer = nn.BatchNorm2d
@@ -56,7 +56,8 @@ class FixupBasicBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.bias2a = nn.Parameter(torch.zeros(1))
         self.conv2 = conv3x3(planes, planes)
-        self.scale = nn.Parameter(torch.ones(1))
+        # skipinit
+        self.scale = nn.Parameter(torch.zeros(1))
         self.bias2b = nn.Parameter(torch.zeros(1))
         self.downsample = downsample
         self.stride = stride
@@ -80,7 +81,7 @@ class FixupBasicBlock(nn.Module):
         return out
 
 
-class FixupBottleneck(nn.Module):
+class SkipBottleneck(nn.Module):
     # Bottleneck in torchvision places the stride for downsampling at 3x3 convolution(self.conv2)
     # while original implementation places the stride at the first 1x1 convolution(self.conv1)
     # according to "Deep residual learning for image recognition"https://arxiv.org/abs/1512.03385.
@@ -91,7 +92,7 @@ class FixupBottleneck(nn.Module):
 
     def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
                  base_width=64, dilation=1, norm_layer=None):
-        super(FixupBottleneck, self).__init__()
+        super(SkipBottleneck, self).__init__()
 
         width = int(planes * (base_width / 64.)) * groups
         # Both self.conv2 and self.downsample layers downsample the input when stride != 1
@@ -105,7 +106,8 @@ class FixupBottleneck(nn.Module):
 
         self.bias3a = nn.Parameter(torch.zeros(1))
         self.conv3 = conv1x1(width, planes * self.expansion)
-        self.scale = nn.Parameter(torch.ones(1)) # Fixup
+        #self.scale = nn.Parameter(torch.ones(1)) # Fixup
+        self.scale = nn.Parameter(torch.zeros(1)) # SkipInit
         self.bias3b = nn.Parameter(torch.zeros(1))
 
         self.relu = nn.ReLU(inplace=True)
@@ -133,12 +135,12 @@ class FixupBottleneck(nn.Module):
         return out
 
 
-class FixupResNet(nn.Module):
+class SkipInitResNet(nn.Module):
 
     def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None,
                  norm_layer=None):
-        super(FixupResNet, self).__init__()
+        super(SkipInitResNet, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
@@ -182,9 +184,9 @@ class FixupResNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
         for m in self.modules():
-            if isinstance(m, FixupBasicBlock):
+            if isinstance(m, SkipBasicBlock):
                 pass
-            elif isinstance(m, FixupBottleneck):
+            elif isinstance(m, SkipBottleneck):
                 nn.init.normal_(
                     m.conv1.weight,
                     mean=0,
@@ -197,16 +199,15 @@ class FixupResNet(nn.Module):
                     std=np.sqrt(
                         2 / (m.conv2.weight.shape[0] * np.prod(m.conv2.weight.shape[2:]))
                     ) * self.num_layers ** (-0.25))
-                '''
+
                 nn.init.normal_(
                     m.conv3.weight,
                     mean=0,
                     std=np.sqrt(
                         2 / (m.conv3.weight.shape[0] * np.prod(m.conv3.weight.shape[2:]))
                     ) * self.num_layers ** (-0.25))
-                '''
-                nn.init.constant_(m.conv3.weight, 0)
 
+                #nn.init.constant_(m.conv3.weight, 0)
                 if m.downsample is not None:
                     nn.init.normal_(
                         m.downsample.weight,
@@ -344,7 +345,7 @@ def resnet50(pretrained=False, progress=True, **kwargs):
                    **kwargs)
 
 
-def fixup_resnet50(pretrained=False, progress=True, **kwargs):
+def skipinit_resnet50(pretrained=False, progress=True, **kwargs):
     r"""FixupResNet-50 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
 
@@ -352,7 +353,7 @@ def fixup_resnet50(pretrained=False, progress=True, **kwargs):
         pretrained (bool): If True, returns a model pre-trained on ImageNet
         progress (bool): If True, displays a progress bar of the download to stderr
     """
-    return _resnet('fixup_resnet50', FixupBottleneck, [3, 4, 6, 3], pretrained, progress,
+    return _resnet('skipinit_resnet50', SkipBottleneck, [3, 4, 6, 3], pretrained, progress,
                    **kwargs)
 
 
