@@ -20,7 +20,7 @@ model_urls = {
 }
 
 
-def _segm_resnet(name, backbone_name, num_classes, aux, pretrained_backbone=True):
+def _segm_resnet(name, backbone_name, num_classes, aux, pretrained_backbone=False):
     #backbone = resnet.__dict__[backbone_name](
     backbone = fixup_resnet.__dict__[backbone_name](
         pretrained=pretrained_backbone,
