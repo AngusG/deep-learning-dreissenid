@@ -5,6 +5,7 @@ segmentation on novel mussel dataset.
 # general
 import os
 import os.path as osp
+import subprocess
 import csv
 import time
 import argparse
@@ -91,7 +92,7 @@ if __name__ == '__main__':
                         convolution', action="store_true")
     parser.add_argument('--fp16', help='use apex to train with fp16 parameters',
                         action="store_true")
-    parser.add_argument('--tag', help='custom tag to ID debug runs')
+    #parser.add_argument('--tag', help='custom tag to ID debug runs')
 
 
     args = parser.parse_args()
@@ -105,14 +106,17 @@ if __name__ == '__main__':
 
     torch.manual_seed(args.seed)
 
+    gitcommit = subprocess.check_output(['git', 'rev-parse', '--short',
+                                         'HEAD']).decode('ascii').strip()
+
     save_path = osp.join(
         args.logdir,
         args.split + '_' + args.data_version,
-        args.arch + '/lr%.e/wd%.e/bs%d/ep%d/seed%d/tag%s' % (args.lr, args.wd,
+        args.arch + '/lr%.e/wd%.e/bs%d/ep%d/seed%d/%s' % (args.lr, args.wd,
                                                              args.bs,
                                                              args.epochs,
                                                              args.seed,
-                                                             args.tag))
+                                                             gitcommit))
     print('Saving model to ', save_path)
 
     ckpt_name = args.arch + '_lr%.e_wd%.e_bs%d_ep%d_seed%d' % (args.lr, args.wd, args.bs, args.epochs, args.seed)
