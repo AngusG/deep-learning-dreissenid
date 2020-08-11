@@ -103,10 +103,10 @@ class FixupBottleneck(nn.Module):
         self.conv2 = conv3x3(width, width, stride, groups, dilation)
         self.bias2b = nn.Parameter(torch.zeros(1))
 
-        #self.bn2 = norm_layer(width)
         self.bias3a = nn.Parameter(torch.zeros(1))
         self.conv3 = conv1x1(width, planes * self.expansion)
-        self.scale = nn.Parameter(torch.ones(1))
+        #self.scale = nn.Parameter(torch.ones(1)) # Fixup
+        self.scale = nn.Parameter(torch.zeros(1)) # SkipInit
         self.bias3b = nn.Parameter(torch.zeros(1))
 
         self.relu = nn.ReLU(inplace=True)
