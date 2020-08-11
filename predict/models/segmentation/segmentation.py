@@ -20,9 +20,37 @@ model_urls = {
 }
 
 
-def _segm_resnet(name, backbone_name, num_classes, aux, pretrained_backbone=False):
+def _segm_fixup_resnet(name, backbone_name, num_classes, aux, pretrained_backbone=False):
     #backbone = resnet.__dict__[backbone_name](
     backbone = fixup_resnet.__dict__[backbone_name](
+        pretrained=pretrained_backbone,
+        replace_stride_with_dilation=[False, True, True])
+
+    return_layers = {'layer4': 'out'}
+    if aux:
+        return_layers['layer3'] = 'aux'
+    backbone = IntermediateLayerGetter(backbone, return_layers=return_layers)
+
+    aux_classifier = None
+    if aux:
+        inplanes = 1024
+        aux_classifier = FCNHead(inplanes, num_classes)
+
+    model_map = {
+        'deeplabv3': (DeepLabHead, DeepLabV3),
+        'deeplabv3nobn' : (DeepLabHeadNoBN, DeepLabV3NoBN),
+        'fcn': (FCNHead, FCN),
+    }
+    inplanes = 2048
+    classifier = model_map[name][0](inplanes, num_classes)
+    base_model = model_map[name][1]
+
+    model = base_model(backbone, classifier, aux_classifier)
+    return model
+
+
+def _segm_resnet(name, backbone_name, num_classes, aux, pretrained_backbone=False):
+    backbone = resnet.__dict__[backbone_name](
         pretrained=pretrained_backbone,
         replace_stride_with_dilation=[False, True, True])
 
@@ -53,6 +81,21 @@ def _load_model(arch_type, backbone, pretrained, progress, num_classes, aux_loss
     if pretrained:
         aux_loss = True
     model = _segm_resnet(arch_type, backbone, num_classes, aux_loss, **kwargs)
+    if pretrained:
+        arch = arch_type + '_' + backbone + '_coco'
+        model_url = model_urls[arch]
+        if model_url is None:
+            raise NotImplementedError('pretrained {} is not supported as of now'.format(arch))
+        else:
+            state_dict = load_state_dict_from_url(model_url, progress=progress)
+            model.load_state_dict(state_dict)
+    return model
+
+
+def _load_fixup_model(arch_type, backbone, pretrained, progress, num_classes, aux_loss, **kwargs):
+    if pretrained:
+        aux_loss = True
+    model = _segm_fixup_resnet(arch_type, backbone, num_classes, aux_loss, **kwargs)
     if pretrained:
         arch = arch_type + '_' + backbone + '_coco'
         model_url = model_urls[arch]
@@ -122,7 +165,7 @@ def deeplabv3nobn_fixupresnet18(pretrained=False, progress=True,
             contains the same classes as Pascal VOC
         progress (bool): If True, displays a progress bar of the download to stderr
     """
-    return _load_model('deeplabv3nobn', 'fixup_resnet18', pretrained, progress, num_classes, aux_loss, **kwargs)
+    return _load_fixup_model('deeplabv3nobn', 'fixup_resnet18', pretrained, progress, num_classes, aux_loss, **kwargs)
 
 
 
@@ -136,7 +179,7 @@ def deeplabv3nobn_fixupresnet50(pretrained=False, progress=True,
             contains the same classes as Pascal VOC
         progress (bool): If True, displays a progress bar of the download to stderr
     """
-    return _load_model('deeplabv3nobn', 'fixup_resnet50', pretrained, progress, num_classes, aux_loss, **kwargs)
+    return _load_fixup_model('deeplabv3nobn', 'fixup_resnet50', pretrained, progress, num_classes, aux_loss, **kwargs)
 
 
 def deeplabv3_resnet101(pretrained=False, progress=True,
