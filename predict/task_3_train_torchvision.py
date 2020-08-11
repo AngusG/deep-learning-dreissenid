@@ -151,7 +151,7 @@ if __name__ == '__main__':
     RGB_MEAN = (0.5, 0.5, 0.5)
     RGB_STD  = (0.5, 0.5, 0.5)
     #c = np.array(RGB_MEAN)
-    c = torch.FloatTensor(RGB).to(device)
+    c = torch.FloatTensor(RGB_MEAN).to(device)
 
     train_tform = T.Compose([
         T.RandomCrop(224),
