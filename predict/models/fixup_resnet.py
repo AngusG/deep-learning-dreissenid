@@ -206,7 +206,7 @@ class FixupResNet(nn.Module):
                         2 / (m.conv3.weight.shape[0] * np.prod(m.conv3.weight.shape[2:]))
                     ) * self.num_layers ** (-0.25))
 
-                nn.init.constant_(m.conv3.weight, 0)
+                #nn.init.constant_(m.conv3.weight, 0)
                 if m.downsample is not None:
                     nn.init.normal_(
                         m.downsample.weight,
