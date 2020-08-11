@@ -331,6 +331,7 @@ if __name__ == '__main__':
         
         
         images = inputs[:16].permute(0, 2, 3, 1) * c + c
+        images = images.permute(0, 3, 1, 2)
         
         img_grid = torchvision.utils.make_grid(images)
         sig_grid = torchvision.utils.make_grid(sig(pred[:16]))
