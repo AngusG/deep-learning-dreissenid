@@ -25,9 +25,10 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 # import an off-the-shelf model for now
-from torchvision.models import segmentation as models
+#from torchvision.models import segmentation as models
+from models import segmentation as models
 
-from unet import UNet
+#from unet import UNet
 #import pytorch_unet
 from torchsummary import summary
 
@@ -90,6 +91,8 @@ if __name__ == '__main__':
                         convolution', action="store_true")
     parser.add_argument('--fp16', help='use apex to train with fp16 parameters',
                         action="store_true")
+    parser.add_argument('--tag', help='custom tag to ID debug runs')
+
 
     args = parser.parse_args()
 
@@ -105,7 +108,11 @@ if __name__ == '__main__':
     save_path = osp.join(
         args.logdir,
         args.split + '_' + args.data_version,
-        args.arch + '/lr%.e/wd%.e/bs%d/ep%d/seed%d/' % (args.lr, args.wd, args.bs, args.epochs, args.seed))
+        args.arch + '/lr%.e/wd%.e/bs%d/ep%d/seed%d/tag%s' % (args.lr, args.wd,
+                                                             args.bs,
+                                                             args.epochs,
+                                                             args.seed,
+                                                             args.tag))
     print('Saving model to ', save_path)
 
     ckpt_name = args.arch + '_lr%.e_wd%.e_bs%d_ep%d_seed%d' % (args.lr, args.wd, args.bs, args.epochs, args.seed)
@@ -180,7 +187,8 @@ if __name__ == '__main__':
      - For N > 2 classes, use n_classes=N
     """
     print("=> creating model '{}'".format(args.arch))
-    net = models.__dict__[args.arch](num_classes=1).to(device)
+    net = models.__dict__[args.arch](num_classes=1, pretrained=False).to(device)
+    print(net)
 
     #print(summary(net, input_size=(3, 224, 224)))
 
@@ -300,6 +308,7 @@ if __name__ == '__main__':
                     for n, p in net.named_parameters():
                         if 'weight' in n.split('.'):
                             writer.add_scalar('L2norm/' + n, p.norm(2), global_step)
+                        # add scale here
             global_step += 1
 
         epoch_time = time.time() - epoch_start_time
