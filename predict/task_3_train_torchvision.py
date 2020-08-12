@@ -26,8 +26,8 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 # import an off-the-shelf model for now
-#from torchvision.models import segmentation as models
-from models import segmentation as models
+from torchvision.models import segmentation as models
+#from models import segmentation as models
 
 #from unet import UNet
 #import pytorch_unet
