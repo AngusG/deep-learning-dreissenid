@@ -211,6 +211,22 @@ def eval_binary_iou(outputs, targets, eps=1e-6):
     return iou
 
 
+def mask_and_preds_to_1hot(p, y):
+    """Prepare predictions and label for jsc"""
+    
+    # labels y to one hot encoding
+    y_1hot = np.zeros((2, y.shape[0], y.shape[1]))
+    y_1hot[1, :, :][y == 1] = 1
+    y_1hot[0, :, :][y == 0] = 1
+
+    # predictions p to one hot encoding
+    p_1hot = np.zeros((2, p.shape[0], p.shape[1]))
+    p_1hot[1, :, :][p.squeeze().round() == 1] = 1
+    p_1hot[0, :, :][p.squeeze().round() == 0] = 1
+    
+    return p_1hot, y_1hot
+
+
 def adjust_learning_rate(optimizer, epoch, drop, base_learning_rate):
     """decrease the learning rate at <drop> epoch"""
     lr = base_learning_rate
