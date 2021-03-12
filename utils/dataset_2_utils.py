@@ -83,7 +83,7 @@ def resize(image, pct):
     return cv.resize(image, (width, height))  # resize image
 
 
-def colour_fmt_crop_and_resize(x, y, seek_y, scale_percent=125):
+def colour_fmt_crop_and_resize(x, y, seek_x, seek_y, scale_percent=125):
     """
     Resize, and change color format
     x - input image (BGR fmt)
@@ -93,7 +93,7 @@ def colour_fmt_crop_and_resize(x, y, seek_y, scale_percent=125):
     x = cv.cvtColor(x, cv.COLOR_BGR2RGB)
     y = cv.cvtColor(y, cv.COLOR_BGR2RGB)
 
-    x = x[seek_y:, :, :]
+    x = x[seek_x:, :, :]
     y = y[seek_y:, :, :]
 
     width = int(x.shape[1] * scale_percent / 100)
