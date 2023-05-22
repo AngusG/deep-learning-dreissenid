@@ -26,8 +26,8 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 # import an off-the-shelf model for now
-from torchvision.models import segmentation as models
-#from models import segmentation as models
+#from torchvision.models import segmentation as models
+from models import segmentation as models
 
 #from unet import UNet
 #import pytorch_unet
@@ -85,14 +85,14 @@ if __name__ == '__main__':
     parser.add_argument('--bs', help='SGD mini-batch size',
                         type=int, default=40)
     parser.add_argument('--lr', help='initial learning rate',
-                        type=float, default=1e-3)
+                        type=float, default=1e-1)
     parser.add_argument('--wd', help='weight decay regularization',
                         type=float, default=5e-4)
     parser.add_argument('--bilinear', help='bilinear upsampling or transposed \
                         convolution', action="store_true")
     parser.add_argument('--fp16', help='use apex to train with fp16 parameters',
                         action="store_true")
-    #parser.add_argument('--tag', help='custom tag to ID debug runs')
+    parser.add_argument('--tag', help='custom tag to ID debug runs')
 
 
     args = parser.parse_args()
@@ -112,11 +112,12 @@ if __name__ == '__main__':
     save_path = osp.join(
         args.logdir,
         args.split + '_' + args.data_version,
-        args.arch + '/lr%.e/wd%.e/bs%d/ep%d/seed%d/%s' % (args.lr, args.wd,
+        args.arch + '/lr%.e/wd%.e/bs%d/ep%d/seed%d/%s/%s' % (args.lr, args.wd,
                                                              args.bs,
                                                              args.epochs,
                                                              args.seed,
-                                                             gitcommit))
+                                                             gitcommit, 
+                                                             args.tag))
     print('Saving model to ', save_path)
 
     ckpt_name = args.arch + '_lr%.e_wd%.e_bs%d_ep%d_seed%d' % (args.lr, args.wd, args.bs, args.epochs, args.seed)

@@ -57,6 +57,7 @@ class FixupBasicBlock(nn.Module):
         self.bias2a = nn.Parameter(torch.zeros(1))
         self.conv2 = conv3x3(planes, planes)
         self.scale = nn.Parameter(torch.ones(1))
+        #self.scale = nn.Parameter(torch.zeros(1))
         self.bias2b = nn.Parameter(torch.zeros(1))
         self.downsample = downsample
         self.stride = stride
@@ -106,6 +107,7 @@ class FixupBottleneck(nn.Module):
         self.bias3a = nn.Parameter(torch.zeros(1))
         self.conv3 = conv1x1(width, planes * self.expansion)
         self.scale = nn.Parameter(torch.ones(1)) # Fixup
+        #self.scale = nn.Parameter(torch.zeros(1)) # Delete skip connection
         self.bias3b = nn.Parameter(torch.zeros(1))
 
         self.relu = nn.ReLU(inplace=True)
@@ -254,7 +256,6 @@ class FixupResNet(nn.Module):
         # See note [TorchScript super()]
 
         # per_image_standardization
-        '''
         x_mean = x.mean(dim=(1,2,3), keepdim=True)
         variance = x**2 - x_mean**2
         variance = self.relu(variance)
@@ -262,8 +263,12 @@ class FixupResNet(nn.Module):
         min_stddev = torch.rsqrt(
             torch.prod(torch.FloatTensor([x.size()[1:]]))).cuda()
         pixel_value_scale = torch.max(stddev, min_stddev)
+        '''
+        # per_pixel_standardization
+        x_mean = x.mean(dim=0, keepdim=True)
+        pixel_value_scale = x.std(dim=0, keepdim=True)
         x = x - x_mean
-        x = x / pixel_value_scale
+        x = x / (pixel_value_scale + 1e-4)
         '''
         # end normalization
 
